@@ -831,14 +831,10 @@
         async function cargarDatos() {
             // Cargar estado de la conexión
             const statusLabel = document.getElementById("connection-status");
-            if (supabase && supabase.auth) {
-                statusLabel.innerHTML = `Supabase Conectado`;
+            if (statusLabel) {
+                statusLabel.innerHTML = `<i data-lucide="cloud-check" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Base de Datos en Línea`;
                 statusLabel.style.color = "var(--color-primary)";
                 statusLabel.style.background = "rgba(0, 255, 135, 0.1)";
-            } else {
-                statusLabel.innerHTML = `Modo Local`;
-                statusLabel.style.color = "var(--color-warning)";
-                statusLabel.style.background = "rgba(255, 211, 42, 0.1)";
             }
 
             // Cargar Campeonato y Configuración
