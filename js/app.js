@@ -1,86 +1,141 @@
 /* ==========================================================================
-   CONEXIÓN CON SUPABASE Y UTILIDADES GLOBALES - QFUTBOL
+   CONEXIÓN EN LÍNEA CON NEON POSTGRESQL Y UTILIDADES GLOBALES - QFUTBOL
    ========================================================================== */
 
-let supabaseClient = null;
-
-// Inicialización del cliente Supabase
-function inicializarSupabase() {
-    if (typeof window.supabase === 'undefined' || typeof window.supabase.createClient !== 'function') {
-        console.warn("La librería Supabase CDN no ha cargado correctamente.");
-        window.supabase = null;
-        return false;
-    }
-
-    if (SUPABASE_URL === "TU_SUPABASE_URL" || SUPABASE_ANON_KEY === "TU_SUPABASE_ANON_KEY") {
-        console.log("Credenciales de Supabase por defecto detectadas. Usando modo MOCK_DATA.");
-        window.supabase = null;
-        return false;
+// Función principal para ejecutar consultas SQL directamente en Neon PostgreSQL sobre HTTP
+async function neonQuery(sql, params = []) {
+    if (typeof NEON_HTTP_ENDPOINT === 'undefined' || !NEON_HTTP_ENDPOINT) {
+        console.warn("NEON_HTTP_ENDPOINT no está configurado.");
+        return null;
     }
 
     try {
-        // Usar window.supabase para referirse a la librería CDN y crear la instancia del cliente
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        supabaseClient = client;
-        window.supabase = client; // Exponer el cliente al ámbito global
-        console.log("Supabase inicializado correctamente.");
-        return true;
+        const response = await fetch(NEON_HTTP_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Neon-Connection-String': NEON_DB_URL
+            },
+            body: JSON.stringify({ query: sql, params })
+        });
+
+        const data = await response.json();
+        if (data.rows) {
+            return data.rows;
+        } else if (data.message) {
+            console.error("Error en consulta Neon SQL:", data.message, "SQL:", sql);
+            return null;
+        }
+        return [];
     } catch (error) {
-        console.error("Error al inicializar Supabase:", error);
-        window.supabase = null;
-        return false;
+        console.error("Error de conexión con Neon PostgreSQL:", error);
+        return null;
     }
 }
 
-// Inicializar al cargar el script
-document.addEventListener("DOMContentLoaded", () => {
-    inicializarSupabase();
-});
+// Mapeo de tablas lógicas a físicas en PostgreSQL
+function getRemoteTableName(tableName) {
+    if (tableName === "jugadores") {
+        return "jugadores_globales";
+    }
+    return tableName;
+}
 
 // ==========================================================================
-// CAPA DE DATOS MOCK (Para pruebas sin conexión a Supabase)
+// CAPA DE ACCESO A DATOS EN LÍNEA (NEON POSTGRESQL) CON FALLBACK MOCK
+// ==========================================================================
+
+async function dbGetTable(tableName) {
+    if (typeof NEON_HTTP_ENDPOINT !== 'undefined' && NEON_HTTP_ENDPOINT) {
+        const remoteTable = getRemoteTableName(tableName);
+        const rows = await neonQuery(`SELECT * FROM ${remoteTable}`);
+        if (rows !== null) {
+            return rows;
+        }
+    }
+
+    // Fallback Mock en memoria / localStorage si falla la conexión
+    const localDb = getMockDB();
+    return localDb[tableName] || [];
+}
+
+async function dbInsertRow(tableName, rowData) {
+    if (typeof NEON_HTTP_ENDPOINT !== 'undefined' && NEON_HTTP_ENDPOINT) {
+        const remoteTable = getRemoteTableName(tableName);
+        const keys = Object.keys(rowData);
+        const values = Object.values(rowData);
+        const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+        const sql = `INSERT INTO ${remoteTable} (${keys.join(", ")}) VALUES (${placeholders}) RETURNING *`;
+        
+        const rows = await neonQuery(sql, values);
+        if (rows && rows.length > 0) {
+            return rows[0];
+        }
+    }
+
+    // Fallback Mock
+    const localDb = getMockDB();
+    if (!localDb[tableName]) localDb[tableName] = [];
+    
+    const newRow = { id: genRandomId(), ...rowData };
+    localDb[tableName].push(newRow);
+    saveMockDB(localDb);
+    return newRow;
+}
+
+async function dbUpdateRow(tableName, id, rowData) {
+    if (typeof NEON_HTTP_ENDPOINT !== 'undefined' && NEON_HTTP_ENDPOINT) {
+        const remoteTable = getRemoteTableName(tableName);
+        const keys = Object.keys(rowData);
+        const values = Object.values(rowData);
+        const setClauses = keys.map((key, i) => `${key} = $${i + 1}`).join(", ");
+        values.push(id);
+        const sql = `UPDATE ${remoteTable} SET ${setClauses} WHERE id = $${keys.length + 1} RETURNING *`;
+        
+        const rows = await neonQuery(sql, values);
+        if (rows && rows.length > 0) {
+            return rows[0];
+        }
+    }
+
+    // Fallback Mock
+    const localDb = getMockDB();
+    if (localDb[tableName]) {
+        const idx = localDb[tableName].findIndex(r => r.id === id);
+        if (idx !== -1) {
+            localDb[tableName][idx] = { ...localDb[tableName][idx], ...rowData };
+            saveMockDB(localDb);
+            return localDb[tableName][idx];
+        }
+    }
+    return null;
+}
+
+async function dbDeleteRow(tableName, id) {
+    if (typeof NEON_HTTP_ENDPOINT !== 'undefined' && NEON_HTTP_ENDPOINT) {
+        const remoteTable = getRemoteTableName(tableName);
+        const sql = `DELETE FROM ${remoteTable} WHERE id = $1`;
+        await neonQuery(sql, [id]);
+    }
+
+    // Fallback Mock
+    const localDb = getMockDB();
+    if (localDb[tableName]) {
+        localDb[tableName] = localDb[tableName].filter(r => r.id !== id);
+        saveMockDB(localDb);
+    }
+}
+
+function genRandomId() {
+    return Math.random().toString(36).substring(2, 9);
+}
+
+// ==========================================================================
+// CAPA DE DATOS MOCK SECUNDARIA (FALLBACK OFFLINE)
 // ==========================================================================
 const MOCK_DB = {
-    perfiles: [
-        { id: "1", nombres: "Juan", apellidos: "Lozano", rol: "admin" },
-        { id: "2", nombres: "Pedro", apellidos: "Vargas", rol: "organizador" },
-        { id: "3", nombres: "Carlos", apellidos: "Mena", rol: "vocal" }
-    ],
-    campeonatos: [
-        {
-            id: "c1",
-            nombre: "Torneo Nocturno de Barrio La Floresta",
-            organizador_id: "2",
-            estado: "registro",
-            sistema_juego: "todos_contra_todos",
-            limite_pago_inscripcion: "2026-08-30",
-            costo_inscripcion: 3.00,
-            garantia_disciplina: 10.00,
-            multa_amarilla: 1.00,
-            multa_roja_doble: 2.50,
-            multa_roja_directa: 5.00,
-            amarillas_suspension: 5,
-            barrio_sector: "La Floresta, Quito",
-            pais: "Ecuador",
-            provincia: "Pichincha",
-            canton: "Quito",
-            ciudad: "Quito",
-            parroquia: "La Floresta",
-            divisa: "USD",
-            duracion_estimada_meses: 3,
-            canchas_nombres: "Cancha Principal, Coliseo Cerrado",
-            banco_nombre: "Banco Pichincha",
-            banco_tipo_cuenta: "Ahorros",
-            banco_numero_cuenta: "2200456789",
-            banco_titular: "QFutbol Liga Barrial",
-            banco_titular_identificacion: "1712345678",
-            banco_telefono_reporte: "0991234567",
-            costo_arbitraje: 10.00,
-            costo_vocalia: 5.00,
-            pago_plataforma_realizado: false,
-            monto_pago_plataforma: 0.00
-        }
-    ],
+    perfiles: [],
+    campeonatos: [],
     categorias: [],
     equipos: [],
     jugadores: [],
@@ -91,7 +146,6 @@ const MOCK_DB = {
     detalles_partido: []
 };
 
-// Memoria fallback en caso de que localStorage esté bloqueado por restricciones del navegador (ej. file://)
 if (!window.qfutbol_mem_db) {
     window.qfutbol_mem_db = MOCK_DB;
 }
@@ -101,7 +155,7 @@ function getMockDB() {
         const data = localStorage.getItem("qfutbol_mock_db");
         if (data) return JSON.parse(data);
     } catch (e) {
-        console.warn("localStorage no disponible, usando base en memoria:", e);
+        console.warn("localStorage no disponible:", e);
     }
     return window.qfutbol_mem_db;
 }
@@ -111,59 +165,13 @@ function saveMockDB(db) {
     try {
         localStorage.setItem("qfutbol_mock_db", JSON.stringify(db));
     } catch (e) {
-        console.warn("No se pudo guardar en localStorage, guardado en memoria:", e);
+        console.warn("No se pudo guardar en localStorage:", e);
     }
 }
 
-// Sobrescribimos el localStorage para que los datos nuevos con inscripciones_equipo y cédulas se apliquen de inmediato
-saveMockDB(MOCK_DB);
-
-// Función para mapear nombres de tablas lógicas a las físicas de Supabase
-function getRemoteTableName(tableName) {
-    if (tableName === "jugadores") {
-        return "jugadores_globales";
-    }
-    return tableName;
-}
-
-// Función auxiliar para obtener datos (Supabase o LocalStorage Fallback)
-async function dbGetTable(tableName) {
-    if (supabaseClient && supabaseClient.auth) {
-        const remoteTable = getRemoteTableName(tableName);
-        const { data, error } = await supabaseClient.from(remoteTable).select("*");
-        if (!error) return data;
-        console.error(`Error al leer tabla ${remoteTable}:`, error);
-    }
-    
-    // Fallback Mock seguro
-    const localDb = getMockDB();
-    return localDb[tableName] || [];
-}
-
-// Función auxiliar para insertar datos
-async function dbInsertRow(tableName, rowData) {
-    if (supabaseClient && supabaseClient.auth) {
-        const remoteTable = getRemoteTableName(tableName);
-        const { data, error } = await supabaseClient.from(remoteTable).insert([rowData]).select();
-        if (!error) return data[0];
-        console.error(`Error al insertar en ${remoteTable}:`, error);
-    }
-    
-    // Fallback Mock seguro
-    const localDb = getMockDB();
-    if (!localDb[tableName]) localDb[tableName] = [];
-    
-    const newRow = { id: genRandomId(), ...rowData };
-    localDb[tableName].push(newRow);
-    saveMockDB(localDb);
-    return newRow;
-}
-
-function genRandomId() {
-    return Math.random().toString(36).substring(2, 9);
-}
-
-// Función para calcular dinámicamente el estado financiero de un equipo
+// ==========================================================================
+// CÁLCULO FINANCIERO DINÁMICO DE EQUIPOS (EN LÍNEA)
+// ==========================================================================
 async function calcularFinanzasEquipo(equipoId) {
     const cacheEquipos = await dbGetTable("equipos");
     const cachePartidos = await dbGetTable("partidos");
