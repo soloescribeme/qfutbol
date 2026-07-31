@@ -155,9 +155,30 @@
                 </div>
             </div>
 
+            <!-- NAVEGACIÓN Y VERIFICACIÓN RÁPIDA DE MÓDULOS PARA EL ADMIN -->
+            <div class="glass-panel" style="padding:14px 18px; margin-bottom:20px; border:1px solid rgba(125,95,255,0.3); background:rgba(125,95,255,0.06); border-radius:var(--radius-sm);">
+                <div style="font-weight:700; font-size:0.88rem; color:var(--color-secondary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                    <i data-lucide="eye" style="width:16px;height:16px;"></i> Accesos Rápidos de Verificación Puntual:
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="switchTab('campeonato')" style="font-size:0.82rem; padding:6px 14px; border-color:var(--color-secondary); color:var(--color-secondary); font-weight:600;">
+                        <i data-lucide="shield" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Ir a Panel de Organizador (Torneo)
+                    </button>
+                    <a href="vocal.html" class="btn btn-secondary" style="font-size:0.82rem; padding:6px 14px; border-color:var(--color-primary); color:var(--color-primary); font-weight:600; text-decoration:none;">
+                        <i data-lucide="clipboard-list" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Verificar Módulo Vocal
+                    </a>
+                    <a href="portal_jugadores.html" class="btn btn-secondary" style="font-size:0.82rem; padding:6px 14px; border-color:var(--color-accent); color:var(--color-accent); font-weight:600; text-decoration:none;">
+                        <i data-lucide="user" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Verificar Portal Jugador
+                    </a>
+                    <a href="jugadores.html" class="btn btn-secondary" style="font-size:0.82rem; padding:6px 14px; border-color:var(--color-warning); color:var(--color-warning); font-weight:600; text-decoration:none;">
+                        <i data-lucide="search" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Buscador Global
+                    </a>
+                </div>
+            </div>
+
             <div style="background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:12px 16px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
                 <i data-lucide="info" style="color:var(--color-primary); width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:6px;"></i>
-                <strong>Administración de la App:</strong> Este módulo está destinado exclusivamente a la gestión global de QFutbol (cobros de licencias de $1.00 USD/equipo, auditoría de métricas y estado del sistema). La creación y configuración de campeonatos se realiza únicamente desde el <strong>Panel del Organizador</strong> (pestaña <em>Configuración</em>).
+                <strong>Administración de la App:</strong> Este módulo está destinado exclusivamente a la gestión global de QFutbol (cobros de licencias de $1.00 USD/equipo, auditoría de métricas y estado del sistema). Las opciones del Organizador (<em>Configuración, Categorías, Equipos, Auspiciantes, Fixture, Finanzas</em>) están en su propio panel del torneo.
             </div>
 
             <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN (COMPACTAS) -->
