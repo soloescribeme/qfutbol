@@ -70,7 +70,11 @@
                 <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 45px; border-radius: var(--radius-sm); object-fit: cover;">
                 <span style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
             </div>
-            <nav style="display: flex; gap: 20px; align-items: center;">
+            <nav style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <span id="lbl-user-welcome-index" style="display:none; font-weight:700; color:var(--color-primary); font-size:0.95rem;"></span>
+                <a id="btn-admin-panel-index" href="dashboard.html" style="display:none; background:rgba(0, 255, 135, 0.15); border:1px solid var(--color-primary); color:var(--color-primary); font-weight:700; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; font-size:0.9rem;">
+                    <i data-lucide="shield-check" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Panel de Administración Principal
+                </a>
                 <a href="#caracteristicas" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Características</a>
                 <a href="portal_jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Portal Jugadores</a>
                 <a href="jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Buscador Global</a>
@@ -95,14 +99,14 @@
                 Gestión financiera, fixtures automáticos por grupos, planillas de vocal offline y estadísticas avanzadas para tu liga de fútbol barrial.
             </p>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <a href="#login" class="btn btn-primary">
-                    <i data-lucide="log-in"></i> Iniciar Sesión / Registro
-                </a>
+                <button type="button" onclick="selectRoleAndAuth('organizador')" class="btn btn-primary">
+                    <i data-lucide="shield"></i> Entrar como Organizador
+                </button>
+                <button type="button" onclick="selectRoleAndAuth('vocal')" class="btn btn-primary" style="background: var(--grad-secondary); color: #ffffff; border:none; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);">
+                    <i data-lucide="clipboard-list"></i> Como Vocal
+                </button>
                 <a href="portal_jugadores.html" class="btn btn-primary" style="background: var(--grad-accent); color: var(--text-main); box-shadow: 0 4px 15px rgba(125, 95, 255, 0.3);">
-                    <i data-lucide="user"></i> Portal de Jugadores
-                </a>
-                <a href="jugadores.html" class="btn btn-secondary">
-                    <i data-lucide="search"></i> Buscador de Jugadores
+                    <i data-lucide="user"></i> Como Jugador
                 </a>
             </div>
         </section>
@@ -365,7 +369,36 @@
             }
         }
 
+        function selectRoleAndAuth(role) {
+            switchAuthTab('register');
+            const select = document.getElementById("reg-rol");
+            if (select) select.value = role;
+            const loginSec = document.getElementById("login");
+            if (loginSec) loginSec.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function verificarSesionPaginaPrincipal() {
+            try {
+                const stored = sessionStorage.getItem("qfutbol_user_session");
+                if (stored) {
+                    const sessionUser = JSON.parse(stored);
+                    const welcomeLbl = document.getElementById("lbl-user-welcome-index");
+                    const btnAdminNav = document.getElementById("btn-admin-panel-index");
+
+                    if (welcomeLbl && sessionUser.nombres) {
+                        welcomeLbl.style.display = "inline-block";
+                        welcomeLbl.innerText = `Hola, ${sessionUser.nombres} ${sessionUser.apellidos || ''} 👋`;
+                    }
+
+                    if (btnAdminNav && (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin")) {
+                        btnAdminNav.style.display = "inline-flex";
+                    }
+                }
+            } catch(e){}
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
+            verificarSesionPaginaPrincipal();
             await cargarEstadisticasLanding();
             lucide.createIcons();
 

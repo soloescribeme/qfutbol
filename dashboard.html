@@ -103,6 +103,7 @@
                 <span style="color: var(--text-muted); font-size: 0.9rem; border-left: 1px solid var(--border-glass); padding-left: 12px; margin-left: 4px;">Organizador</span>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
+                <span id="lbl-user-welcome-dashboard" style="display:none; font-weight:700; color:var(--color-primary); font-size:0.95rem;"></span>
                 <span id="connection-status" class="player-score" style="background: rgba(255, 211, 42, 0.1); color: var(--color-warning);">Modo Local</span>
                 <a href="index.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
                     <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Salir
@@ -154,58 +155,58 @@
                 </div>
             </div>
 
-            <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN -->
-            <div class="metrics-grid" style="margin-bottom:30px; display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px;">
-                <div class="metric-card" style="border: 1px solid rgba(0, 255, 135, 0.2);">
-                    <i data-lucide="trophy" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Campeonatos Vigentes</div>
-                    <div id="admin-metric-campeonatos" class="metric-value" style="color: var(--color-primary);">0</div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('campeonatos')">
+            <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN (COMPACTAS) -->
+            <div class="metrics-grid" style="margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(0, 255, 135, 0.2);">
+                    <i data-lucide="trophy" style="color: var(--color-primary); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Campeonatos Vigentes</div>
+                    <div id="admin-metric-campeonatos" class="metric-value" style="color: var(--color-primary); font-size:1.3rem;">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('campeonatos')">
                         <i data-lucide="list"></i> Ver Listado
                     </button>
                 </div>
 
-                <div class="metric-card" style="border: 1px solid rgba(125, 95, 255, 0.2);">
-                    <i data-lucide="users" style="color: var(--color-secondary); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Equipos Inscritos</div>
-                    <div id="admin-metric-equipos" class="metric-value" style="color: var(--color-secondary);">0</div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('equipos')">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(125, 95, 255, 0.2);">
+                    <i data-lucide="users" style="color: var(--color-secondary); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Equipos Inscritos</div>
+                    <div id="admin-metric-equipos" class="metric-value" style="color: var(--color-secondary); font-size:1.3rem;">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('equipos')">
                         <i data-lucide="list"></i> Ver Listado
                     </button>
                 </div>
 
-                <div class="metric-card" style="border: 1px solid rgba(0, 210, 255, 0.2);">
-                    <i data-lucide="user-check" style="color: var(--color-accent); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Jugadores Activos</div>
-                    <div id="admin-metric-jugadores" class="metric-value" style="color: var(--color-accent);">0</div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('jugadores')">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(0, 210, 255, 0.2);">
+                    <i data-lucide="user-check" style="color: var(--color-accent); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Jugadores Activos</div>
+                    <div id="admin-metric-jugadores" class="metric-value" style="color: var(--color-accent); font-size:1.3rem;">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('jugadores')">
                         <i data-lucide="list"></i> Ver Listado
                     </button>
                 </div>
 
-                <div class="metric-card" style="border: 1px solid rgba(255, 211, 42, 0.2);">
-                    <i data-lucide="award" style="color: var(--color-warning); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Historial de Campeonatos</div>
-                    <div id="admin-metric-historial" class="metric-value" style="color: var(--color-warning);">0</div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('historial')">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(255, 211, 42, 0.2);">
+                    <i data-lucide="award" style="color: var(--color-warning); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Historial Campeonatos</div>
+                    <div id="admin-metric-historial" class="metric-value" style="color: var(--color-warning); font-size:1.3rem;">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('historial')">
                         <i data-lucide="history"></i> Ver Histórico
                     </button>
                 </div>
 
-                <div class="metric-card" style="border: 1px solid rgba(255, 77, 77, 0.2);">
-                    <i data-lucide="clock" style="color: var(--color-danger); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Cobros por Confirmar</div>
-                    <div id="admin-metric-cobros-pendientes" class="metric-value" style="color: var(--color-danger);">0</div>
-                    <button type="button" class="btn btn-primary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('cobros_confirmar')">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(255, 77, 77, 0.2);">
+                    <i data-lucide="clock" style="color: var(--color-danger); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Cobros por Confirmar</div>
+                    <div id="admin-metric-cobros-pendientes" class="metric-value" style="color: var(--color-danger); font-size:1.3rem;">0</div>
+                    <button type="button" class="btn btn-primary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('cobros_confirmar')">
                         <i data-lucide="check-circle"></i> Gestionar Cobros
                     </button>
                 </div>
 
-                <div class="metric-card" style="border: 1px solid rgba(0, 255, 135, 0.2);">
-                    <i data-lucide="dollar-sign" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Cobros Realizados (App)</div>
-                    <div id="admin-metric-cobros-realizados" class="metric-value" style="color: var(--color-primary);">$0.00</div>
-                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('cobros_realizados')">
+                <div class="metric-card" style="padding:10px 12px; border:1px solid rgba(0, 255, 135, 0.2);">
+                    <i data-lucide="dollar-sign" style="color: var(--color-primary); width: 18px; height: 18px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 3px;">Cobros Realizados</div>
+                    <div id="admin-metric-cobros-realizados" class="metric-value" style="color: var(--color-primary); font-size:1.3rem;">$0.00</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.7rem; padding:4px 8px; margin-top:6px; width:100%;" onclick="abrirModalAdmin('cobros_realizados')">
                         <i data-lucide="dollar-sign"></i> Ver Cobros
                     </button>
                 </div>
@@ -920,6 +921,12 @@
                 const stored = sessionStorage.getItem("qfutbol_user_session");
                 if (stored) sessionUser = JSON.parse(stored);
             } catch(e){}
+
+            const welcomeLbl = document.getElementById("lbl-user-welcome-dashboard");
+            if (welcomeLbl && sessionUser.nombres) {
+                welcomeLbl.style.display = "inline-block";
+                welcomeLbl.innerText = `Hola, ${sessionUser.nombres} 👋`;
+            }
 
             const isAdmin = (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin");
             const btnAdmin = document.getElementById("btn-tab-admin");
