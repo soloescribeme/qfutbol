@@ -187,6 +187,10 @@
                         <input class="form-input" type="text" id="reg-apellidos" placeholder="Ej. Pérez" required>
                     </div>
                     <div class="form-group">
+                        <label class="form-label" for="reg-cedula">Número de Cédula</label>
+                        <input class="form-input" type="text" id="reg-cedula" placeholder="Ej. 1104567890" required>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label" for="reg-email">Correo Electrónico</label>
                         <input class="form-input" type="email" id="reg-email" placeholder="correo@ejemplo.com" required>
                     </div>
@@ -357,11 +361,24 @@
                         nombres = userMatch.nombres;
                         apellidos = userMatch.apellidos;
                     } else {
-                        const nombreInput = prompt(`Es tu primer ingreso con ${providerName}. Ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
+                        const nombreInput = prompt(`Es tu primer ingreso con ${providerName}. Por favor ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
                         if (!nombreInput) return;
                         const partes = nombreInput.trim().split(" ");
                         nombres = partes[0] || "Usuario";
                         apellidos = partes.slice(1).join(" ") || providerName;
+
+                        const rolInput = prompt(`Selecciona tu rol de usuario en QFutbol:\n1 - Organizador (Crear/Gestionar Campeonatos)\n2 - Vocal de Mesa\n3 - Jugador`, "1");
+                        if (rolInput === "2") rol = "vocal";
+                        else if (rolInput === "3") rol = "jugador";
+                        else rol = "organizador";
+
+                        // Guardar nuevo usuario social en la base de datos perfiles
+                        await dbInsertRow("perfiles", {
+                            nombres,
+                            apellidos,
+                            email,
+                            rol
+                        });
                     }
                 } catch(e){}
             }
@@ -439,78 +456,133 @@
             await cargarEstadisticasLanding();
             lucide.createIcons();
 
-            // Manejo de Formulario de Inicio de Sesión con Email
+            // Manejo de Formulario de Inicio de Sesión con Email o Cédula
             document.getElementById("login-email-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const email = document.getElementById("login-email").value.trim().toLowerCase();
+                const emailOrCedula = document.getElementById("login-email").value.trim().toLowerCase();
                 const password = document.getElementById("login-password").value;
 
-                if (!email || !password) {
-                    alert("Por favor ingresa tu correo y contraseña.");
+                if (!emailOrCedula || !password) {
+                    alert("Por favor ingresa tu correo electrónico / cédula y contraseña.");
                     return;
                 }
 
-                let rol = "organizador";
-                let nombres = "Usuario";
-                let apellidos = "QFutbol";
+                let sessionUser = null;
 
-                // Reconocimiento del Administrador por el administrador de la app Qfutbol
-                if (email === "soloescribeme@gmail.com") {
-                    rol = "admin";
-                    nombres = "Luis Antonio";
-                    apellidos = "Lozano Lozano";
+                // 1. Acceso Máster para el Administrador del Sistema
+                if (emailOrCedula === "soloescribeme@gmail.com") {
+                    sessionUser = {
+                        id: "admin_master",
+                        nombres: "Luis Antonio",
+                        apellidos: "Lozano Lozano",
+                        email: "soloescribeme@gmail.com",
+                        rol: "admin"
+                    };
                 } else {
-                    // Verificar si existe en la base de datos de perfiles
+                    // 2. Verificación estricta en la tabla de perfiles en la base de datos
                     try {
                         const perfiles = await dbGetTable("perfiles");
-                        const userMatch = perfiles.find(p => p.email && p.email.toLowerCase() === email);
-                        if (userMatch) {
-                            rol = userMatch.rol || "organizador";
-                            nombres = userMatch.nombres;
-                            apellidos = userMatch.apellidos;
+                        const match = (perfiles || []).find(p => 
+                            (p.email && p.email.toLowerCase() === emailOrCedula) || 
+                            (p.cedula && p.cedula.trim() === emailOrCedula)
+                        );
+
+                        if (!match) {
+                            alert("❌ El correo o cédula ingresado no se encuentra registrado en el sistema.\nPor favor crea tu cuenta en la pestaña 'Registrarse'.");
+                            return;
                         }
+
+                        // Verificar contraseña si está configurada en la cuenta
+                        if (match.password && match.password !== password) {
+                            alert("❌ Contraseña incorrecta. Por favor verifica tus credenciales.");
+                            return;
+                        }
+
+                        sessionUser = {
+                            id: match.id,
+                            nombres: match.nombres,
+                            apellidos: match.apellidos,
+                            email: match.email || emailOrCedula,
+                            cedula: match.cedula || null,
+                            rol: match.rol || "organizador"
+                        };
                     } catch (err) {
-                        console.error("Error al verificar perfil:", err);
+                        console.error("Error en validación de usuario:", err);
+                        alert("Error al verificar credenciales: " + err.message);
+                        return;
                     }
                 }
 
-                const userSession = { email, nombres, apellidos, rol };
-                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
-            localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(sessionUser));
+                localStorage.setItem("qfutbol_user_session", JSON.stringify(sessionUser));
 
-                if (rol === "admin" || rol === "organizador") {
+                alert(`¡Sesión iniciada con éxito!\nBienvenido ${sessionUser.nombres} ${sessionUser.apellidos}.`);
+                verificarSesionPaginaPrincipal();
+
+                // Redirección según rol
+                if (sessionUser.rol === "admin" || sessionUser.rol === "organizador") {
                     window.location.href = "dashboard.html";
-                } else if (rol === "vocal") {
+                } else if (sessionUser.rol === "vocal") {
                     window.location.href = "vocal.html";
-                } else if (rol === "jugador") {
+                } else if (sessionUser.rol === "jugador") {
                     window.location.href = "portal_jugadores.html";
                 }
             });
 
-            // Manejo de Formulario de Registro por Correo
+            // Manejo de Formulario de Registro de Usuario
             document.getElementById("register-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const nombres = document.getElementById("reg-nombres").value.trim();
                 const apellidos = document.getElementById("reg-apellidos").value.trim();
+                const cedula = document.getElementById("reg-cedula").value.trim();
                 const email = document.getElementById("reg-email").value.trim().toLowerCase();
                 const password = document.getElementById("reg-password").value;
                 let rol = document.getElementById("reg-rol").value;
 
-                // Asignar Admin automático solo si es el correo del dueño
+                if (!nombres || !apellidos || !email || !password) {
+                    alert("Por favor completa todos los campos requeridos.");
+                    return;
+                }
+
+                // Asignar rol Admin automático al correo del propietario
                 if (email === "soloescribeme@gmail.com") {
                     rol = "admin";
                 }
 
                 try {
-                    await dbInsertRow("perfiles", {
+                    const perfiles = await dbGetTable("perfiles");
+                    const existe = (perfiles || []).find(p => (p.email && p.email.toLowerCase() === email) || (cedula && p.cedula === cedula));
+                    
+                    if (existe) {
+                        alert("Atención: El correo electrónico o número de cédula ya está registrado. Por favor inicia sesión en 'Acceder'.");
+                        switchAuthTab('login');
+                        return;
+                    }
+
+                    const nuevoPerfil = {
                         nombres,
                         apellidos,
+                        cedula: cedula || null,
+                        email,
+                        password,
+                        rol
+                    };
+
+                    const result = await dbInsertRow("perfiles", nuevoPerfil);
+                    const userSession = {
+                        id: result?.id || "usr_" + Math.random().toString(36).substring(2, 9),
+                        nombres,
+                        apellidos,
+                        cedula,
                         email,
                         rol
-                    });
-                    alert(`¡Cuenta creada con éxito! Bienvenido ${nombres} ${apellidos}.`);
-                    sessionStorage.setItem("qfutbol_user_session", JSON.stringify({ nombres, apellidos, email, rol }));
-                    localStorage.setItem("qfutbol_user_session", JSON.stringify({ nombres, apellidos, email, rol }));
+                    };
+
+                    sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+                    localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+                    alert(`¡Cuenta de ${rol.toUpperCase()} creada exitosamente!\nBienvenido ${nombres} ${apellidos}.`);
+                    verificarSesionPaginaPrincipal();
 
                     if (rol === "admin" || rol === "organizador") {
                         window.location.href = "dashboard.html";
