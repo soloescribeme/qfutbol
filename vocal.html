@@ -298,6 +298,15 @@
             const partidos = await dbGetTable("partidos");
             partidoSeleccionado = partidos.find(p => p.id === partidoId);
             
+            // Verificar si el torneo está autorizado y habilitado por el administrador de la app Qfutbol
+            const campeonatos = await dbGetTable("campeonatos");
+            const configCamp = campeonatos.find(c => c.id === partidoSeleccionado.campeonato_id) || campeonatos[0] || {};
+            if (configCamp && configCamp.pago_plataforma_realizado === false) {
+                alert("Encuentro Deportivo Bloqueado: La realización de encuentros deportivos y el registro de vocalías se encuentran deshabilitados hasta que el pago de la licencia ($1.00 USD por equipo a la cuenta de ahorros) sea verificado y confirmado por el administrador de la app Qfutbol.");
+                container.style.display = "none";
+                return;
+            }
+
             const equipos = await dbGetTable("equipos");
             equipoLocal = equipos.find(e => e.id === partidoSeleccionado.equipo_local_id);
             equipoVisitante = equipos.find(e => e.id === partidoSeleccionado.equipo_visitante_id);

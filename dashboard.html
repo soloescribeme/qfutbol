@@ -136,12 +136,96 @@
 
         <!-- TABS DE NAVEGACIÓN -->
         <div class="tabs-header">
+            <button id="btn-tab-admin" class="tab-btn" onclick="switchTab('admin')" style="background:rgba(0, 255, 135, 0.12); border:1px solid var(--color-primary); color:var(--color-primary); font-weight:700;"><i data-lucide="shield-check" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Panel Admin QFutbol</button>
             <button class="tab-btn active" onclick="switchTab('campeonato')"><i data-lucide="settings" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Configuración</button>
             <button class="tab-btn" onclick="switchTab('categorias')"><i data-lucide="layers" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Categorías</button>
             <button class="tab-btn" onclick="switchTab('equipos')"><i data-lucide="users" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Equipos</button>
             <button class="tab-btn" onclick="switchTab('auspiciantes')"><i data-lucide="image" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Auspiciantes</button>
             <button class="tab-btn" onclick="switchTab('calendario')"><i data-lucide="calendar-days" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Fixture / Jornadas</button>
             <button class="tab-btn" onclick="switchTab('finanzas')"><i data-lucide="wallet" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Finanzas y Abonos</button>
+        </div>
+
+        <!-- TAB: PANEL ADMINISTRADOR QFUTBOL -->
+        <div id="tab-admin" class="tab-content glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <h2 style="font-size: 1.5rem;"><i data-lucide="shield-check" style="color:var(--color-primary);"></i> Panel de Administración Global QFutbol</h2>
+                <div style="background:rgba(125,95,255,0.15); color:var(--color-secondary); padding:8px 14px; border-radius:var(--radius-sm); border:1px solid rgba(125,95,255,0.3); font-size:0.85rem; font-weight:600;">
+                    <i data-lucide="user-check" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Propietario: Luis Antonio Lozano Lozano (soloescribeme@gmail.com)
+                </div>
+            </div>
+
+            <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN -->
+            <div class="metrics-grid" style="margin-bottom:30px; display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px;">
+                <div class="metric-card" style="border: 1px solid rgba(0, 255, 135, 0.2);">
+                    <i data-lucide="trophy" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Campeonatos Vigentes</div>
+                    <div id="admin-metric-campeonatos" class="metric-value" style="color: var(--color-primary);">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('campeonatos')">
+                        <i data-lucide="list"></i> Ver Listado
+                    </button>
+                </div>
+
+                <div class="metric-card" style="border: 1px solid rgba(125, 95, 255, 0.2);">
+                    <i data-lucide="users" style="color: var(--color-secondary); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Equipos Inscritos</div>
+                    <div id="admin-metric-equipos" class="metric-value" style="color: var(--color-secondary);">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('equipos')">
+                        <i data-lucide="list"></i> Ver Listado
+                    </button>
+                </div>
+
+                <div class="metric-card" style="border: 1px solid rgba(0, 210, 255, 0.2);">
+                    <i data-lucide="user-check" style="color: var(--color-accent); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Jugadores Activos</div>
+                    <div id="admin-metric-jugadores" class="metric-value" style="color: var(--color-accent);">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('jugadores')">
+                        <i data-lucide="list"></i> Ver Listado
+                    </button>
+                </div>
+
+                <div class="metric-card" style="border: 1px solid rgba(255, 211, 42, 0.2);">
+                    <i data-lucide="award" style="color: var(--color-warning); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Historial de Campeonatos</div>
+                    <div id="admin-metric-historial" class="metric-value" style="color: var(--color-warning);">0</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('historial')">
+                        <i data-lucide="history"></i> Ver Histórico
+                    </button>
+                </div>
+
+                <div class="metric-card" style="border: 1px solid rgba(255, 77, 77, 0.2);">
+                    <i data-lucide="clock" style="color: var(--color-danger); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Cobros por Confirmar</div>
+                    <div id="admin-metric-cobros-pendientes" class="metric-value" style="color: var(--color-danger);">0</div>
+                    <button type="button" class="btn btn-primary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('cobros_confirmar')">
+                        <i data-lucide="check-circle"></i> Gestionar Cobros
+                    </button>
+                </div>
+
+                <div class="metric-card" style="border: 1px solid rgba(0, 255, 135, 0.2);">
+                    <i data-lucide="dollar-sign" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Cobros Realizados (App)</div>
+                    <div id="admin-metric-cobros-realizados" class="metric-value" style="color: var(--color-primary);">$0.00</div>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:6px 12px; margin-top:10px; width:100%;" onclick="abrirModalAdmin('cobros_realizados')">
+                        <i data-lucide="dollar-sign"></i> Ver Cobros
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN DE COBROS Y VERIFICACIÓN BANCARIA DE LA APP -->
+            <div class="glass-panel" style="padding:20px; margin-bottom:25px; border-left:4px solid var(--color-primary);">
+                <h3 style="font-size:1.2rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="credit-card" style="color:var(--color-primary);"></i> Licencia de la App QFutbol ($1.00 por Equipo)
+                </h3>
+                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
+                    El costo del uso de la aplicación es de <strong>$1.00 USD por cada equipo inscrito</strong> en un campeonato, pagaderos con transferencia o depósito bancario a la cuenta de ahorros del administrador. Mientras no se confirme el pago <strong>por el administrador de la app Qfutbol</strong>, el sistema mantendrá bloqueadas las opciones para generar calendarios y realizar encuentros deportivos.
+                </p>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; font-size:0.88rem; background:rgba(0,0,0,0.2); padding:15px; border-radius:var(--radius-sm);">
+                    <div><strong>Propietario:</strong> Luis Antonio Lozano Lozano</div>
+                    <div><strong>Correo Oficial:</strong> soloescribeme@gmail.com</div>
+                    <div><strong>Cuenta de Pago:</strong> Cuenta de Ahorros</div>
+                    <div><strong>Tarifa App:</strong> $1.00 USD / Equipo Inscrito</div>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: CONFIGURACIÓN -->
@@ -764,6 +848,19 @@
         </div>
     </div>
 
+    <!-- MODAL DE LISTADOS GENERALES DE ADMINISTRACIÓN -->
+    <div id="modal-admin-general" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 900px; max-height: 85vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                <h3 id="admin-modal-titulo" style="font-size:1.3rem;"><i data-lucide="list"></i> Listado del Administrador</h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalAdmin()" style="padding:4px 10px; font-size:0.8rem;">✕ Cerrar</button>
+            </div>
+            <div id="admin-modal-contenido">
+                <!-- Renderizado dinámico del listado -->
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
@@ -813,8 +910,308 @@
         }
 
         // ==========================================
-        // LÓGICA DE FLUJO DE DATOS (MOCK / SUPABASE)
+        // MÓDULO ADMINISTRADOR GLOBAL QFUTBOL
+        // Propietario: Luis Antonio Lozano Lozano (soloescribeme@gmail.com)
         // ==========================================
+
+        function verificarSesionAdmin() {
+            let sessionUser = {};
+            try {
+                const stored = sessionStorage.getItem("qfutbol_user_session");
+                if (stored) sessionUser = JSON.parse(stored);
+            } catch(e){}
+
+            const isAdmin = (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin");
+            const btnAdmin = document.getElementById("btn-tab-admin");
+            
+            if (isAdmin && btnAdmin) {
+                btnAdmin.style.display = "inline-flex";
+            }
+        }
+
+        async function cargarAdminMetrics() {
+            try {
+                const campeonatos = await dbGetTable("campeonatos");
+                const equipos = await dbGetTable("equipos");
+                const jugadores = await dbGetTable("jugadores");
+
+                const vigentes = campeonatos.filter(c => c.estado !== 'finalizado');
+                const historial = campeonatos.filter(c => c.estado === 'finalizado');
+                const cobrosPendientes = campeonatos.filter(c => c.pago_plataforma_realizado === false);
+                const cobrosRealizados = campeonatos.filter(c => c.pago_plataforma_realizado === true);
+
+                const totalCobrado = cobrosRealizados.reduce((sum, c) => sum + parseFloat(c.monto_pago_plataforma || 0), 0);
+
+                const elCamp = document.getElementById("admin-metric-campeonatos");
+                const elEq = document.getElementById("admin-metric-equipos");
+                const elJug = document.getElementById("admin-metric-jugadores");
+                const elHist = document.getElementById("admin-metric-historial");
+                const elPend = document.getElementById("admin-metric-cobros-pendientes");
+                const elReal = document.getElementById("admin-metric-cobros-realizados");
+
+                if (elCamp) elCamp.innerText = vigentes.length;
+                if (elEq) elEq.innerText = equipos.length;
+                if (elJug) elJug.innerText = jugadores.length;
+                if (elHist) elHist.innerText = historial.length;
+                if (elPend) elPend.innerText = cobrosPendientes.length;
+                if (elReal) elReal.innerText = `$${totalCobrado.toFixed(2)} USD`;
+            } catch (e) {
+                console.error("Error al cargar métricas de admin:", e);
+            }
+        }
+
+        function cerrarModalAdmin() {
+            document.getElementById("modal-admin-general").style.display = "none";
+        }
+
+        async function abrirModalAdmin(tipo) {
+            const modal = document.getElementById("modal-admin-general");
+            const titulo = document.getElementById("admin-modal-titulo");
+            const contenido = document.getElementById("admin-modal-contenido");
+
+            modal.style.display = "flex";
+            contenido.innerHTML = "<p style='text-align:center; padding:20px;'>Cargando información desde la base de datos...</p>";
+
+            const campeonatos = await dbGetTable("campeonatos");
+            const equipos = await dbGetTable("equipos");
+            const jugadores = await dbGetTable("jugadores");
+            const categorias = await dbGetTable("categorias");
+
+            if (tipo === 'campeonatos') {
+                titulo.innerHTML = '<i data-lucide="trophy" style="color:var(--color-primary);"></i> Listado de Campeonatos Vigentes';
+                const vigentes = campeonatos.filter(c => c.estado !== 'finalizado');
+                
+                if (vigentes.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>No hay campeonatos vigentes registrados en este momento.</p>";
+                    return;
+                }
+
+                let html = `
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Campeonato</th>
+                                    <th>Sector / Ciudad</th>
+                                    <th>Estado Torneo</th>
+                                    <th>Licencia ($1.00/Equipo)</th>
+                                    <th>Acción Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                vigentes.forEach(c => {
+                    const eqCampCount = equipos.filter(e => e.campeonato_id === c.id).length;
+                    const pagado = c.pago_plataforma_realizado;
+                    const badgeLic = pagado 
+                        ? '<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary);">Aprobado ✓</span>'
+                        : '<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger);">Pendiente ✗</span>';
+
+                    html += `
+                        <tr>
+                            <td><strong>${c.nombre}</strong><br><small style="color:var(--text-muted);">${eqCampCount} equipos inscritos</small></td>
+                            <td>${c.barrio_sector || 'N/A'}, ${c.ciudad || 'Quito'}</td>
+                            <td><span class="status-badge">${c.estado.toUpperCase()}</span></td>
+                            <td>${badgeLic}</td>
+                            <td>
+                                ${pagado 
+                                    ? `<button onclick="revocarPagoPlataformaAdmin('${c.id}')" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 8px; color:var(--color-danger);">Bloquear Fixture</button>`
+                                    : `<button onclick="aprobarPagoPlataformaAdmin('${c.id}')" class="btn btn-primary" style="font-size:0.75rem; padding:4px 8px;">Aprobar y Habilitar Fixture</button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                contenido.innerHTML = html;
+            } else if (tipo === 'equipos') {
+                titulo.innerHTML = '<i data-lucide="users" style="color:var(--color-secondary);"></i> Listado de Equipos Inscritos';
+                if (equipos.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>No hay equipos inscritos aún.</p>";
+                    return;
+                }
+                let html = `
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Categoría</th>
+                                    <th>Campeonato</th>
+                                    <th>Contacto Delegado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                equipos.forEach(eq => {
+                    const cat = categorias.find(c => c.id === eq.categoria_id) || {};
+                    const camp = campeonatos.find(c => c.id === eq.campeonato_id) || {};
+                    html += `
+                        <tr>
+                            <td><strong>${eq.nombre}</strong></td>
+                            <td>${cat.nombre || 'General'}</td>
+                            <td>${camp.nombre || 'QFutbol Liga'}</td>
+                            <td>${eq.contacto_nombre || 'No registrado'} (${eq.contacto_responsable || 'S/N'})</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                contenido.innerHTML = html;
+            } else if (tipo === 'jugadores') {
+                titulo.innerHTML = '<i data-lucide="user-check" style="color:var(--color-accent);"></i> Listado de Jugadores Registrados';
+                if (jugadores.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>No hay jugadores registrados en la base de datos.</p>";
+                    return;
+                }
+                let html = `
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cédula</th>
+                                    <th>Nombres y Apellidos</th>
+                                    <th>Rating General</th>
+                                    <th>Fecha Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                jugadores.forEach(j => {
+                    html += `
+                        <tr>
+                            <td><code>${j.cedula || 'N/A'}</code></td>
+                            <td><strong>${j.nombres} ${j.apellidos}</strong></td>
+                            <td><span class="player-score">⭐ ${parseFloat(j.rating_general || 6.00).toFixed(2)}</span></td>
+                            <td>${j.fecha_registro ? new Date(j.fecha_registro).toLocaleDateString() : 'Reciente'}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                contenido.innerHTML = html;
+            } else if (tipo === 'historial') {
+                titulo.innerHTML = '<i data-lucide="award" style="color:var(--color-warning);"></i> Historial de Campeonatos Finalizados';
+                const finalizados = campeonatos.filter(c => c.estado === 'finalizado');
+                if (finalizados.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>No se registran campeonatos finalizados en el historial aún.</p>";
+                    return;
+                }
+                let html = `<div style="display:grid; gap:15px;">`;
+                finalizados.forEach(f => {
+                    html += `
+                        <div class="glass-panel" style="padding:15px; border-left:4px solid var(--color-warning);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h4>${f.nombre}</h4>
+                                <span class="status-badge" style="background:rgba(255,211,42,0.15); color:var(--color-warning);">FINALIZADO</span>
+                            </div>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:5px;">${f.barrio_sector || 'Quito'} | Duración: ${f.duracion_estimada_meses || 3} meses</p>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                contenido.innerHTML = html;
+            } else if (tipo === 'cobros_confirmar') {
+                titulo.innerHTML = '<i data-lucide="clock" style="color:var(--color-danger);"></i> Cobros por Confirmar (Licencia de App)';
+                const pendientes = campeonatos.filter(c => c.pago_plataforma_realizado === false);
+                if (pendientes.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--color-primary);'>¡No hay cobros pendientes de confirmación! Todos los campeonatos están al día.</p>";
+                    return;
+                }
+                let html = `
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Campeonato</th>
+                                    <th>Equipos Inscritos</th>
+                                    <th>Monto Licencia ($1.00/Eq)</th>
+                                    <th>Acción de Aprobación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                pendientes.forEach(p => {
+                    const eqCount = equipos.filter(e => e.campeonato_id === p.id).length;
+                    const monto = eqCount * 1.00;
+                    html += `
+                        <tr>
+                            <td><strong>${p.nombre}</strong></td>
+                            <td>${eqCount} equipos</td>
+                            <td><strong style="color:var(--color-primary); font-size:1.05rem;">$${monto.toFixed(2)} USD</strong></td>
+                            <td>
+                                <button onclick="aprobarPagoPlataformaAdmin('${p.id}')" class="btn btn-primary" style="font-size:0.8rem; padding:6px 12px;">
+                                    <i data-lucide="check"></i> Aprobar y Habilitar por el administrador de la app Qfutbol
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                contenido.innerHTML = html;
+            } else if (tipo === 'cobros_realizados') {
+                titulo.innerHTML = '<i data-lucide="dollar-sign" style="color:var(--color-primary);"></i> Historial de Cobros Realizados';
+                const realizados = campeonatos.filter(c => c.pago_plataforma_realizado === true);
+                if (realizados.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>Aún no se registran cobros confirmados.</p>";
+                    return;
+                }
+                let html = `
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Campeonato</th>
+                                    <th>Monto Cobrado</th>
+                                    <th>Estado Licencia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                realizados.forEach(r => {
+                    html += `
+                        <tr>
+                            <td><strong>${r.nombre}</strong></td>
+                            <td><strong style="color:var(--color-primary);">$${parseFloat(r.monto_pago_plataforma || 0).toFixed(2)} USD</strong></td>
+                            <td><span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary);">Confirmado por el Administrador ✓</span></td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                contenido.innerHTML = html;
+            }
+
+            lucide.createIcons();
+        }
+
+        async function aprobarPagoPlataformaAdmin(campId) {
+            const campeonatos = await dbGetTable("campeonatos");
+            const camp = campeonatos.find(c => c.id === campId) || campeonatos[0];
+            const equipos = await dbGetTable("equipos");
+            const eqCount = equipos.filter(e => e.campeonato_id === campId).length || 1;
+            const montoCalculado = eqCount * 1.00;
+
+            await dbUpdateRow("campeonatos", campId, {
+                pago_plataforma_realizado: true,
+                monto_pago_plataforma: montoCalculado
+            });
+
+            alert(`¡Pago de licencia de $${montoCalculado.toFixed(2)} USD aprobado con éxito por el administrador de la app Qfutbol! La generación de calendarios y encuentros deportivos ha sido habilitada.`);
+            await cargarDatos();
+            await cargarAdminMetrics();
+            cerrarModalAdmin();
+        }
+
+        async function revocarPagoPlataformaAdmin(campId) {
+            if (confirm("¿Estás seguro de bloquear el fixture y encuentros deportivos de este campeonato hasta que se regularice el pago?")) {
+                await dbUpdateRow("campeonatos", campId, {
+                    pago_plataforma_realizado: false
+                });
+                alert("El campeonato ha sido bloqueado por el administrador de la app Qfutbol.");
+                await cargarDatos();
+                await cargarAdminMetrics();
+                cerrarModalAdmin();
+            }
+        }
+
         let cacheEquipos = [];
         let cachePartidos = [];
         let configCampeonato = {};
@@ -829,6 +1226,9 @@
         }
 
         async function cargarDatos() {
+            verificarSesionAdmin();
+            await cargarAdminMetrics();
+
             // Cargar estado de la conexión
             const statusLabel = document.getElementById("connection-status");
             if (statusLabel) {
