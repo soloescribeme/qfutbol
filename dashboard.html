@@ -170,6 +170,7 @@
             <button class="tab-btn active" onclick="switchTab('campeonato')"><i data-lucide="settings" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Configuración</button>
             <button class="tab-btn" onclick="switchTab('categorias')"><i data-lucide="layers" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Categorías</button>
             <button class="tab-btn" onclick="switchTab('equipos')"><i data-lucide="users" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Equipos</button>
+            <button class="tab-btn" onclick="switchTab('vocales')"><i data-lucide="user-check" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Vocales Autorizados</button>
             <button class="tab-btn" onclick="switchTab('auspiciantes')"><i data-lucide="image" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Auspiciantes</button>
             <button class="tab-btn" onclick="switchTab('calendario')"><i data-lucide="calendar-days" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Fixture / Jornadas</button>
             <button class="tab-btn" onclick="switchTab('finanzas')"><i data-lucide="wallet" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Finanzas y Abonos</button>
@@ -620,6 +621,39 @@
             </div>
         </div>
 
+        <!-- TAB: VOCALES AUTORIZADOS -->
+        <div id="tab-vocales" class="tab-content glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <h2 style="font-size: 1.5rem;"><i data-lucide="user-check" style="color:var(--color-primary);"></i> Habilitación y Registro de Vocales por Cédula</h2>
+                <button type="button" class="btn btn-primary" onclick="abrirModalAgregarVocal()">
+                    <i data-lucide="user-plus"></i> Registrar / Autorizar Vocal por Cédula
+                </button>
+            </div>
+
+            <div style="background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:12px 16px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
+                <i data-lucide="info" style="color:var(--color-primary); width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:6px;"></i>
+                <strong>Control de Duplicidad:</strong> Cada vocal debe ser registrado obligatoriamente con su <strong>Número de Cédula</strong> de Identidad. El organizador puede registrar vocales con anticipación o autorizarlos inmediatamente antes de un encuentro deportivo.
+            </div>
+
+            <!-- TABLA DE VOCALES AUTORIZADOS -->
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Número de Cédula</th>
+                            <th>Nombres y Apellidos</th>
+                            <th>Teléfono</th>
+                            <th>Estado de Autorización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-vocales-autorizados">
+                        <!-- Carga dinámica -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- TAB: AUSPICIANTES -->
         <div id="tab-auspiciantes" class="tab-content glass-panel">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
@@ -899,6 +933,46 @@
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-secondary" onclick="hideModalAbono()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Aplicar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRAR / AUTORIZAR VOCAL POR CÉDULA -->
+    <div id="modal-vocal" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 500px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size: 1.3rem;"><i data-lucide="user-check" style="color:var(--color-primary);"></i> Registrar / Autorizar Vocal por Cédula</h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalVocal()" style="padding:4px 10px; font-size:0.8rem;">✕</button>
+            </div>
+            <form id="form-registrar-vocal" onsubmit="guardarVocalAutorizado(event)">
+                <div class="form-group">
+                    <label class="form-label" for="vocal-cedula">Número de Cédula (Obligatorio)</label>
+                    <input type="text" id="vocal-cedula" class="form-input" placeholder="Ej: 1723456789" required style="font-weight:700; font-size:1.05rem;">
+                    <small style="color:var(--text-muted); display:block; margin-top:4px;">Si la cédula ya existe, el sistema actualizará sus datos para evitar duplicidad de registros.</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="vocal-nombres">Nombres Completos</label>
+                    <input type="text" id="vocal-nombres" class="form-input" placeholder="Ej. Juan Carlos" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="vocal-apellidos">Apellidos Completos</label>
+                    <input type="text" id="vocal-apellidos" class="form-input" placeholder="Ej. Pérez Gómez" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="vocal-telefono">Teléfono / Celular</label>
+                    <input type="text" id="vocal-telefono" class="form-input" placeholder="Ej. 0991234567">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="vocal-autorizado">Estado de Autorización</label>
+                    <select id="vocal-autorizado" class="form-input">
+                        <option value="true">Habilitado / Autorizado para Dirigir Encuentros</option>
+                        <option value="false">Suspendido / No Habilitado</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalVocal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Guardar Vocal</button>
                 </div>
             </form>
         </div>
@@ -1358,6 +1432,130 @@
             }
         }
 
+        async function cargarVocalesAutorizados() {
+            try {
+                const tbody = document.getElementById("tbody-vocales-autorizados");
+                if (!tbody) return;
+
+                const vocales = await dbGetTable("vocales_autorizados");
+                const perfiles = await dbGetTable("perfiles");
+                const vocalesPerfiles = (perfiles || []).filter(p => p.rol === 'vocal');
+
+                const mapaVocales = {};
+
+                (vocales || []).forEach(v => {
+                    if (v.cedula) mapaVocales[v.cedula] = v;
+                });
+
+                vocalesPerfiles.forEach(p => {
+                    if (p.cedula && !mapaVocales[p.cedula]) {
+                        mapaVocales[p.cedula] = {
+                            id: p.id,
+                            cedula: p.cedula,
+                            nombres: p.nombres,
+                            apellidos: p.apellidos,
+                            telefono: p.telefono || 'N/A',
+                            autorizado: true
+                        };
+                    }
+                });
+
+                const listaFinal = Object.values(mapaVocales);
+
+                if (listaFinal.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No hay vocales registrados. Registra el primero ingresando su número de cédula.</td></tr>`;
+                    return;
+                }
+
+                let html = "";
+                listaFinal.forEach(v => {
+                    const badge = v.autorizado !== false 
+                        ? '<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary);">Habilitado ✓</span>'
+                        : '<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger);">No Habilitado ✗</span>';
+
+                    html += `
+                        <tr>
+                            <td><code>${v.cedula}</code></td>
+                            <td><strong>${v.nombres} ${v.apellidos}</strong></td>
+                            <td>${v.telefono || 'N/A'}</td>
+                            <td>${badge}</td>
+                            <td>
+                                <button type="button" onclick="toggleEstadoVocal('${v.id}', '${v.cedula}', ${v.autorizado !== false})" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 8px;">
+                                    ${v.autorizado !== false ? 'Deshabilitar' : 'Habilitar'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+                lucide.createIcons();
+            } catch (e) {
+                console.error("Error al cargar vocales autorizados:", e);
+            }
+        }
+
+        async function guardarVocalAutorizado(e) {
+            e.preventDefault();
+            const cedula = document.getElementById("vocal-cedula").value.trim();
+            const nombres = document.getElementById("vocal-nombres").value.trim();
+            const apellidos = document.getElementById("vocal-apellidos").value.trim();
+            const telefono = document.getElementById("vocal-telefono").value.trim();
+            const autorizado = document.getElementById("vocal-autorizado").value === "true";
+
+            if (!cedula || !nombres || !apellidos) {
+                alert("Por favor completa los campos obligatorios (Cédula, Nombres y Apellidos).");
+                return;
+            }
+
+            const vocales = await dbGetTable("vocales_autorizados");
+            const existente = (vocales || []).find(v => v.cedula === cedula);
+
+            if (existente) {
+                await dbUpdateRow("vocales_autorizados", existente.id, {
+                    nombres,
+                    apellidos,
+                    telefono,
+                    autorizado
+                });
+                alert(`Se han actualizado los datos del vocal con Cédula ${cedula} para evitar registros duplicados.`);
+            } else {
+                const campId = configCampeonato.id || null;
+                await dbInsertRow("vocales_autorizados", {
+                    campeonato_id: campId,
+                    cedula,
+                    nombres,
+                    apellidos,
+                    telefono,
+                    autorizado
+                });
+                alert(`¡Vocal ${nombres} ${apellidos} (Cédula ${cedula}) registrado y autorizado con éxito!`);
+            }
+
+            cerrarModalVocal();
+            await cargarVocalesAutorizados();
+        }
+
+        function abrirModalAgregarVocal() {
+            document.getElementById("form-registrar-vocal").reset();
+            document.getElementById("modal-vocal").style.display = "flex";
+        }
+
+        function cerrarModalVocal() {
+            document.getElementById("modal-vocal").style.display = "none";
+        }
+
+        async function toggleEstadoVocal(id, cedula, estadoActual) {
+            const vocales = await dbGetTable("vocales_autorizados");
+            const vocal = (vocales || []).find(v => v.cedula === cedula || v.id === id);
+
+            if (vocal) {
+                await dbUpdateRow("vocales_autorizados", vocal.id, {
+                    autorizado: !estadoActual
+                });
+                await cargarVocalesAutorizados();
+            }
+        }
+
         let cacheEquipos = [];
         let cachePartidos = [];
         let configCampeonato = {};
@@ -1374,6 +1572,7 @@
         async function cargarDatos() {
             verificarSesionAdmin();
             await cargarAdminMetrics();
+            await cargarVocalesAutorizados();
 
             // Cargar estado de la conexión
             const statusLabel = document.getElementById("connection-status");

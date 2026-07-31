@@ -382,33 +382,35 @@
             const btnAdminNav = document.getElementById("btn-admin-panel-index");
             const btnLogout = document.getElementById("btn-logout-index");
 
+            let stored = null;
             try {
-                const stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
-                if (stored) {
+                stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
+            } catch(e){}
+
+            if (stored) {
+                try {
                     const sessionUser = JSON.parse(stored);
+                    if (sessionUser && sessionUser.nombres) {
+                        if (welcomeLbl) {
+                            welcomeLbl.style.display = "inline-block";
+                            welcomeLbl.innerText = `Hola, ${sessionUser.nombres} ${sessionUser.apellidos || ''} 👋`;
+                        }
+                        if (btnLogout) btnLogout.style.display = "inline-flex";
 
-                    if (welcomeLbl && sessionUser.nombres) {
-                        welcomeLbl.style.display = "inline-block";
-                        welcomeLbl.innerText = `Hola, ${sessionUser.nombres} ${sessionUser.apellidos || ''} 👋`;
+                        if (btnAdminNav && (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin")) {
+                            btnAdminNav.style.display = "inline-flex";
+                        } else if (btnAdminNav) {
+                            btnAdminNav.style.display = "none";
+                        }
+                        return;
                     }
-
-                    if (btnLogout) btnLogout.style.display = "inline-flex";
-
-                    if (btnAdminNav && (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin")) {
-                        btnAdminNav.style.display = "inline-flex";
-                    } else if (btnAdminNav) {
-                        btnAdminNav.style.display = "none";
-                    }
-                } else {
-                    if (welcomeLbl) welcomeLbl.style.display = "none";
-                    if (btnAdminNav) btnAdminNav.style.display = "none";
-                    if (btnLogout) btnLogout.style.display = "none";
-                }
-            } catch(e){
-                if (welcomeLbl) welcomeLbl.style.display = "none";
-                if (btnAdminNav) btnAdminNav.style.display = "none";
-                if (btnLogout) btnLogout.style.display = "none";
+                } catch(e){}
             }
+
+            // Si NO hay sesión activa limpia explícitamente todo el texto y botones
+            if (welcomeLbl) { welcomeLbl.innerText = ""; welcomeLbl.style.display = "none"; }
+            if (btnAdminNav) { btnAdminNav.style.display = "none"; }
+            if (btnLogout) { btnLogout.style.display = "none"; }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {

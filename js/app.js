@@ -15,8 +15,22 @@ function obtenerSesionUsuario() {
 }
 
 function cerrarSesion() {
-    sessionStorage.removeItem("qfutbol_user_session");
-    localStorage.removeItem("qfutbol_user_session");
+    try {
+        sessionStorage.removeItem("qfutbol_user_session");
+        localStorage.removeItem("qfutbol_user_session");
+        sessionStorage.clear();
+        localStorage.clear();
+    } catch(e){}
+
+    const el1 = document.getElementById("lbl-user-welcome-index");
+    if (el1) { el1.innerText = ""; el1.style.display = "none"; }
+    const el2 = document.getElementById("lbl-user-welcome-dashboard");
+    if (el2) { el2.innerText = ""; el2.style.display = "none"; }
+    const el3 = document.getElementById("btn-admin-panel-index");
+    if (el3) { el3.style.display = "none"; }
+    const el4 = document.getElementById("btn-logout-index");
+    if (el4) { el4.style.display = "none"; }
+
     window.location.href = "index.html#login";
 }
 

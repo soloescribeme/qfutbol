@@ -137,6 +137,16 @@
             </div>
         </div>
 
+        <!-- VALIDACIÓN DE VOCAL AUTORIZADO POR CÉDULA -->
+        <section class="glass-panel" style="margin-bottom: 20px; padding: 15px; border-left: 4px solid var(--color-primary);">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px;"><i data-lucide="user-check" style="color:var(--color-primary);"></i> Identificación del Vocal Autorizado por Cédula</h3>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <input type="text" id="vocal-cedula-ingreso" class="form-input" placeholder="Ingresa tu número de cédula..." style="max-width:250px; font-weight:700;">
+                <button type="button" class="btn btn-primary" onclick="validarVocalPorCedula()"><i data-lucide="shield-check"></i> Validar Autorización</button>
+                <span id="badge-vocal-status" class="status-badge" style="display:none; padding:8px 12px; font-size:0.85rem;"></span>
+            </div>
+        </section>
+
         <!-- SELECCIONADOR DE PARTIDO -->
         <section id="partidos-selector-section" class="glass-panel" style="margin-bottom: 25px;">
             <h2 style="font-size: 1.25rem; margin-bottom: 15px;"><i data-lucide="play"></i> Selecciona el partido a controlar</h2>
@@ -268,6 +278,56 @@
         // { jugador_inscripcion_id: { goles, asistencias, amarillas, rojas, etilicidad, valoracion } }
         let estadisticasPartido = {};
 
+        let vocalAutorizadoActivo = null;
+
+        async function validarVocalPorCedula() {
+            const cedula = document.getElementById("vocal-cedula-ingreso").value.trim();
+            const statusBadge = document.getElementById("badge-vocal-status");
+
+            if (!cedula) {
+                alert("Por favor ingresa tu número de cédula para validar tu autorización por el organizador.");
+                return false;
+            }
+
+            try {
+                const vocales = await dbGetTable("vocales_autorizados");
+                const perfiles = await dbGetTable("perfiles");
+
+                const vocal = (vocales || []).find(v => v.cedula === cedula) || (perfiles || []).find(p => p.cedula === cedula);
+
+                if (vocal && vocal.autorizado !== false) {
+                    vocalAutorizadoActivo = vocal;
+                    statusBadge.style.display = "inline-block";
+                    statusBadge.style.background = "rgba(0, 255, 135, 0.15)";
+                    statusBadge.style.color = "var(--color-primary)";
+                    statusBadge.innerHTML = `<i data-lucide="check-circle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Vocal Habilitado: ${vocal.nombres} ${vocal.apellidos || ''}`;
+                    lucide.createIcons();
+                    return true;
+                } else if (vocal && vocal.autorizado === false) {
+                    vocalAutorizadoActivo = null;
+                    statusBadge.style.display = "inline-block";
+                    statusBadge.style.background = "rgba(255, 77, 77, 0.15)";
+                    statusBadge.style.color = "var(--color-danger)";
+                    statusBadge.innerHTML = `<i data-lucide="x-circle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Cédula Suspendida por Organizador`;
+                    lucide.createIcons();
+                    alert("Atención: Tu cédula figura como Suspendida / No Habilitada por el organizador.");
+                    return false;
+                } else {
+                    vocalAutorizadoActivo = null;
+                    statusBadge.style.display = "inline-block";
+                    statusBadge.style.background = "rgba(255, 211, 42, 0.15)";
+                    statusBadge.style.color = "var(--color-warning)";
+                    statusBadge.innerHTML = `<i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> No Consta Autorizado`;
+                    lucide.createIcons();
+                    alert("Atención: El número de cédula ingresado no consta autorizado por el organizador del campeonato.");
+                    return false;
+                }
+            } catch(e) {
+                console.error("Error al validar vocal por cédula:", e);
+                return false;
+            }
+        }
+
         function verificarSesionVocal() {
             let sessionUser = {};
             try {
@@ -283,6 +343,14 @@
 
             if (btnAdmin) btnAdmin.style.display = isAdmin ? "inline-flex" : "none";
             if (btnOrg) btnOrg.style.display = isOrg ? "inline-flex" : "none";
+
+            if (sessionUser.cedula) {
+                const txtCed = document.getElementById("vocal-cedula-ingreso");
+                if (txtCed) {
+                    txtCed.value = sessionUser.cedula;
+                    validarVocalPorCedula();
+                }
+            }
         }
 
         async function inicializarVocal() {
