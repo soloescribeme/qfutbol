@@ -337,6 +337,7 @@
         }
 
         // Manejador de Autenticación con Google y Facebook
+        // Manejador de Autenticación con Google y Facebook con almacenamiento permanente
         async function handleSocialAuth(provider) {
             const providerName = provider === 'google' ? 'Google' : 'Facebook';
             const emailPrompt = prompt(`Ingresa tu correo registrado en ${providerName}:`, "soloescribeme@gmail.com");
@@ -344,42 +345,67 @@
 
             const email = emailPrompt.trim().toLowerCase();
             let rol = "organizador";
-            let nombres = "Usuario";
-            let apellidos = providerName;
+            let nombres = "";
+            let apellidos = "";
 
-            // Reconocimiento del Administrador Global por el administrador de la app Qfutbol
+            // 1. Caso especial: Administrador Máster
             if (email === "soloescribeme@gmail.com") {
                 rol = "admin";
                 nombres = "Luis Antonio";
                 apellidos = "Lozano Lozano";
             } else {
+                // 2. Buscar si la cuenta ya está guardada en la caché local de cuentas sociales
+                let localSocial = {};
                 try {
-                    const perfiles = await dbGetTable("perfiles");
-                    const userMatch = (perfiles || []).find(p => p.email && p.email.toLowerCase() === email);
-                    if (userMatch) {
-                        rol = userMatch.rol || "organizador";
-                        nombres = userMatch.nombres;
-                        apellidos = userMatch.apellidos;
-                    } else {
-                        const nombreInput = prompt(`Es tu primer ingreso con ${providerName}. Por favor ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
-                        if (!nombreInput) return;
-                        const partes = nombreInput.trim().split(" ");
-                        nombres = partes[0] || "Usuario";
-                        apellidos = partes.slice(1).join(" ") || providerName;
+                    localSocial = JSON.parse(localStorage.getItem("qfutbol_social_accounts")) || {};
+                } catch(e){}
 
-                        const rolInput = prompt(`Selecciona tu rol de usuario en QFutbol:\n1 - Organizador (Crear/Gestionar Campeonatos)\n2 - Vocal de Mesa\n3 - Jugador`, "1");
-                        if (rolInput === "2") rol = "vocal";
-                        else if (rolInput === "3") rol = "jugador";
-                        else rol = "organizador";
+                if (localSocial[email]) {
+                    nombres = localSocial[email].nombres;
+                    apellidos = localSocial[email].apellidos;
+                    rol = localSocial[email].rol || "organizador";
+                } else {
+                    // 3. Buscar en la tabla perfiles de la base de datos (Neon)
+                    try {
+                        const perfiles = await dbGetTable("perfiles");
+                        const match = (perfiles || []).find(p => p.email && p.email.toLowerCase() === email);
+                        if (match) {
+                            rol = match.rol || "organizador";
+                            nombres = match.nombres;
+                            apellidos = match.apellidos;
+                        }
+                    } catch(e){}
+                }
 
-                        // Guardar nuevo usuario social en la base de datos perfiles
+                // 4. Si es la PRIMERA vez que ingresa con ese correo, solicitar nombres y rol UNA SOLA VEZ
+                if (!nombres) {
+                    const nombreInput = prompt(`Primera vez ingresando con ${providerName} (${email}). Por favor ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
+                    if (!nombreInput) return;
+                    const partes = nombreInput.trim().split(" ");
+                    nombres = partes[0] || "Usuario";
+                    apellidos = partes.slice(1).join(" ") || providerName;
+
+                    const rolInput = prompt(`Selecciona tu rol de usuario en QFutbol:\n1 - Organizador (Crear/Gestionar Campeonatos)\n2 - Vocal de Mesa\n3 - Jugador`, "1");
+                    if (rolInput === "2") rol = "vocal";
+                    else if (rolInput === "3") rol = "jugador";
+                    else rol = "organizador";
+
+                    // Registrar en la base de datos Neon DB
+                    try {
                         await dbInsertRow("perfiles", {
                             nombres,
                             apellidos,
                             email,
                             rol
                         });
-                    }
+                    } catch(e){}
+                }
+
+                // Guardar la cuenta social permanentemente en localStorage para que NUNCA vuelva a pedir el nombre
+                try {
+                    let localSocial = JSON.parse(localStorage.getItem("qfutbol_social_accounts")) || {};
+                    localSocial[email] = { nombres, apellidos, rol };
+                    localStorage.setItem("qfutbol_social_accounts", JSON.stringify(localSocial));
                 } catch(e){}
             }
 
