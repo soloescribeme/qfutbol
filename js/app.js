@@ -2,6 +2,24 @@
    CONEXIÓN EN LÍNEA CON NEON POSTGRESQL Y UTILIDADES GLOBALES - QFUTBOL
    ========================================================================== */
 
+// ==========================================================================
+// GESTIÓN DE SESIÓN Y AUTENTICACIÓN GLOBAL
+// ==========================================================================
+
+function obtenerSesionUsuario() {
+    try {
+        const stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
+        if (stored) return JSON.parse(stored);
+    } catch(e){}
+    return null;
+}
+
+function cerrarSesion() {
+    sessionStorage.removeItem("qfutbol_user_session");
+    localStorage.removeItem("qfutbol_user_session");
+    window.location.href = "index.html#login";
+}
+
 // Función principal para ejecutar consultas SQL directamente en Neon PostgreSQL sobre HTTP
 async function neonQuery(sql, params = []) {
     if (typeof NEON_HTTP_ENDPOINT === 'undefined' || !NEON_HTTP_ENDPOINT) {

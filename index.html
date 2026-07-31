@@ -72,13 +72,16 @@
             </div>
             <nav style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                 <span id="lbl-user-welcome-index" style="display:none; font-weight:700; color:var(--color-primary); font-size:0.95rem;"></span>
-                <a id="btn-admin-panel-index" href="dashboard.html" style="display:none; background:rgba(0, 255, 135, 0.15); border:1px solid var(--color-primary); color:var(--color-primary); font-weight:700; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; font-size:0.9rem;">
+                <a id="btn-admin-panel-index" href="dashboard.html?tab=admin" style="display:none; background:rgba(0, 255, 135, 0.15); border:1px solid var(--color-primary); color:var(--color-primary); font-weight:700; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; font-size:0.9rem;">
                     <i data-lucide="shield-check" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Panel de Administración Principal
                 </a>
+                <button id="btn-logout-index" type="button" onclick="cerrarSesion()" class="btn btn-secondary" style="display:none; padding:6px 12px; font-size:0.85rem;">
+                    <i data-lucide="log-out" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Salir
+                </button>
                 <a href="#caracteristicas" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Características</a>
                 <a href="portal_jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Portal Jugadores</a>
                 <a href="jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Buscador Global</a>
-                <a href="apuestas.html" style="color: var(--color-secondary); text-decoration: none; font-weight: 600; transition: var(--transition-smooth); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-secondary)'">
+                <a href="apuestas.html" style="color: var(--color-secondary); text-decoration: none; font-weight: 600; transition: var(--transition-smooth); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">
                     <i data-lucide="trending-up" style="width:16px;height:16px;"></i> Pronósticos
                 </a>
             </nav>
@@ -354,6 +357,7 @@
             };
 
             sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+            localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
 
             // Redirección según el rol de acceso asignado
             if (rol === "admin" || rol === "organizador") {
@@ -374,23 +378,37 @@
         }
 
         function verificarSesionPaginaPrincipal() {
+            const welcomeLbl = document.getElementById("lbl-user-welcome-index");
+            const btnAdminNav = document.getElementById("btn-admin-panel-index");
+            const btnLogout = document.getElementById("btn-logout-index");
+
             try {
-                const stored = sessionStorage.getItem("qfutbol_user_session");
+                const stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
                 if (stored) {
                     const sessionUser = JSON.parse(stored);
-                    const welcomeLbl = document.getElementById("lbl-user-welcome-index");
-                    const btnAdminNav = document.getElementById("btn-admin-panel-index");
 
                     if (welcomeLbl && sessionUser.nombres) {
                         welcomeLbl.style.display = "inline-block";
                         welcomeLbl.innerText = `Hola, ${sessionUser.nombres} ${sessionUser.apellidos || ''} 👋`;
                     }
 
+                    if (btnLogout) btnLogout.style.display = "inline-flex";
+
                     if (btnAdminNav && (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin")) {
                         btnAdminNav.style.display = "inline-flex";
+                    } else if (btnAdminNav) {
+                        btnAdminNav.style.display = "none";
                     }
+                } else {
+                    if (welcomeLbl) welcomeLbl.style.display = "none";
+                    if (btnAdminNav) btnAdminNav.style.display = "none";
+                    if (btnLogout) btnLogout.style.display = "none";
                 }
-            } catch(e){}
+            } catch(e){
+                if (welcomeLbl) welcomeLbl.style.display = "none";
+                if (btnAdminNav) btnAdminNav.style.display = "none";
+                if (btnLogout) btnLogout.style.display = "none";
+            }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -435,6 +453,7 @@
 
                 const userSession = { email, nombres, apellidos, rol };
                 sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+            localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
 
                 if (rol === "admin" || rol === "organizador") {
                     window.location.href = "dashboard.html";
@@ -468,6 +487,7 @@
                     });
                     alert(`¡Cuenta creada con éxito! Bienvenido ${nombres} ${apellidos}.`);
                     sessionStorage.setItem("qfutbol_user_session", JSON.stringify({ nombres, apellidos, email, rol }));
+                    localStorage.setItem("qfutbol_user_session", JSON.stringify({ nombres, apellidos, email, rol }));
 
                     if (rol === "admin" || rol === "organizador") {
                         window.location.href = "dashboard.html";
