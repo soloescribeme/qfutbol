@@ -121,10 +121,10 @@
                     <span style="font-weight: 700; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
                         Cambiar Perfil:
                     </span>
-                    <a href="dashboard.html?tab=admin" class="btn" style="font-weight: 700; padding: 5px 10px; font-size: 0.8rem; background: rgba(0, 255, 135, 0.12); border: 1px solid var(--color-primary); color: var(--color-primary); text-decoration:none;">
+                    <a id="btn-vocal-prof-admin" href="dashboard.html?tab=admin" class="btn" style="display:none; font-weight: 700; padding: 5px 10px; font-size: 0.8rem; background: rgba(0, 255, 135, 0.12); border: 1px solid var(--color-primary); color: var(--color-primary); text-decoration:none;">
                         👑 Panel Admin
                     </a>
-                    <a href="dashboard.html" class="btn" style="font-weight: 700; padding: 5px 10px; font-size: 0.8rem; background: rgba(125, 95, 255, 0.12); border: 1px solid var(--color-secondary); color: var(--color-secondary); text-decoration:none;">
+                    <a id="btn-vocal-prof-org" href="dashboard.html" class="btn" style="display:none; font-weight: 700; padding: 5px 10px; font-size: 0.8rem; background: rgba(125, 95, 255, 0.12); border: 1px solid var(--color-secondary); color: var(--color-secondary); text-decoration:none;">
                         🛡️ Organizador
                     </a>
                     <span class="btn" style="font-weight: 700; padding: 5px 10px; font-size: 0.8rem; background: var(--color-accent); border: 1px solid var(--color-accent); color: #fff;">
@@ -268,7 +268,25 @@
         // { jugador_inscripcion_id: { goles, asistencias, amarillas, rojas, etilicidad, valoracion } }
         let estadisticasPartido = {};
 
+        function verificarSesionVocal() {
+            let sessionUser = {};
+            try {
+                const stored = sessionStorage.getItem("qfutbol_user_session");
+                if (stored) sessionUser = JSON.parse(stored);
+            } catch(e){}
+
+            const isAdmin = (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin");
+            const isOrg = (sessionUser.rol === "organizador" || isAdmin);
+
+            const btnAdmin = document.getElementById("btn-vocal-prof-admin");
+            const btnOrg = document.getElementById("btn-vocal-prof-org");
+
+            if (btnAdmin) btnAdmin.style.display = isAdmin ? "inline-flex" : "none";
+            if (btnOrg) btnOrg.style.display = isOrg ? "inline-flex" : "none";
+        }
+
         async function inicializarVocal() {
+            verificarSesionVocal();
             // Cargar estado de la red
             actualizarIndicadorOffline();
             window.addEventListener('online', actualizarIndicadorOffline);
