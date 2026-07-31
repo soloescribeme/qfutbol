@@ -346,6 +346,22 @@
                 rol = "admin";
                 nombres = "Luis Antonio";
                 apellidos = "Lozano Lozano";
+            } else {
+                try {
+                    const perfiles = await dbGetTable("perfiles");
+                    const userMatch = (perfiles || []).find(p => p.email && p.email.toLowerCase() === email);
+                    if (userMatch) {
+                        rol = userMatch.rol || "organizador";
+                        nombres = userMatch.nombres;
+                        apellidos = userMatch.apellidos;
+                    } else {
+                        const nombreInput = prompt(`Es tu primer ingreso con ${providerName}. Ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
+                        if (!nombreInput) return;
+                        const partes = nombreInput.trim().split(" ");
+                        nombres = partes[0] || "Usuario";
+                        apellidos = partes.slice(1).join(" ") || providerName;
+                    }
+                } catch(e){}
             }
 
             const userSession = {
@@ -358,6 +374,9 @@
 
             sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
             localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+            alert(`¡Sesión iniciada con éxito mediante ${providerName}!\nBienvenido ${nombres} ${apellidos}.`);
+            verificarSesionPaginaPrincipal();
 
             // Redirección según el rol de acceso asignado
             if (rol === "admin" || rol === "organizador") {

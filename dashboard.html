@@ -308,7 +308,25 @@
 
         <!-- TAB: CONFIGURACIÓN -->
         <div id="tab-campeonato" class="tab-content active glass-panel">
-            <h2 style="font-size: 1.5rem; margin-bottom: 20px;"><i data-lucide="settings"></i> Ajustes del Campeonato</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="font-size: 1.5rem;"><i data-lucide="settings"></i> Ajustes del Campeonato</h2>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNuevoCampeonato()" style="font-size:0.85rem;">
+                    <i data-lucide="plus-circle"></i> + Registrar Nuevo Campeonato
+                </button>
+            </div>
+
+            <!-- INDICADOR DE CAMPEONATO REGISTRADO ACTIVO -->
+            <div id="banner-campeonato-activo" style="display:none; background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:25px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Campeonato Registrado Activo</div>
+                        <h3 id="lbl-nombre-camp-activo" style="font-size:1.25rem; color:var(--color-primary); margin-top:2px;">-</h3>
+                    </div>
+                    <span class="status-badge" style="background:rgba(0, 255, 135, 0.15); color:var(--color-primary); padding:6px 12px; font-size:0.85rem;">
+                        Registrado / En Configuración ✓
+                    </span>
+                </div>
+            </div>
             <form id="config-form">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                     <div class="form-group">
@@ -425,8 +443,13 @@
                     </div>
                 </div>
 
-                <!-- Datos Bancarios de la Liga para recibir pagos -->
-                <h3 style="font-size:1.15rem; margin-top:25px; margin-bottom:15px; border-top:1px solid var(--border-glass); padding-top:20px; color:var(--color-secondary);"><i data-lucide="landmark"></i> Datos Bancarios de la Liga</h3>
+                <!-- Datos Bancarios del Organizador (Para Cobros de Inscripción de Equipos, Abonos y Multas) -->
+                <h3 style="font-size:1.15rem; margin-top:25px; margin-bottom:8px; border-top:1px solid var(--border-glass); padding-top:20px; color:var(--color-secondary);">
+                    <i data-lucide="landmark"></i> Datos Bancarios del Organizador (Para Cobros de Inscripción de Equipos, Abonos y Multas)
+                </h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
+                    Registra tus datos bancarios oficiales. Esta información se presentará automáticamente a los delegados de los equipos para realizar transferencias de abonos por inscripción, garantías, vocalías y multas del torneo.
+                </p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
                     <div class="form-group">
                         <label class="form-label" for="camp-banco-nombre">Nombre del Banco</label>
@@ -501,6 +524,13 @@
                 
                 <form id="form-categoria">
                     <input type="hidden" id="txt-cat-id">
+                    
+                    <div class="form-group" style="margin-bottom:15px; background:rgba(0, 255, 135, 0.05); padding:12px; border-radius:var(--radius-sm); border:1px solid rgba(0, 255, 135, 0.2);">
+                        <label class="form-label" for="select-cat-campeonato-id"><i data-lucide="trophy" style="width:15px;height:15px;display:inline-block;vertical-align:middle;margin-right:5px;color:var(--color-primary);"></i> Campeonato Perteneciente (Se registrará la categoría en este torneo)</label>
+                        <select id="select-cat-campeonato-id" class="form-input" required style="font-weight:700; color:var(--color-primary);">
+                            <!-- Se puebla dinámicamente -->
+                        </select>
+                    </div>
                     
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
                         <div class="form-group">
@@ -1694,6 +1724,14 @@
             return `${currency} $${val}`;
         }
 
+        function limpiarFormularioNuevoCampeonato() {
+            configCampeonato = {};
+            document.getElementById("config-form").reset();
+            const banner = document.getElementById("banner-campeonato-activo");
+            if (banner) banner.style.display = "none";
+            alert("Formulario limpiado. Puedes ingresar los datos del nuevo campeonato.");
+        }
+
         async function cargarDatos() {
             verificarSesionAdmin();
             await cargarAdminMetrics();
@@ -1711,6 +1749,14 @@
             const campeonatos = await dbGetTable("campeonatos");
             if (campeonatos.length > 0) {
                 configCampeonato = campeonatos[0];
+
+                const bannerActivo = document.getElementById("banner-campeonato-activo");
+                const lblActivo = document.getElementById("lbl-nombre-camp-activo");
+                if (bannerActivo && lblActivo) {
+                    lblActivo.innerText = configCampeonato.nombre;
+                    bannerActivo.style.display = "block";
+                }
+
                 document.getElementById("camp-nombre").value = configCampeonato.nombre;
                 const selectTipo = document.getElementById("camp-tipo");
                 if (selectTipo) {
@@ -2181,6 +2227,17 @@
         // Enviar Formulario de Configuración
         document.getElementById("config-form").addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            // Validar que la fecha límite de pago de inscripción sea futura
+            const limitePago = document.getElementById("camp-limite-pago").value;
+            if (limitePago) {
+                const hoyStr = new Date().toISOString().split('T')[0];
+                if (limitePago <= hoyStr) {
+                    alert("Atención: La fecha límite de pago de inscripción de equipos debe ser una fecha posterior a la fecha actual.");
+                    return;
+                }
+            }
+
             const nuevoCamp = {
                 nombre: document.getElementById("camp-nombre").value,
                 tipo_campeonato: document.getElementById("camp-tipo") ? document.getElementById("camp-tipo").value : "barrial_abierto",
@@ -2188,7 +2245,7 @@
                 canchas_nombres: document.getElementById("camp-canchas").value,
                 costo_arbitraje: parseFloat(document.getElementById("camp-costo-arbitraje").value || 0),
                 costo_vocalia: parseFloat(document.getElementById("camp-costo-vocalia").value || 0),
-                limite_pago_inscripcion: document.getElementById("camp-limite-pago").value || null,
+                limite_pago_inscripcion: limitePago || null,
                 costo_inscripcion: parseFloat(document.getElementById("camp-costo").value),
                 garantia_disciplina: parseFloat(document.getElementById("camp-garantia").value),
                 multa_amarilla: parseFloat(document.getElementById("camp-multa-amarilla").value),
@@ -2214,7 +2271,6 @@
                     const res = await window.supabase.from('campeonatos').update(nuevoCamp).eq('id', configCampeonato.id);
                     error = res.error;
                 } else {
-                    // Si no hay campeonato en la base de datos, lo insertamos
                     const sessionUser = (await window.supabase.auth.getUser())?.data?.user;
                     const organizador_id = sessionUser ? sessionUser.id : localStorage.getItem("session_id");
                     
@@ -2232,16 +2288,11 @@
                     return;
                 }
             } else {
-                const localDb = getMockDB();
-                if (localDb.campeonatos && localDb.campeonatos.length > 0) {
-                    localDb.campeonatos[0] = { ...localDb.campeonatos[0], ...nuevoCamp };
-                } else {
-                    localDb.campeonatos = [{ id: genRandomId(), ...nuevoCamp }];
-                }
-                saveMockDB(localDb);
+                await dbInsertRow("campeonatos", nuevoCamp);
             }
-            alert("¡Configuración guardada exitosamente!");
-            window.location.reload();
+            
+            alert(`¡Campeonato "${nuevoCamp.nombre}" registrado y guardado exitosamente!`);
+            await cargarDatos();
         });
 
         // Registrar Nuevo Equipo
@@ -2476,17 +2527,33 @@
 
         const modalCategoria = document.getElementById("modal-categoria");
         
-        function abrirModalCategoria() {
+        async function abrirModalCategoria() {
             modalCategoria.style.display = "flex";
             document.getElementById("form-categoria").reset();
             document.getElementById("txt-cat-id").value = "";
             document.getElementById("lbl-modal-categoria-titulo").innerHTML = `<i data-lucide="layers"></i> Crear Categoría`;
+
+            const selectCampCat = document.getElementById("select-cat-campeonato-id");
+            if (selectCampCat) {
+                const campeonatos = await dbGetTable("campeonatos");
+                selectCampCat.innerHTML = "";
+                if ((campeonatos || []).length === 0) {
+                    selectCampCat.innerHTML = `<option value="">-- Registra primero un campeonato en Ajustes --</option>`;
+                } else {
+                    (campeonatos || []).forEach(c => {
+                        const selected = (c.id === configCampeonato.id) ? 'selected' : '';
+                        selectCampCat.innerHTML += `<option value="${c.id}" ${selected}>🏆 ${c.nombre}</option>`;
+                    });
+                }
+            }
+
             toggleMixtoParams();
             lucide.createIcons();
         }
 
         function cerrarModalCategoria() {
             modalCategoria.style.display = "none";
+            switchTab('campeonato');
         }
 
         function toggleMixtoParams() {
@@ -2541,6 +2608,9 @@
             if (document.getElementById("select-cat-nivel-escolar")) {
                 document.getElementById("select-cat-nivel-escolar").value = cat.nivel_escolar || "ninguno";
             }
+            if (document.getElementById("select-cat-campeonato-id") && cat.campeonato_id) {
+                document.getElementById("select-cat-campeonato-id").value = cat.campeonato_id;
+            }
             document.getElementById("select-cat-genero").value = cat.genero;
             document.getElementById("txt-cat-costo").value = cat.costo_inscripcion;
             
@@ -2576,9 +2646,10 @@
             e.preventDefault();
             const id = document.getElementById("txt-cat-id").value;
             const genero = document.getElementById("select-cat-genero").value;
+            const selCampId = document.getElementById("select-cat-campeonato-id") ? document.getElementById("select-cat-campeonato-id").value : (configCampeonato.id || "c1");
 
             const datosCat = {
-                campeonato_id: configCampeonato.id || "c1",
+                campeonato_id: selCampId,
                 nombre: document.getElementById("txt-cat-nombre").value.trim(),
                 modalidad: document.getElementById("select-cat-modalidad").value,
                 nivel_escolar: document.getElementById("select-cat-nivel-escolar") ? document.getElementById("select-cat-nivel-escolar").value : "ninguno",
