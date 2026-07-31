@@ -305,31 +305,23 @@
                     <div><strong>Cuenta de Pago:</strong> Cuenta de Ahorros</div>
                     <div><strong>Tarifa App:</strong> $1.00 USD / Equipo Inscrito</div>
                 </div>
-        <!-- TAB: CONFIGURACIÓN -->
+            </div>
+
+        <!-- TAB: CONFIGURACIÓN Y GESTIÓN DE CAMPEONATOS -->
         <div id="tab-campeonato" class="tab-content active glass-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                <h2 style="font-size: 1.5rem;"><i data-lucide="settings"></i> Ajustes del Campeonato</h2>
-                <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; border-bottom:1px solid var(--border-glass); padding-bottom:15px;">
+                <div>
+                    <h2 style="font-size: 1.5rem;"><i data-lucide="trophy" style="color:var(--color-primary);"></i> Gestión de Campeonatos</h2>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">Configura las reglas, modalidades, precios y parámetros de tus torneos deportivos.</p>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.9rem; padding:10px 18px;">
                     <i data-lucide="plus-circle"></i> + Registrar Nuevo Campeonato
                 </button>
             </div>
 
-            <!-- INDICADOR DE CAMPEONATO REGISTRADO ACTIVO -->
-            <div id="banner-campeonato-activo" style="display:none; background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:16px 20px; border-radius:var(--radius-sm); margin-bottom:25px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                    <div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Campeonato Registrado Activo</div>
-                        <h3 id="lbl-nombre-camp-activo" style="font-size:1.3rem; color:var(--color-primary); margin-top:2px;">-</h3>
-                    </div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <span class="status-badge" style="background:rgba(0, 255, 135, 0.15); color:var(--color-primary); padding:6px 12px; font-size:0.85rem;">
-                            Registrado / En Configuración ✓
-                        </span>
-                        <button type="button" class="btn btn-secondary" onclick="editarAjustesCampeonato()" style="font-size:0.85rem; padding:6px 12px;">
-                            <i data-lucide="edit"></i> ✏️ Editar Ajustes
-                        </button>
-                    </div>
-                </div>
+            <!-- CONTENEDOR DE LISTA DE CAMPEONATOS REGISTRADOS -->
+            <div id="container-lista-campeonatos" style="margin-bottom: 25px;">
+                <!-- Carga dinámica de lista/tarjetas de campeonatos -->
             </div>
 
             <!-- CONTENEDOR DEL FORMULARIO (OCULTO POR DEFECTO HASTA DAR CLIC EN REGISTRAR/EDITAR) -->
@@ -1858,6 +1850,72 @@
             alert("Formulario limpiado.");
         }
 
+        async function seleccionarYEditarCampeonato(id) {
+            const campeonatos = await dbGetTable("campeonatos");
+            const target = (campeonatos || []).find(c => c.id === id);
+            if (target) {
+                configCampeonato = target;
+                editarAjustesCampeonato();
+            }
+        }
+
+        function renderizarListaCampeonatos(campeonatos) {
+            const container = document.getElementById("container-lista-campeonatos");
+            if (!container) return;
+
+            if (!campeonatos || campeonatos.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.15); border:1px dashed var(--border-glass); border-radius:var(--radius-md);">
+                        <i data-lucide="trophy" style="width:48px; height:48px; color:var(--color-primary); margin-bottom:12px; opacity:0.6;"></i>
+                        <h3 style="font-size:1.15rem; color:var(--text-main); font-weight:700;">No hay ningún campeonato registrado aún</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:18px;">Empieza registrando los datos generales, reglas y modalidad de tu torneo deportivo.</p>
+                        <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.9rem; padding:8px 18px;">
+                            <i data-lucide="plus-circle"></i> + Registrar Primer Campeonato
+                        </button>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            let html = `
+                <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Campeonato(s) Registrado(s) (${campeonatos.length})</span>
+                    <small style="color:var(--color-primary);">Selecciona 'Editar Ajustes' para modificar</small>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+            `;
+
+            campeonatos.forEach(c => {
+                const esActivo = configCampeonato && configCampeonato.id === c.id;
+                const tipoText = c.tipo_campeonato === 'escolar_colegial' ? '🏫 Escolar y Colegial' : '⚽ Barrial / Libre / Senior';
+                const ubicacionText = [c.ciudad, c.pais].filter(Boolean).join(', ') || 'Ubicación no definida';
+                
+                html += `
+                    <div style="background:${esActivo ? 'rgba(0, 255, 135, 0.05)' : 'rgba(255,255,255,0.02)'}; border:${esActivo ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)'}; border-radius:var(--radius-md); padding:18px; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                                <h3 style="font-size:1.15rem; color:${esActivo ? 'var(--color-primary)' : 'var(--text-main)'}; font-weight:800; line-height:1.2;">${c.nombre}</h3>
+                                ${esActivo ? `<span style="background:rgba(0, 255, 135, 0.15); color:var(--color-primary); font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap;">Activo ✓</span>` : ''}
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">${tipoText}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> ${ubicacionText}</div>
+                        </div>
+                        
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:12px; margin-top:10px;">
+                            <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px; width:100%; border-color:var(--color-primary); color:var(--color-primary);" onclick="seleccionarYEditarCampeonato('${c.id}')">
+                                <i data-lucide="edit"></i> ✏️ Editar Ajustes del Campeonato
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
         async function cargarDatos() {
             verificarSesionAdmin();
             await cargarAdminMetrics();
@@ -1873,7 +1931,9 @@
 
             // Cargar Campeonato y Configuración
             const campeonatos = await dbGetTable("campeonatos");
-            if (campeonatos.length > 0) {
+            renderizarListaCampeonatos(campeonatos || []);
+
+            if (campeonatos && campeonatos.length > 0) {
                 configCampeonato = campeonatos[0];
 
                 const bannerActivo = document.getElementById("banner-campeonato-activo");
