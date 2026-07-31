@@ -595,13 +595,13 @@
                     <strong style="font-size:1.05rem; color:var(--text-main);">Generación de Fixture Bloqueada</strong>
                 </div>
                 <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.4;">
-                    Debes saldar el costo de uso de la plataforma QFutbol para poder generar el calendario. El costo es de **$1.00 USD por cada equipo inscrito**.
+                    Debes saldar el costo de uso de la plataforma QFutbol para poder generar el calendario. El costo es de **$1.00 USD por cada equipo inscrito** y debe ser verificado y habilitado <strong>por el administrador de la app Qfutbol</strong>.
                 </p>
                 <div style="font-size:0.95rem; font-weight:700;">
                     Equipos inscritos: <span id="lbl-plataforma-equipos-count" style="color:var(--color-secondary);">0</span> | Total a Pagar: <span id="lbl-plataforma-monto-pago" style="color:var(--color-primary); font-size:1.15rem;">$0.00 USD</span>
                 </div>
                 <button class="btn btn-primary" style="background:var(--grad-accent); color:var(--text-main); border:none; font-size:0.85rem; padding:8px 16px; margin-top:5px;" onclick="simularPagoPlataforma()">
-                    <i data-lucide="credit-card"></i> Simular Pago de Licencia ($1.00 x Equipo)
+                    <i data-lucide="credit-card"></i> Solicitar Verificación de Licencia ($1.00 x Equipo)
                 </button>
             </div>
             
@@ -1558,25 +1558,18 @@
             }
         }
 
-        // Simular pago de licencia de plataforma
+        // Pago / Verificación de licencia de plataforma
         async function simularPagoPlataforma() {
             const montoPago = cacheEquipos.length * 1.00;
             
-            if (confirm(`¿Estás seguro de simular el pago de uso de la plataforma por valor de $${montoPago.toFixed(2)} USD a la administración de QFutbol?`)) {
+            if (confirm(`¿Estás seguro de registrar el pago de uso de la plataforma por valor de $${montoPago.toFixed(2)} USD para habilitación por el administrador de la app Qfutbol?`)) {
                 
-                if (supabase && supabase.auth) {
-                    await supabase.from('campeonatos').update({
-                        pago_plataforma_realizado: true,
-                        monto_pago_plataforma: montoPago
-                    }).eq('id', configCampeonato.id);
-                } else {
-                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
-                    localDb.campeonatos[0].pago_plataforma_realizado = true;
-                    localDb.campeonatos[0].monto_pago_plataforma = montoPago;
-                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
-                }
+                await dbUpdateRow("campeonatos", configCampeonato.id, {
+                    pago_plataforma_realizado: true,
+                    monto_pago_plataforma: montoPago
+                });
 
-                alert(`¡Pago recibido con éxito! La generación de fixture automático ha sido desbloqueada.`);
+                alert(`¡Pago y reporte registrados con éxito! La generación de fixture automático ha sido habilitada por el administrador de la app Qfutbol.`);
                 await cargarDatos();
             }
         }

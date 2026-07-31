@@ -96,7 +96,7 @@
             </p>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
                 <a href="#login" class="btn btn-primary">
-                    <i data-lucide="log-in"></i> Acceso Staff
+                    <i data-lucide="log-in"></i> Iniciar Sesión / Registro
                 </a>
                 <a href="portal_jugadores.html" class="btn btn-primary" style="background: var(--grad-accent); color: var(--text-main); box-shadow: 0 4px 15px rgba(125, 95, 255, 0.3);">
                     <i data-lucide="user"></i> Portal de Jugadores
@@ -129,7 +129,7 @@
             </div>
         </section>
 
-        <!-- PANEL DE ACCESO / LOGIN & REGISTRO CON GOOGLE, FACEBOOK Y CORREO -->
+        <!-- PANEL DE ACCESO / LOGIN & REGISTRO -->
         <section id="login" class="glass-panel" style="max-width: 480px; margin: 0 auto 60px; padding: 25px;">
             <!-- Tabs -->
             <div style="display:flex; border-bottom:1px solid var(--border-glass); margin-bottom:25px;">
@@ -155,7 +155,6 @@
 
             <!-- LOGIN CONTENT -->
             <div id="auth-login-container">
-                <!-- Login con Email -->
                 <form id="login-email-form">
                     <div class="form-group">
                         <label class="form-label" for="login-email">Correo Electrónico</label>
@@ -165,25 +164,10 @@
                         <label class="form-label" for="login-password">Contraseña</label>
                         <input class="form-input" type="password" id="login-password" placeholder="Tu contraseña" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i data-lucide="log-in"></i> Iniciar Sesión
                     </button>
                 </form>
-
-                <!-- Login Simulado / Selección Rápida de Rol -->
-                <div style="border-top: 1px solid var(--border-glass); padding-top: 15px; margin-top: 15px;">
-                    <form id="login-simulado-form">
-                        <div class="form-group">
-                            <label class="form-label" for="login-user">Acceso Rápido de Prueba (Rol)</label>
-                            <select class="form-input" id="login-user" style="cursor: pointer;">
-                                <!-- Cargado dinámicamente -->
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-secondary" style="width: 100%;">
-                            <i data-lucide="play-circle"></i> Entrar como Demostración
-                        </button>
-                    </form>
-                </div>
             </div>
 
             <!-- REGISTER CONTENT -->
@@ -191,11 +175,11 @@
                 <form id="register-form">
                     <div class="form-group">
                         <label class="form-label" for="reg-nombres">Nombres</label>
-                        <input class="form-input" type="text" id="reg-nombres" placeholder="Ej. Pedro" required>
+                        <input class="form-input" type="text" id="reg-nombres" placeholder="Ej. Juan" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="reg-apellidos">Apellidos</label>
-                        <input class="form-input" type="text" id="reg-apellidos" placeholder="Ej. Vargas" required>
+                        <input class="form-input" type="text" id="reg-apellidos" placeholder="Ej. Pérez" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="reg-email">Correo Electrónico</label>
@@ -206,10 +190,11 @@
                         <input class="form-input" type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 25px;">
-                        <label class="form-label" for="reg-rol">Rol en la Liga</label>
+                        <label class="form-label" for="reg-rol">Rol en la Plataforma</label>
                         <select class="form-input" id="reg-rol" style="cursor: pointer;">
-                            <option value="organizador">Organizador del Torneo</option>
-                            <option value="vocal">Vocal de Mesa / Cancha</option>
+                            <option value="organizador">Organizador (Organiza tu Campeonato)</option>
+                            <option value="vocal">Vocal de Mesa / Partido</option>
+                            <option value="jugador">Jugador (Consultar Torneos y Estadísticas)</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
@@ -345,70 +330,52 @@
             }
         }
 
-        // Cargar lista de usuarios de demostración / rápida selección
-        async function cargarUsuariosLogin() {
-            const select = document.getElementById("login-user");
-            if (!select) return;
-            select.innerHTML = "";
-            try {
-                const perfiles = await dbGetTable("perfiles");
-                if (perfiles.length === 0) {
-                    select.innerHTML = `
-                        <option value="organizador" data-rol="organizador">Pedro Vargas (Organizador del Torneo)</option>
-                        <option value="vocal" data-rol="vocal">Carlos Mena (Vocal de Mesa / Cancha)</option>
-                    `;
-                    return;
-                }
-                perfiles.forEach(p => {
-                    const rolText = p.rol === 'organizador' ? 'Organizador' : (p.rol === 'vocal' ? 'Vocal' : 'Admin');
-                    select.innerHTML += `
-                        <option value="${p.id}" data-rol="${p.rol}">${p.nombres} ${p.apellidos} (${rolText})</option>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-                select.innerHTML = `
-                    <option value="organizador" data-rol="organizador">Pedro Vargas (Organizador del Torneo)</option>
-                    <option value="vocal" data-rol="vocal">Carlos Mena (Vocal de Mesa / Cancha)</option>
-                `;
-            }
-        }
-
         // Manejador de Autenticación con Google y Facebook
         async function handleSocialAuth(provider) {
             const providerName = provider === 'google' ? 'Google' : 'Facebook';
-            alert(`Iniciando sesión segura con ${providerName}... Redirigiendo a tu panel de control.`);
-            
-            const mockSocialUser = {
-                nombres: provider === 'google' ? 'Usuario' : 'Delegado',
-                apellidos: providerName,
-                rol: 'organizador'
-            };
+            const emailPrompt = prompt(`Ingresa tu correo registrado en ${providerName}:`, "soloescribeme@gmail.com");
+            if (!emailPrompt) return;
 
-            try {
-                // Registrar o verificar en perfiles de la base de datos
-                await dbInsertRow("perfiles", {
-                    nombres: mockSocialUser.nombres,
-                    apellidos: mockSocialUser.apellidos,
-                    rol: 'organizador'
-                });
-            } catch(e) {
-                console.log("Perfil registrado en línea.");
+            const email = emailPrompt.trim().toLowerCase();
+            let rol = "organizador";
+            let nombres = "Usuario";
+            let apellidos = providerName;
+
+            // Reconocimiento del Administrador Global por el administrador de la app Qfutbol
+            if (email === "soloescribeme@gmail.com") {
+                rol = "admin";
+                nombres = "Luis Antonio";
+                apellidos = "Lozano Lozano";
             }
 
-            sessionStorage.setItem("qfutbol_user_session", JSON.stringify(mockSocialUser));
-            window.location.href = "dashboard.html";
+            const userSession = {
+                id: "usr_" + Math.random().toString(36).substring(2, 9),
+                nombres,
+                apellidos,
+                email,
+                rol
+            };
+
+            sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+            // Redirección según el rol de acceso asignado
+            if (rol === "admin" || rol === "organizador") {
+                window.location.href = "dashboard.html";
+            } else if (rol === "vocal") {
+                window.location.href = "vocal.html";
+            } else if (rol === "jugador") {
+                window.location.href = "portal_jugadores.html";
+            }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            await cargarUsuariosLogin();
             await cargarEstadisticasLanding();
             lucide.createIcons();
 
             // Manejo de Formulario de Inicio de Sesión con Email
             document.getElementById("login-email-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const email = document.getElementById("login-email").value.trim();
+                const email = document.getElementById("login-email").value.trim().toLowerCase();
                 const password = document.getElementById("login-password").value;
 
                 if (!email || !password) {
@@ -416,9 +383,40 @@
                     return;
                 }
 
-                alert(`Bienvenido de nuevo (${email}). Accediendo al sistema...`);
-                sessionStorage.setItem("qfutbol_user_session", JSON.stringify({ email, rol: 'organizador' }));
-                window.location.href = "dashboard.html";
+                let rol = "organizador";
+                let nombres = "Usuario";
+                let apellidos = "QFutbol";
+
+                // Reconocimiento del Administrador por el administrador de la app Qfutbol
+                if (email === "soloescribeme@gmail.com") {
+                    rol = "admin";
+                    nombres = "Luis Antonio";
+                    apellidos = "Lozano Lozano";
+                } else {
+                    // Verificar si existe en la base de datos de perfiles
+                    try {
+                        const perfiles = await dbGetTable("perfiles");
+                        const userMatch = perfiles.find(p => p.email && p.email.toLowerCase() === email);
+                        if (userMatch) {
+                            rol = userMatch.rol || "organizador";
+                            nombres = userMatch.nombres;
+                            apellidos = userMatch.apellidos;
+                        }
+                    } catch (err) {
+                        console.error("Error al verificar perfil:", err);
+                    }
+                }
+
+                const userSession = { email, nombres, apellidos, rol };
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+                if (rol === "admin" || rol === "organizador") {
+                    window.location.href = "dashboard.html";
+                } else if (rol === "vocal") {
+                    window.location.href = "vocal.html";
+                } else if (rol === "jugador") {
+                    window.location.href = "portal_jugadores.html";
+                }
             });
 
             // Manejo de Formulario de Registro por Correo
@@ -426,41 +424,34 @@
                 e.preventDefault();
                 const nombres = document.getElementById("reg-nombres").value.trim();
                 const apellidos = document.getElementById("reg-apellidos").value.trim();
-                const email = document.getElementById("reg-email").value.trim();
+                const email = document.getElementById("reg-email").value.trim().toLowerCase();
                 const password = document.getElementById("reg-password").value;
-                const rol = document.getElementById("reg-rol").value;
+                let rol = document.getElementById("reg-rol").value;
+
+                // Asignar Admin automático solo si es el correo del dueño
+                if (email === "soloescribeme@gmail.com") {
+                    rol = "admin";
+                }
 
                 try {
-                    const nuevoPerfil = await dbInsertRow("perfiles", {
+                    await dbInsertRow("perfiles", {
                         nombres,
                         apellidos,
+                        email,
                         rol
                     });
                     alert(`¡Cuenta creada con éxito! Bienvenido ${nombres} ${apellidos}.`);
                     sessionStorage.setItem("qfutbol_user_session", JSON.stringify({ nombres, apellidos, email, rol }));
-                    if (rol === 'organizador') {
+
+                    if (rol === "admin" || rol === "organizador") {
                         window.location.href = "dashboard.html";
-                    } else {
+                    } else if (rol === "vocal") {
                         window.location.href = "vocal.html";
+                    } else if (rol === "jugador") {
+                        window.location.href = "portal_jugadores.html";
                     }
                 } catch (error) {
                     alert("Error al registrar la cuenta: " + error.message);
-                }
-            });
-
-            // Manejo de Acceso Simulado Rápido
-            document.getElementById("login-simulado-form").addEventListener("submit", (e) => {
-                e.preventDefault();
-                const select = document.getElementById("login-user");
-                const selectedOpt = select.options[select.selectedIndex];
-                const rol = selectedOpt.getAttribute("data-rol");
-
-                if (rol === "organizador") {
-                    window.location.href = "dashboard.html";
-                } else if (rol === "vocal") {
-                    window.location.href = "vocal.html";
-                } else {
-                    window.location.href = "dashboard.html";
                 }
             });
         });
