@@ -1,0 +1,334 @@
+/* ==========================================================================
+   ESTILOS PREMIUM QFUTBOL - SISTEMA DE DISEÑO (GLASSMORPHISM & DARK MODE)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    /* Paleta de colores */
+    --bg-main: #0a0b10;
+    --bg-card: rgba(255, 255, 255, 0.03);
+    --bg-card-hover: rgba(255, 255, 255, 0.06);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(0, 255, 135, 0.3);
+    
+    --color-primary: #00ff87; /* Verde Neón Fútbol */
+    --color-secondary: #60efff; /* Celeste Eléctrico */
+    --color-accent: #7d5fff; /* Violeta Premium */
+    --color-danger: #ff4d4d; /* Rojo Tarjeta */
+    --color-warning: #ffd32a; /* Amarillo Tarjeta */
+    
+    --text-main: #f5f6fa;
+    --text-muted: #8e95b3;
+    --text-dark: #0a0b10;
+    
+    /* Gradientes */
+    --grad-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    --grad-accent: linear-gradient(135deg, var(--color-accent) 0%, #ff4b8b 100%);
+    --grad-dark: linear-gradient(135deg, #151824 0%, #0a0b10 100%);
+    
+    /* Efecto Blur */
+    --blur-glass: blur(16px);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Reset y Estilos Globales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(125, 95, 255, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 255, 135, 0.08) 0px, transparent 50%);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(to right, #ffffff, #dcdde1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Contenedor Principal */
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Efecto Glassmorphism */
+.glass-panel {
+    background: var(--bg-card);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    padding: 24px;
+    transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Botones Premium */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border: none;
+    outline: none;
+    text-decoration: none;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--grad-primary);
+    color: var(--text-dark);
+    box-shadow: 0 4px 15px rgba(0, 255, 135, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 135, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 1px solid var(--border-glass);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+    background: rgba(255, 77, 77, 0.1);
+    color: var(--color-danger);
+    border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.btn-danger:hover {
+    background: rgba(255, 77, 77, 0.2);
+    border-color: var(--color-danger);
+}
+
+/* Campos de Formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: var(--transition-smooth);
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--border-active);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Tarjetas Informativas */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.player-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: var(--transition-smooth);
+}
+
+.player-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.player-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.player-score {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 255, 135, 0.1);
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+/* Alertas */
+.alert {
+    padding: 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid transparent;
+}
+
+.alert-warning {
+    background: rgba(255, 211, 42, 0.08);
+    border-color: var(--color-warning);
+    color: #ffe066;
+}
+
+.alert-danger {
+    background: rgba(255, 77, 77, 0.08);
+    border-color: var(--color-danger);
+    color: #ff8080;
+}
+
+/* Planilla de Vocal en vivo (Elementos interactivos móviles) */
+.stat-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.stat-counter {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.counter-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.counter-btn:hover {
+    background: var(--color-primary);
+    color: var(--text-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 12px;
+    }
+    .glass-panel {
+        padding: 16px;
+    }
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+/* Modales Premium */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 11, 16, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--color-danger);
+}

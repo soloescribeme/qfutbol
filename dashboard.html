@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Panel del Organizador</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border-radius: var(--radius-sm);
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .tab-btn.active {
+            color: var(--color-primary);
+            background: rgba(0, 255, 135, 0.08);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            color: var(--text-main);
+        }
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-success { background: rgba(0, 255, 135, 0.1); color: var(--color-primary); }
+        .badge-warning { background: rgba(255, 211, 42, 0.1); color: var(--color-warning); }
+        .badge-danger { background: rgba(255, 77, 77, 0.1); color: var(--color-danger); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER / NAVBAR -->
+        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem; border-left: 1px solid var(--border-glass); padding-left: 12px; margin-left: 4px;">Organizador</span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span id="connection-status" class="player-score" style="background: rgba(255, 211, 42, 0.1); color: var(--color-warning);">Modo Local</span>
+                <a href="index.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Salir
+                </a>
+            </div>
+        </header>
+
+        <!-- KPI METRICS -->
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <i data-lucide="shield" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Equipos Inscritos</div>
+                <div id="metric-equipos" class="metric-value">0</div>
+            </div>
+            <div class="metric-card">
+                <i data-lucide="calendar" style="color: var(--color-secondary); width: 24px; height: 24px;"></i>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Partidos Totales</div>
+                <div id="metric-partidos" class="metric-value">0</div>
+            </div>
+            <div class="metric-card">
+                <i data-lucide="dollar-sign" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Recaudación (Abonos)</div>
+                <div id="metric-recaudado" class="metric-value">$0.00</div>
+            </div>
+            <div class="metric-card">
+                <i data-lucide="alert-triangle" style="color: var(--color-danger); width: 24px; height: 24px;"></i>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Multas Pendientes</div>
+                <div id="metric-deudas" class="metric-value">$0.00</div>
+            </div>
+        </div>
+
+        <!-- TABS DE NAVEGACIÓN -->
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('campeonato')"><i data-lucide="settings" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Configuración</button>
+            <button class="tab-btn" onclick="switchTab('categorias')"><i data-lucide="layers" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Categorías</button>
+            <button class="tab-btn" onclick="switchTab('equipos')"><i data-lucide="users" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Equipos</button>
+            <button class="tab-btn" onclick="switchTab('auspiciantes')"><i data-lucide="image" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Auspiciantes</button>
+            <button class="tab-btn" onclick="switchTab('calendario')"><i data-lucide="calendar-days" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Fixture / Jornadas</button>
+            <button class="tab-btn" onclick="switchTab('finanzas')"><i data-lucide="wallet" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:5px;"></i> Finanzas y Abonos</button>
+        </div>
+
+        <!-- TAB: CONFIGURACIÓN -->
+        <div id="tab-campeonato" class="tab-content active glass-panel">
+            <h2 style="font-size: 1.5rem; margin-bottom: 20px;"><i data-lucide="settings"></i> Ajustes del Campeonato</h2>
+            <form id="config-form">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" for="camp-nombre">Nombre del Campeonato</label>
+                        <input type="text" id="camp-nombre" class="form-input" placeholder="Ej. Torneo Nocturno de Barrio La Floresta" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-duracion">Duración Estimada (Meses)</label>
+                        <input type="number" id="camp-duracion" class="form-input" placeholder="Ej. 3" min="1" max="12">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-canchas">Nombre de la/s Cancha/s</label>
+                        <input type="text" id="camp-canchas" class="form-input" placeholder="Ej. Cancha Principal La Floresta, Coliseo Cerrado">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-divisa">Moneda (Divisa)</label>
+                        <select id="camp-divisa" class="form-input">
+                            <option value="USD">Dólar Estadounidense ($ USD)</option>
+                            <option value="COP">Peso Colombiano ($ COP)</option>
+                            <option value="MXN">Peso Mexicano ($ MXN)</option>
+                            <option value="PEN">Sol Peruano (S/. PEN)</option>
+                            <option value="EUR">Euro (€ EUR)</option>
+                            <option value="ARS">Peso Argentino ($ ARS)</option>
+                            <option value="CLP">Peso Chileno ($ CLP)</option>
+                            <option value="UYU">Peso Uruguayo ($ UYU)</option>
+                            <option value="BRL">Real Brasileño (R$ BRL)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-costo-arbitraje">Costo de Arbitraje por Partido ($)</label>
+                        <input type="number" id="camp-costo-arbitraje" class="form-input" placeholder="Ej. 10.00" step="1.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-costo-vocalia">Costo de Vocalía por Partido ($)</label>
+                        <input type="number" id="camp-costo-vocalia" class="form-input" placeholder="Ej. 5.00" step="1.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-limite-pago">Fecha Límite Pago Inscripción</label>
+                        <input type="date" id="camp-limite-pago" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-costo">Costo de Inscripción por Equipo ($)</label>
+                        <input type="number" id="camp-costo" class="form-input" placeholder="Ej. 1.00" step="0.50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-garantia">Garantía de Disciplina ($)</label>
+                        <input type="number" id="camp-garantia" class="form-input" placeholder="Ej. 10.00" step="1.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-multa-amarilla">Multa Tarjeta Amarilla ($)</label>
+                        <input type="number" id="camp-multa-amarilla" class="form-input" placeholder="Ej. 1.00" step="0.10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-multa-roja">Multa Tarjeta Roja Directa ($)</label>
+                        <input type="number" id="camp-multa-roja" class="form-input" placeholder="Ej. 5.00" step="0.50">
+                    </div>
+                </div>
+
+                <!-- Ubicación del Campeonato -->
+                <h3 style="font-size:1.15rem; margin-top:25px; margin-bottom:15px; border-top:1px solid var(--border-glass); padding-top:20px; color:var(--color-secondary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <span><i data-lucide="map-pin"></i> Ubicación del Campeonato</span>
+                    <button type="button" class="btn btn-secondary" onclick="autoDetectarUbicacion()" style="padding: 4px 8px; font-size: 0.75rem; border-color: rgba(255, 255, 255, 0.15);">
+                        <i data-lucide="locate" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Autodetectar por IP
+                    </button>
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" for="camp-pais">País</label>
+                        <input type="text" id="camp-pais" class="form-input" placeholder="Ej. Ecuador" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-provincia">Provincia / Estado</label>
+                        <input type="text" id="camp-provincia" class="form-input" placeholder="Ej. Pichincha">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-canton">Cantón / Municipio</label>
+                        <input type="text" id="camp-canton" class="form-input" placeholder="Ej. Quito">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-ciudad">Ciudad</label>
+                        <input type="text" id="camp-ciudad" class="form-input" placeholder="Ej. Quito">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-parroquia">Parroquia / Distrito</label>
+                        <input type="text" id="camp-parroquia" class="form-input" placeholder="Ej. La Floresta">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-barrio">Barrio o Sector</label>
+                        <input type="text" id="camp-barrio" class="form-input" placeholder="Ej. La Floresta">
+                    </div>
+                </div>
+
+                <!-- Datos Bancarios de la Liga para recibir pagos -->
+                <h3 style="font-size:1.15rem; margin-top:25px; margin-bottom:15px; border-top:1px solid var(--border-glass); padding-top:20px; color:var(--color-secondary);"><i data-lucide="landmark"></i> Datos Bancarios de la Liga</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-nombre">Nombre del Banco</label>
+                        <input type="text" id="camp-banco-nombre" class="form-input" placeholder="Ej. Banco Pichincha">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-tipo">Tipo de Cuenta</label>
+                        <select id="camp-banco-tipo" class="form-input">
+                            <option value="Ahorros">Cuenta de Ahorros</option>
+                            <option value="Corriente">Cuenta Corriente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-numero">Número de Cuenta</label>
+                        <input type="text" id="camp-banco-numero" class="form-input" placeholder="Ej. 2200456789">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-titular">Titular de la Cuenta</label>
+                        <input type="text" id="camp-banco-titular" class="form-input" placeholder="Ej. Liga Deportiva Barrial">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-identificacion">C.I. o RUC del Titular</label>
+                        <input type="text" id="camp-banco-identificacion" class="form-input" placeholder="Ej. 1712345678">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="camp-banco-telefono">Teléfono Reporte Depósitos</label>
+                        <input type="text" id="camp-banco-telefono" class="form-input" placeholder="Ej. 0991234567">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">
+                    <i data-lucide="save"></i> Guardar Configuración
+                </button>
+            </form>
+        </div>
+
+        <!-- TAB: CATEGORÍAS -->
+        <div id="tab-categorias" class="tab-content glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="font-size: 1.5rem;"><i data-lucide="layers"></i> Categorías del Campeonato</h2>
+                <button class="btn btn-primary" onclick="abrirModalCategoria()"><i data-lucide="plus-circle"></i> Crear Categoría</button>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Género / Restricción</th>
+                            <th>Modalidad</th>
+                            <th>Inscripción</th>
+                            <th>Premios</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-categorias">
+                        <!-- Categorías cargadas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MODAL CATEGORÍA -->
+        <div id="modal-categoria" class="modal">
+            <div class="modal-content glass-panel" style="max-width: 650px; overflow-y: auto; max-height: 85vh;">
+                <span class="close-btn" onclick="cerrarModalCategoria()">&times;</span>
+                <h3 style="font-size:1.3rem; margin-bottom:15px; color:var(--color-primary);" id="lbl-modal-categoria-titulo"><i data-lucide="layers"></i> Crear Categoría</h3>
+                
+                <form id="form-categoria">
+                    <input type="hidden" id="txt-cat-id">
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-nombre">Nombre de la Categoría</label>
+                            <input type="text" id="txt-cat-nombre" class="form-input" placeholder="Ej. Sub 8, Sub 10, Pos 40, Femenina Abierta" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="select-cat-modalidad">Modalidad de Juego</label>
+                            <select id="select-cat-modalidad" class="form-input">
+                                <option value="futbol_11">Fútbol 11 (Mín. 7 p.)</option>
+                                <option value="futbol_9">Fútbol 9 (Mín. 6 p.)</option>
+                                <option value="futbol_7">Fútbol 7 (Mín. 5 p.)</option>
+                                <option value="futsal">Futsal (Mín. 4 p.)</option>
+                                <option value="indoor">Indoor (Mín. 4 p.)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="select-cat-genero">Género</label>
+                            <select id="select-cat-genero" class="form-input" onchange="toggleMixtoParams()">
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="mixto">Mixto (Hombres + Mujeres)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-costo">Costo de Inscripción ($)</label>
+                            <input type="number" id="txt-cat-costo" class="form-input" value="30.00" step="1.00" required>
+                        </div>
+                    </div>
+
+                    <!-- Parámetros Mixto -->
+                    <div id="mixto-parametros-container" style="display:none; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); padding:12px; border-radius:var(--radius-sm); margin-bottom:15px; grid-template-columns:1fr 1fr; gap:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-mixto-mujeres">Mínimo Mujeres en Cancha</label>
+                            <input type="number" id="txt-cat-mixto-mujeres" class="form-input" value="2" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-mixto-hombres">Mínimo Hombres en Cancha</label>
+                            <input type="number" id="txt-cat-mixto-hombres" class="form-input" value="2" min="1">
+                        </div>
+                    </div>
+
+                    <!-- Premios -->
+                    <h4 style="font-size:0.95rem; color:var(--color-secondary); margin-bottom:10px; border-bottom:1px solid var(--border-glass); padding-bottom:5px;"><i data-lucide="award"></i> Premiación de la Categoría</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div class="form-group">
+                            <label class="form-label">1er Lugar</label>
+                            <input type="text" id="txt-cat-premio1" class="form-input" value="Trofeo + Medallas + $500">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">2do Lugar</label>
+                            <input type="text" id="txt-cat-premio2" class="form-input" value="Trofeo + Medallas + $250">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">3er Lugar</label>
+                            <input type="text" id="txt-cat-premio3" class="form-input" value="Medallas + $100">
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:12px;">
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; cursor:pointer;">
+                            <input type="checkbox" id="chk-cat-premio-jugador" checked> Mejor Jugador
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; cursor:pointer;">
+                            <input type="checkbox" id="chk-cat-premio-dt" checked> Mejor DT
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; cursor:pointer;">
+                            <input type="checkbox" id="chk-cat-premio-arquero" checked> Mejor Arquero
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; cursor:pointer;">
+                            <input type="checkbox" id="chk-cat-premio-barra" checked> Mejor Barra
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:15px;">
+                        <label class="form-label" for="txt-cat-premios-detalles">Detalles de Premios Especiales</label>
+                        <input type="text" id="txt-cat-premios-detalles" class="form-input" placeholder="Ej. Medalla al goleador, premio sorpresa a la mejor barra">
+                    </div>
+
+                    <!-- Parámetros Deportivos -->
+                    <h4 style="font-size:0.95rem; color:var(--color-accent); margin-bottom:10px; border-bottom:1px solid var(--border-glass); padding-bottom:5px;"><i data-lucide="sliders"></i> Reglamento y Límites</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-duracion">Tiempo de Juego (Minutos por Tiempo)</label>
+                            <input type="number" id="txt-cat-duracion" class="form-input" value="25" min="10" max="45">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="select-cat-empate">Resolución de Empate (Playoffs)</label>
+                            <select id="select-cat-empate" class="form-input">
+                                <option value="penales_directos">Penales Directos</option>
+                                <option value="adicionales_y_penales">Tiempos Adicionales + Penales</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-max-jug">Max. Jugadores Inscritos</label>
+                            <input type="number" id="txt-cat-max-jug" class="form-input" value="18" min="5" max="30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-min-jug">Mín. Jugadores Presentarse</label>
+                            <input type="number" id="txt-cat-min-jug" class="form-input" value="7" min="4" max="11">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="txt-cat-espera">Tiempo Espera W.O. (Minutos)</label>
+                            <input type="number" id="txt-cat-espera" class="form-input" value="15" min="5" max="30">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                        <div class="form-group">
+                            <label class="form-label" for="select-cat-llaves">Generación de Llaves</label>
+                            <select id="select-cat-llaves" class="form-input">
+                                <option value="clasificacion_directa">Clasificación Directa (1 vs 4, etc.)</option>
+                                <option value="sorteo">Por Sorteo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="select-cat-uniforme">Requisito de Uniforme</label>
+                            <select id="select-cat-uniforme" class="form-input">
+                                <option value="si">Uniforme Completo Obligatorio</option>
+                                <option value="no">Solo Camiseta / Distintivos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label class="form-label" for="select-cat-cambios">Límite de Cambios de Jugadores</label>
+                        <select id="select-cat-cambios" class="form-input">
+                            <option value="ilimitados_con_reingreso">Ilimitados con reingreso (Fútbol barrial)</option>
+                            <option value="max_5">Máximo 5 cambios (Regla FIFA estándar)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        <i data-lucide="save"></i> Registrar Categoría
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: EQUIPOS -->
+        <div id="tab-equipos" class="tab-content glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="font-size: 1.5rem;"><i data-lucide="users"></i> Equipos del Torneo</h2>
+                <button class="btn btn-primary" onclick="showModalAgregarEquipo()"><i data-lucide="user-plus"></i> Inscribir Equipo</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="tabla-equipos">
+                    <thead>
+                        <tr>
+                            <th>Escudo</th>
+                            <th>Nombre del Equipo</th>
+                            <th>Monto Inscripción</th>
+                            <th>Abonado</th>
+                            <th>Garantía</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-equipos">
+                        <!-- Carga dinámica -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: AUSPICIANTES -->
+        <div id="tab-auspiciantes" class="tab-content glass-panel">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <!-- Formulario Agregar -->
+                <div>
+                    <h2 style="font-size: 1.3rem; margin-bottom: 15px;"><i data-lucide="image"></i> Registrar Auspiciante</h2>
+                    <form id="auspiciante-form">
+                        <div class="form-group">
+                            <label class="form-label" for="aus-nombre">Nombre de la Marca</label>
+                            <input type="text" id="aus-nombre" class="form-input" placeholder="Ej. Tienda Local Pepito" required>
+                        </div>
+                        
+                        <!-- Prioridad del Auspiciante -->
+                        <div class="form-group">
+                            <label class="form-label" for="aus-prioridad">Prioridad / Nivel de Auspicio</label>
+                            <select id="aus-prioridad" class="form-input">
+                                <option value="alta">Alta (VIP - Publicidad Resaltada y Grande)</option>
+                                <option value="media" selected>Media (Estándar)</option>
+                                <option value="baja">Baja (Discreta y Pequeña)</option>
+                            </select>
+                        </div>
+
+                        <!-- Subir Logotipo / Cámara -->
+                        <div class="form-group">
+                            <label class="form-label">Logotipo de la Marca</label>
+                            <div style="display:flex; flex-direction:column; gap:10px; align-items:center; background:rgba(0,0,0,0.15); border:1px dashed var(--border-glass); border-radius:var(--radius-sm); padding:15px; justify-content:center;">
+                                <div id="preview-logo-auspiciante" style="display:none; text-align:center;">
+                                    <img id="img-logo-preview" src="" style="max-height:100px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); object-fit:contain;">
+                                </div>
+                                <div id="placeholder-logo-auspiciante" style="text-align:center; color:var(--text-muted);">
+                                    <i data-lucide="camera" style="width:32px; height:32px; margin-bottom:5px;"></i>
+                                    <p style="font-size:0.75rem;">Sube una foto o tómala con tu móvil</p>
+                                </div>
+                                <input type="file" id="aus-logo-file" accept="image/*" style="display:none;" onchange="procesarFotoAuspiciante(event)">
+                                <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="document.getElementById('aus-logo-file').click()">
+                                    <i data-lucide="upload"></i> Cargar Imagen / Cámara
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;"><i data-lucide="plus-circle"></i> Guardar Auspiciante</button>
+                    </form>
+                </div>
+                <!-- Grilla Visualización -->
+                <div>
+                    <h2 style="font-size: 1.3rem; margin-bottom: 15px;"><i data-lucide="badge-percent"></i> Auspiciantes Activos</h2>
+                    <div style="display:flex; flex-direction:column; gap:12px;" id="auspiciantes-lista-container">
+                        <!-- Carga dinámica -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: FIXTURE -->
+        <div id="tab-calendario" class="tab-content glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 style="font-size: 1.5rem;"><i data-lucide="calendar-days"></i> Fixture y Calendario</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Configura la distribución y genera el calendario oficial una vez cerradas las inscripciones.</p>
+                </div>
+            </div>
+
+            <!-- Configuración de Generación de Fixture -->
+            <div id="fixture-config-card" class="glass-panel" style="margin-bottom: 25px; background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.05); padding: 20px;">
+                <h3 style="font-size:1.15rem; margin-bottom:15px; color:var(--color-secondary);"><i data-lucide="sliders"></i> Distribución y Horarios de Juego</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="fix-sistema">Sistema de Juego</label>
+                        <select id="fix-sistema" class="form-input" onchange="toggleFixGruposOption()">
+                            <option value="todos_contra_todos">Todos contra todos (Liga)</option>
+                            <option value="grupos">Por Grupos (Fase Regular)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="fix-grupo-cantidad-container" style="display: none; margin-bottom:0;">
+                        <label class="form-label" for="fix-cantidad-grupos">Cantidad de Grupos</label>
+                        <input type="number" id="fix-cantidad-grupos" class="form-input" value="2" min="2" max="8">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Días de Juego</label>
+                        <div style="display:flex; gap:12px; align-items:center; height: 50px;">
+                            <label style="display:flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
+                                <input type="checkbox" id="chk-dia-sabado" checked style="width:16px; height:16px;"> Sábado
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
+                                <input type="checkbox" id="chk-dia-domingo" checked style="width:16px; height:16px;"> Domingo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="fix-hora-inicio">Hora Inicio</label>
+                        <input type="time" id="fix-hora-inicio" class="form-input" value="08:00">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="fix-hora-fin">Hora Fin</label>
+                        <input type="time" id="fix-hora-fin" class="form-input" value="18:00">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="fix-intervalo">Minutos por Partido</label>
+                        <input type="number" id="fix-intervalo" class="form-input" value="60" min="20" max="180">
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end;">
+                    <button class="btn btn-primary" id="btn-generar-fixture" onclick="dispararGeneracionFixture()" style="opacity: 0.5; cursor: not-allowed;" disabled>
+                        <i data-lucide="zap"></i> Generar Fixture Automático
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Alerta Pago Plataforma QFutbol (Bloqueo) -->
+            <div id="alerta-pago-plataforma-fixture" class="alert alert-danger" style="margin-bottom: 25px; display: none; flex-direction: column; align-items: flex-start; gap: 12px;">
+                <div>
+                    <i data-lucide="lock" style="color:var(--color-danger); width:20px; height:20px; display:inline-block; vertical-align:middle; margin-right:8px;"></i>
+                    <strong style="font-size:1.05rem; color:var(--text-main);">Generación de Fixture Bloqueada</strong>
+                </div>
+                <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.4;">
+                    Debes saldar el costo de uso de la plataforma QFutbol para poder generar el calendario. El costo es de **$1.00 USD por cada equipo inscrito**.
+                </p>
+                <div style="font-size:0.95rem; font-weight:700;">
+                    Equipos inscritos: <span id="lbl-plataforma-equipos-count" style="color:var(--color-secondary);">0</span> | Total a Pagar: <span id="lbl-plataforma-monto-pago" style="color:var(--color-primary); font-size:1.15rem;">$0.00 USD</span>
+                </div>
+                <button class="btn btn-primary" style="background:var(--grad-accent); color:var(--text-main); border:none; font-size:0.85rem; padding:8px 16px; margin-top:5px;" onclick="simularPagoPlataforma()">
+                    <i data-lucide="credit-card"></i> Simular Pago de Licencia ($1.00 x Equipo)
+                </button>
+            </div>
+            
+            <!-- Vista de Jornadas -->
+            <div id="jornadas-container" style="display: flex; flex-direction: column; gap: 30px;">
+                <!-- Carga dinámica de jornadas -->
+            </div>
+        </div>
+
+        <!-- TAB: FINANZAS -->
+        <div id="tab-finanzas" class="tab-content glass-panel">
+            <h2 style="font-size: 1.5rem; margin-bottom: 20px;"><i data-lucide="wallet"></i> Control de Abonos y Multas</h2>
+            
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Deuda Inscripción</th>
+                            <th>Deuda Multas</th>
+                            <th>Total Pendiente</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-finanzas">
+                        <!-- Carga dinámica -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- SECCIÓN: REGISTRO DE SANCIONES DIRECTAS -->
+            <h3 style="font-size:1.2rem; margin-top:35px; margin-bottom:15px; border-top:1px solid var(--border-glass); padding-top:20px; color:var(--color-danger);"><i data-lucide="alert-octagon"></i> Sanciones y Penalizaciones Directas</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Aplica penalizaciones a un equipo restándole puntos en la tabla de posiciones por conducta antideportiva o aplicando multas económicas especiales.</p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:25px; margin-top:20px;">
+                <!-- Formulario -->
+                <div style="background:rgba(255,77,77,0.02); border:1px solid rgba(255,77,77,0.15); padding:20px; border-radius:var(--radius-md);">
+                    <h4 style="font-size:1rem; color:var(--color-danger); margin-bottom:15px;"><i data-lucide="minus-circle"></i> Aplicar Nueva Sanción</h4>
+                    <form id="form-sancionar-equipo">
+                        <div class="form-group">
+                            <label class="form-label" for="select-sancion-equipo">Equipo Sancionado</label>
+                            <select id="select-sancion-equipo" class="form-input" required>
+                                <!-- Cargado dinámicamente -->
+                            </select>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                            <div class="form-group">
+                                <label class="form-label" for="txt-sancion-puntos">Puntos a Restar</label>
+                                <input type="number" id="txt-sancion-puntos" class="form-input" value="0" min="0" max="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="txt-sancion-multa">Multa Económica ($)</label>
+                                <input type="number" id="txt-sancion-multa" class="form-input" value="0.00" min="0.00" step="1.00">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label" for="txt-sancion-motivo">Motivo de la Sanción</label>
+                            <input type="text" id="txt-sancion-motivo" class="form-input" placeholder="Ej. Disturbios en cancha, W.O., faltar al uniforme completo" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger" style="width:100%;">
+                            <i data-lucide="gavel"></i> Aplicar Sanción
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Sanciones Recientes -->
+                <div>
+                    <h4 style="font-size:1rem; margin-bottom:15px;"><i data-lucide="history"></i> Historial de Sanciones</h4>
+                    <div style="overflow-y:auto; max-height:280px; display:flex; flex-direction:column; gap:12px;" id="sanciones-historial-container">
+                        <!-- Cargado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR EQUIPO (GLASSMORPHISM MOCK) -->
+    <div id="modal-equipo" class="modal">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 450px; overflow-y: auto; max-height: 85vh;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px;" id="modal-titulo">Inscribir Nuevo Equipo</h3>
+            <form id="equipo-form">
+                <div class="form-group">
+                    <label class="form-label" for="eq-nombre">Nombre del Equipo</label>
+                    <input type="text" id="eq-nombre" class="form-input" placeholder="Ej. Real Sociedad Barrial" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eq-categoria-id">Categoría del Equipo</label>
+                    <select id="eq-categoria-id" class="form-input" required>
+                        <!-- Cargado dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eq-contacto-nombre">Nombre del Delegado / DT</label>
+                    <input type="text" id="eq-contacto-nombre" class="form-input" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eq-contacto-responsable">Nro. de Celular del Responsable (Recibir Horarios)</label>
+                    <input type="text" id="eq-contacto-responsable" class="form-input" placeholder="Ej. 0987654321" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eq-logo">URL del Logo (Opcional)</label>
+                    <input type="text" id="eq-logo" class="form-input" placeholder="https://ejemplo.com/logo.png">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eq-abono">Abono Inicial Inscripción ($)</label>
+                    <input type="number" id="eq-abono" class="form-input" value="30.00" min="0" max="500.00" step="1.00">
+                </div>
+                
+                <!-- Cláusulas Legales Obligatorias -->
+                <div class="form-group" style="display:flex; align-items:flex-start; gap:8px;">
+                    <input type="checkbox" id="legal-jugadores" required style="width:16px; height:16px; margin-top:3px;">
+                    <label for="legal-jugadores" style="font-size:0.75rem; color:var(--text-muted); cursor:pointer; line-height:1.3;">
+                        Declaro contar con la expresa autorización de los jugadores de la plantilla para registrar su número de Cédula de Identidad, nombres y fotos en la plataforma QFutbol.
+                    </label>
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-start; gap:8px; margin-bottom: 20px;">
+                    <input type="checkbox" id="legal-imagen" required style="width:16px; height:16px; margin-top:3px;">
+                    <label for="legal-imagen" style="font-size:0.75rem; color:var(--text-muted); cursor:pointer; line-height:1.3;">
+                        Autorizo de forma expresa a QFutbol el uso de nombres, logotipos, colores y patrocinadores del equipo con fines de marketing, promoción y publicidad del campeonato y de la plataforma.
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModalAgregarEquipo()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrar Equipo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR ABONO -->
+    <div id="modal-abono" class="modal">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 400px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px;">Registrar Abono / Pago</h3>
+            <form id="abono-form">
+                <input type="hidden" id="abono-equipo-id">
+                <div class="form-group">
+                    <label class="form-label">Equipo</label>
+                    <input type="text" id="abono-equipo-nombre" class="form-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="abono-concepto">Concepto de Pago</label>
+                    <select id="abono-concepto" class="form-input">
+                        <option value="inscripcion">Abono Inscripción</option>
+                        <option value="garantia">Garantía de Disciplina</option>
+                        <option value="multa_tarjeta">Pago Multa de Tarjetas</option>
+                        <option value="arbitraje">Pago Arbitraje</option>
+                        <option value="vocalia">Pago Vocalía</option>
+                        <option value="multa">Pago Otras Multas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="abono-monto">Monto a Pagar ($)</label>
+                    <input type="number" id="abono-monto" class="form-input" value="1.00" min="0.10" step="0.10" required>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModalAbono()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Aplicar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/fixture.js"></script>
+    
+    <script>
+        lucide.createIcons();
+
+        // Control de pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Marcar botón activo
+            event.currentTarget.classList.add('active');
+            // Mostrar contenido correspondiente
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        // Mostrar / Ocultar opciones de grupos en generación de fixture
+        function toggleFixGruposOption() {
+            const sistema = document.getElementById("fix-sistema").value;
+            const container = document.getElementById("fix-grupo-cantidad-container");
+            container.style.display = (sistema === "grupos") ? "block" : "none";
+        }
+
+        // Modales
+        const modalEquipo = document.getElementById("modal-equipo");
+        function showModalAgregarEquipo() {
+            modalEquipo.style.display = "flex";
+            document.getElementById("equipo-form").reset();
+        }
+        function hideModalAgregarEquipo() {
+            modalEquipo.style.display = "none";
+        }
+
+        const modalAbono = document.getElementById("modal-abono");
+        function showModalAbono(id, nombre) {
+            modalAbono.style.display = "flex";
+            document.getElementById("abono-equipo-id").value = id;
+            document.getElementById("abono-equipo-nombre").value = nombre;
+            document.getElementById("abono-monto").value = "1.00";
+        }
+        function hideModalAbono() {
+            modalAbono.style.display = "none";
+        }
+
+        // ==========================================
+        // LÓGICA DE FLUJO DE DATOS (MOCK / SUPABASE)
+        // ==========================================
+        let cacheEquipos = [];
+        let cachePartidos = [];
+        let configCampeonato = {};
+
+        function formatMoney(amount) {
+            const currency = configCampeonato.divisa || 'USD';
+            const val = parseFloat(amount || 0).toFixed(2);
+            if (currency === 'USD') return `$${val}`;
+            if (currency === 'EUR') return `€${val}`;
+            if (currency === 'PEN') return `S/. ${val}`;
+            return `${currency} $${val}`;
+        }
+
+        async function cargarDatos() {
+            // Cargar estado de la conexión
+            const statusLabel = document.getElementById("connection-status");
+            if (supabase && supabase.auth) {
+                statusLabel.innerHTML = `Supabase Conectado`;
+                statusLabel.style.color = "var(--color-primary)";
+                statusLabel.style.background = "rgba(0, 255, 135, 0.1)";
+            } else {
+                statusLabel.innerHTML = `Modo Local`;
+                statusLabel.style.color = "var(--color-warning)";
+                statusLabel.style.background = "rgba(255, 211, 42, 0.1)";
+            }
+
+            // Cargar Campeonato y Configuración
+            const campeonatos = await dbGetTable("campeonatos");
+            if (campeonatos.length > 0) {
+                configCampeonato = campeonatos[0];
+                document.getElementById("camp-nombre").value = configCampeonato.nombre;
+                document.getElementById("camp-duracion").value = configCampeonato.duracion_estimada_meses || 3;
+                document.getElementById("camp-canchas").value = configCampeonato.canchas_nombres || "Cancha Principal, Coliseo Cerrado";
+                document.getElementById("camp-costo-arbitraje").value = configCampeonato.costo_arbitraje || 0.00;
+                document.getElementById("camp-costo-vocalia").value = configCampeonato.costo_vocalia || 0.00;
+                document.getElementById("camp-limite-pago").value = configCampeonato.limite_pago_inscripcion;
+                document.getElementById("camp-costo").value = configCampeonato.costo_inscripcion;
+                document.getElementById("camp-garantia").value = configCampeonato.garantia_disciplina;
+                document.getElementById("camp-multa-amarilla").value = configCampeonato.multa_amarilla;
+                document.getElementById("camp-multa-roja").value = configCampeonato.multa_roja_directa;
+                
+                // Ubicación
+                document.getElementById("camp-pais").value = configCampeonato.pais || "";
+                document.getElementById("camp-provincia").value = configCampeonato.provincia || "";
+                document.getElementById("camp-canton").value = configCampeonato.canton || "";
+                document.getElementById("camp-ciudad").value = configCampeonato.ciudad || "";
+                document.getElementById("camp-parroquia").value = configCampeonato.parroquia || "";
+                document.getElementById("camp-barrio").value = configCampeonato.barrio_sector || "";
+                document.getElementById("camp-divisa").value = configCampeonato.divisa || "USD";
+
+                // Autodetectar por IP si no está configurada la ubicación
+                if (!configCampeonato.pais && !configCampeonato.ciudad) {
+                    autoDetectarUbicacion();
+                }
+                
+                // Rellenar datos bancarios
+                document.getElementById("camp-banco-nombre").value = configCampeonato.banco_nombre || "";
+                document.getElementById("camp-banco-tipo").value = configCampeonato.banco_tipo_cuenta || "Ahorros";
+                document.getElementById("camp-banco-numero").value = configCampeonato.banco_numero_cuenta || "";
+                document.getElementById("camp-banco-titular").value = configCampeonato.banco_titular || "";
+                document.getElementById("camp-banco-identificacion").value = configCampeonato.banco_titular_identificacion || "";
+                document.getElementById("camp-banco-telefono").value = configCampeonato.banco_telefono_reporte || "";
+            }
+
+            // Cargar Tablas del Campeonato
+            cacheEquipos = await dbGetTable("equipos");
+            cachePartidos = await dbGetTable("partidos");
+            cacheCategorias = await dbGetTable("categorias");
+            cacheSanciones = await dbGetTable("sanciones_equipos");
+
+            // Control de Bloqueo de Fixture por Licencia de QFutbol
+            const pagoRealizado = configCampeonato.pago_plataforma_realizado || false;
+            const btnFixture = document.getElementById("btn-generar-fixture");
+            const alertaFixture = document.getElementById("alerta-pago-plataforma-fixture");
+
+            if (pagoRealizado) {
+                alertaFixture.style.display = "none";
+                btnFixture.disabled = false;
+                btnFixture.style.opacity = "1";
+                btnFixture.style.cursor = "pointer";
+            } else {
+                alertaFixture.style.display = "flex";
+                btnFixture.disabled = true;
+                btnFixture.style.opacity = "0.5";
+                btnFixture.style.cursor = "not-allowed";
+                
+                document.getElementById("lbl-plataforma-equipos-count").innerText = cacheEquipos.length;
+                document.getElementById("lbl-plataforma-monto-pago").innerText = `$${(cacheEquipos.length * 1.00).toFixed(2)} USD`;
+            }
+
+            // Alimentar select de categorías para inscribir equipos
+            const selectEqCat = document.getElementById("eq-categoria-id");
+            selectEqCat.innerHTML = "";
+            if (cacheCategorias.length === 0) {
+                selectEqCat.innerHTML = `<option value="">-- Primero crea una Categoría --</option>`;
+            } else {
+                cacheCategorias.forEach(cat => {
+                    selectEqCat.innerHTML += `<option value="${cat.id}">${cat.nombre} (${cat.genero.toUpperCase()})</option>`;
+                });
+            }
+
+            // Alimentar select de equipos para sanciones
+            const selectSancionEq = document.getElementById("select-sancion-equipo");
+            selectSancionEq.innerHTML = `<option value="">-- Selecciona un Equipo --</option>`;
+            cacheEquipos.forEach(eq => {
+                selectSancionEq.innerHTML += `<option value="${eq.id}">${eq.nombre}</option>`;
+            });
+
+            await actualizarKpis();
+            renderizarCategorias();
+            renderizarEquipos();
+            renderizarFixture();
+            renderizarFinanzas();
+            renderizarSanciones();
+            await renderizarAuspiciantes();
+        }
+
+        async function actualizarKpis() {
+            document.getElementById("metric-equipos").innerText = cacheEquipos.length;
+            document.getElementById("metric-partidos").innerText = cachePartidos.length;
+            
+            // Calcular recaudación y multas simuladas
+            let recaudado = 0;
+            let deudas = 0;
+            for (const eq of cacheEquipos) {
+                const fin = await calcularFinanzasEquipo(eq.id);
+                recaudado += fin.totalPagado;
+                deudas += fin.totalDeuda;
+            }
+            document.getElementById("metric-recaudado").innerText = formatMoney(recaudado);
+            document.getElementById("metric-deudas").innerText = formatMoney(deudas);
+        }
+
+        function renderizarEquipos() {
+            const tbody = document.getElementById("tbody-equipos");
+            tbody.innerHTML = "";
+
+            if (cacheEquipos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No hay equipos inscritos en este torneo.</td></tr>`;
+                return;
+            }
+
+            cacheEquipos.forEach(eq => {
+                const costoInscripcion = parseFloat(configCampeonato.costo_inscripcion || 3.00);
+                const abonado = parseFloat(eq.monto_pagado_inscripcion || 0);
+                const garantia = parseFloat(eq.monto_garantia_pagado || 0);
+                
+                let badgeClass = "badge-danger";
+                let badgeText = "Sin Pago";
+                if (abonado >= costoInscripcion) {
+                    badgeClass = "badge-success";
+                    badgeText = "Pagado";
+                } else if (abonado > 0) {
+                    badgeClass = "badge-warning";
+                    badgeText = `Abono (${formatMoney(abonado)})`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${eq.logo_url || 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=50'}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border-glass);"></td>
+                        <td style="font-weight:600;">${eq.nombre}</td>
+                        <td>${formatMoney(costoInscripcion)}</td>
+                        <td>${formatMoney(abonado)}</td>
+                        <td>${formatMoney(garantia)}</td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem;" onclick="showModalAbono('${eq.id}', '${eq.nombre}')">
+                                <i data-lucide="plus-circle" style="width:14px;height:14px;display:inline;vertical-align:middle;"></i> Abono
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        async function renderizarFinanzas() {
+            const tbody = document.getElementById("tbody-finanzas");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            if (cacheEquipos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Inscribe equipos para ver el estado financiero.</td></tr>`;
+                return;
+            }
+
+            for (const eq of cacheEquipos) {
+                const fin = await calcularFinanzasEquipo(eq.id);
+                finanzasCalculadasCache[eq.id] = fin;
+
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                        <td style="font-weight:600; cursor:pointer;" onclick="toggleDetalleFinanzas('${eq.id}')">
+                            <span style="display:inline-block; transition:transform 0.2s; font-size:0.75rem;" id="arrow-fin-${eq.id}">▶</span> ${eq.nombre}
+                        </td>
+                        <td style="color:${fin.saldoInscripcion > 0 ? 'var(--color-danger)' : 'var(--color-primary)'}; font-weight:500;">${formatMoney(fin.saldoInscripcion)}</td>
+                        <td style="color:${fin.saldoTarjetas > 0 ? 'var(--color-danger)' : 'var(--text-muted)'};">${formatMoney(fin.saldoTarjetas)}</td>
+                        <td style="font-weight:800; color:${fin.totalDeuda > 0 ? 'var(--color-warning)' : 'var(--color-primary)'}; font-size:1.05rem;">${formatMoney(fin.totalDeuda)}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem;margin-right:5px;" onclick="toggleDetalleFinanzas('${eq.id}')">
+                                Detalle
+                            </button>
+                            <button class="btn btn-primary" style="padding:6px 12px;font-size:0.8rem;" onclick="showModalAbono('${eq.id}', '${eq.nombre}')">
+                                Registrar Pago
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="row-detalle-fin-${eq.id}" style="display:none; background:rgba(255,255,255,0.015);">
+                        <td colspan="5" style="padding: 15px 20px;">
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; font-size:0.8rem;">
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Inscripción</div>
+                                    <div>Cargado: ${formatMoney(fin.costoInscripcion)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoInscripcion)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoInscripcion > 0 ? 'var(--color-danger)' : 'var(--color-primary)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoInscripcion)}</div>
+                                </div>
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Garantía</div>
+                                    <div>Cargado: ${formatMoney(fin.costoGarantia)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoGarantia)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoGarantia > 0 ? 'var(--color-danger)' : 'var(--text-main)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoGarantia)}</div>
+                                </div>
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Arbitrajes (${fin.partidosJugados} part.)</div>
+                                    <div>Cargado: ${formatMoney(fin.costoArbitrajeTotal)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoArbitraje)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoArbitraje > 0 ? 'var(--color-danger)' : 'var(--text-main)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoArbitraje)}</div>
+                                </div>
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Vocalías (${fin.partidosJugados} part.)</div>
+                                    <div>Cargado: ${formatMoney(fin.costoVocaliaTotal)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoVocalia)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoVocalia > 0 ? 'var(--color-danger)' : 'var(--text-main)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoVocalia)}</div>
+                                </div>
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Multas Tarjetas</div>
+                                    <div>Cargado: ${formatMoney(fin.costoTarjetasTotal)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoTarjetas)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoTarjetas > 0 ? 'var(--color-danger)' : 'var(--text-main)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoTarjetas)}</div>
+                                </div>
+                                <div style="border:1px solid var(--border-glass); padding:8px; border-radius:var(--radius-sm); background:rgba(0,0,0,0.1);">
+                                    <div style="font-weight:700; color:var(--color-secondary); margin-bottom:4px;">Otras Multas</div>
+                                    <div>Cargado: ${formatMoney(fin.costoSancionesTotal)}</div>
+                                    <div>Abonado: ${formatMoney(fin.pagadoOtrasMultas)}</div>
+                                    <div style="font-weight:750; color:${fin.saldoOtrasMultas > 0 ? 'var(--color-danger)' : 'var(--text-main)'}; margin-top:2px;">Saldo: ${formatMoney(fin.saldoOtrasMultas)}</div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function toggleDetalleFinanzas(eqId) {
+            const row = document.getElementById(`row-detalle-fin-${eqId}`);
+            const arrow = document.getElementById(`arrow-fin-${eqId}`);
+            if (row.style.display === "none") {
+                row.style.display = "table-row";
+                arrow.style.transform = "rotate(90deg)";
+            } else {
+                row.style.display = "none";
+                arrow.style.transform = "rotate(0deg)";
+            }
+        }
+
+        function renderizarFixture() {
+            const container = document.getElementById("jornadas-container");
+            container.innerHTML = "";
+
+            if (cachePartidos.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                        <i data-lucide="calendar-range" style="width:48px;height:48px;margin-bottom:15px;color:var(--border-glass);"></i>
+                        <p>No se ha generado el calendario del torneo. Haz clic en "Generar Fixture Automático" para crearlo.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // Agrupar partidos por fecha/jornada
+            let jornadas = {};
+            cachePartidos.forEach(partido => {
+                const jornadaNum = partido.grupo || "Jornada 1"; // Usaremos grupo o fase para etiquetar
+                if (!jornadas[jornadaNum]) jornadas[jornadaNum] = [];
+                jornadas[jornadaNum].push(partido);
+            });
+
+            // Ordenar jornadas
+            Object.keys(jornadas).sort().forEach(jornadaName => {
+                let jornadaHtml = `
+                    <div class="glass-panel" style="padding: 20px;">
+                        <h3 style="font-size:1.2rem;border-bottom:1px solid var(--border-glass);padding-bottom:10px;margin-bottom:15px;color:var(--color-secondary);"><i data-lucide="layers" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:8px;"></i> ${jornadaName}</h3>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:15px;">
+                `;
+
+                jornadas[jornadaName].forEach(partido => {
+                    const local = cacheEquipos.find(e => e.id === partido.equipo_local_id) || { nombre: "Equipo Local" };
+                    const visitante = cacheEquipos.find(e => e.id === partido.equipo_visitante_id) || { nombre: "Equipo Visitante" };
+                    
+                    let estadoBadge = `<span class="badge badge-warning">Programado</span>`;
+                    if (partido.estado === 'finalizado') {
+                        estadoBadge = `<span class="badge badge-success">Finalizado</span>`;
+                    } else if (partido.estado === 'suspendido') {
+                        estadoBadge = `<span class="badge badge-danger">Suspendido</span>`;
+                    }
+
+                    jornadaHtml += `
+                        <div style="background:rgba(0,0,0,0.2);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:15px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-size:0.75rem;color:var(--text-muted);">${partido.fase || 'Fase Regular'}</span>
+                                ${estadoBadge}
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                                <div style="flex:1;text-align:right;font-weight:600;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${local.nombre}</div>
+                                <div style="background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:var(--radius-sm);font-weight:800;font-size:1.1rem;display:flex;gap:10px;">
+                                    <span>${partido.estado === 'finalizado' ? partido.goles_local : '-'}</span>
+                                    <span style="color:var(--text-muted);">:</span>
+                                    <span>${partido.estado === 'finalizado' ? partido.goles_visitante : '-'}</span>
+                                </div>
+                                <div style="flex:1;text-align:left;font-weight:600;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${visitante.nombre}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                jornadaHtml += `
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += jornadaHtml;
+            });
+            lucide.createIcons();
+        }
+
+        // Acción: Generar Fixture Round Robin
+        async function dispararGeneracionFixture() {
+            if (cacheEquipos.length < 2) {
+                alert("Debes inscribir al menos 2 equipos para poder generar un fixture.");
+                return;
+            }
+
+            if (confirm("¿Estás seguro de generar el fixture automático? Esto eliminará cualquier partido programado anteriormente y calculará las fechas en base a los días seleccionados.")) {
+                // Limpiar partidos existentes en mock/db
+                if (supabase && supabase.auth) {
+                    // Borrar en Supabase
+                    const { error } = await supabase.from('partidos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                    if (error) console.error(error);
+                }
+                
+                // Generar jornadas con Round Robin en Javascript
+                const sistema = document.getElementById("fix-sistema").value;
+                const chkSabado = document.getElementById("chk-dia-sabado").checked;
+                const chkDomingo = document.getElementById("chk-dia-domingo").checked;
+                const horaInicioRaw = document.getElementById("fix-hora-inicio").value || "08:00";
+                const horaFinRaw = document.getElementById("fix-hora-fin").value || "18:00";
+                const intervaloMinutos = parseInt(document.getElementById("fix-intervalo").value) || 60;
+
+                if (!chkSabado && !chkDomingo) {
+                    alert("Debes seleccionar al menos un día de juego (Sábado o Domingo).");
+                    return;
+                }
+
+                const [hInicio, mInicio] = horaInicioRaw.split(":").map(Number);
+                const [hFin, mFin] = horaFinRaw.split(":").map(Number);
+
+                let nuevosPartidos = [];
+                let partidosSinFecha = [];
+
+                if (sistema === "todos_contra_todos") {
+                    const jornadasRoundRobin = generarRoundRobin(cacheEquipos, false);
+                    jornadasRoundRobin.forEach(j => {
+                        j.partidos.forEach(p => {
+                            partidosSinFecha.push({
+                                campeonato_id: configCampeonato.id || "c1",
+                                equipo_local_id: p.equipo_local.id,
+                                equipo_visitante_id: p.equipo_visitante.id,
+                                grupo: `Jornada ${j.numero}`,
+                                fase: 'regular',
+                                estado: 'programado',
+                                goles_local: 0,
+                                goles_visitante: 0,
+                                firma_local: false,
+                                firma_visitante: false,
+                                nro_jornada: j.numero
+                            });
+                        });
+                    });
+                } else {
+                    // Por grupos
+                    const numGrupos = parseInt(document.getElementById("fix-cantidad-grupos").value) || 2;
+                    const grupos = distribuirEnGrupos(cacheEquipos, numGrupos);
+                    
+                    Object.keys(grupos).forEach(letra => {
+                        const equiposGrupo = grupos[letra];
+                        if (equiposGrupo.length >= 2) {
+                            const jornadasRoundRobin = generarRoundRobin(equiposGrupo, false);
+                            jornadasRoundRobin.forEach(j => {
+                                j.partidos.forEach(p => {
+                                    partidosSinFecha.push({
+                                        campeonato_id: configCampeonato.id || "c1",
+                                        equipo_local_id: p.equipo_local.id,
+                                        equipo_visitante_id: p.equipo_visitante.id,
+                                        grupo: `Grupo ${letra} - F${j.numero}`,
+                                        fase: 'regular',
+                                        estado: 'programado',
+                                        goles_local: 0,
+                                        goles_visitante: 0,
+                                        firma_local: false,
+                                        firma_visitante: false,
+                                        nro_jornada: j.numero
+                                    });
+                                });
+                            });
+                        }
+                    });
+                }
+
+                // Programación de fechas y horas secuenciales
+                partidosSinFecha.sort((a, b) => a.nro_jornada - b.nro_jornada);
+
+                let fechaControl = new Date();
+                fechaControl.setHours(hInicio, mInicio, 0, 0);
+
+                function avanzarAlSiguienteDiaValido(date) {
+                    let loops = 0;
+                    while (loops < 10) {
+                        date.setDate(date.getDate() + 1);
+                        date.setHours(hInicio, mInicio, 0, 0);
+                        const day = date.getDay();
+                        if ((day === 6 && chkSabado) || (day === 0 && chkDomingo)) {
+                            return date;
+                        }
+                        loops++;
+                    }
+                    return date;
+                }
+
+                let startDay = fechaControl.getDay();
+                if (!((startDay === 6 && chkSabado) || (startDay === 0 && chkDomingo))) {
+                    fechaControl = avanzarAlSiguienteDiaValido(fechaControl);
+                }
+
+                partidosSinFecha.forEach(p => {
+                    const limiteSlot = new Date(fechaControl);
+                    limiteSlot.setHours(hFin, mFin, 0, 0);
+
+                    const proxSlot = new Date(fechaControl.getTime() + (intervaloMinutos * 60 * 1000));
+                    if (proxSlot > limiteSlot) {
+                        fechaControl = avanzarAlSiguienteDiaValido(fechaControl);
+                    }
+
+                    p.fecha = new Date(fechaControl).toISOString();
+                    fechaControl = new Date(fechaControl.getTime() + (intervaloMinutos * 60 * 1000));
+                });
+
+                nuevosPartidos = partidosSinFecha;
+
+                // Guardar
+                if (supabase && supabase.auth) {
+                    const { error } = await supabase.from('partidos').insert(nuevosPartidos);
+                    if (error) alert("Error guardando en Supabase: " + error.message);
+                } else {
+                    // Guardar en Mock
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    localDb.partidos = nuevosPartidos.map((p, idx) => ({ id: `p_new_${idx}`, ...p }));
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+
+                alert(`¡Fixture generado con éxito! Se crearon ${nuevosPartidos.length} partidos distribuidos en las fechas de juego.`);
+                await cargarDatos();
+            }
+        }
+
+        // Enviar Formulario de Configuración
+        document.getElementById("config-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nuevoCamp = {
+                nombre: document.getElementById("camp-nombre").value,
+                duracion_estimada_meses: parseInt(document.getElementById("camp-duracion").value),
+                canchas_nombres: document.getElementById("camp-canchas").value,
+                costo_arbitraje: parseFloat(document.getElementById("camp-costo-arbitraje").value || 0),
+                costo_vocalia: parseFloat(document.getElementById("camp-costo-vocalia").value || 0),
+                limite_pago_inscripcion: document.getElementById("camp-limite-pago").value || null,
+                costo_inscripcion: parseFloat(document.getElementById("camp-costo").value),
+                garantia_disciplina: parseFloat(document.getElementById("camp-garantia").value),
+                multa_amarilla: parseFloat(document.getElementById("camp-multa-amarilla").value),
+                multa_roja_directa: parseFloat(document.getElementById("camp-multa-roja").value),
+                pais: document.getElementById("camp-pais").value,
+                provincia: document.getElementById("camp-provincia").value,
+                canton: document.getElementById("camp-canton").value,
+                ciudad: document.getElementById("camp-ciudad").value,
+                parroquia: document.getElementById("camp-parroquia").value,
+                barrio_sector: document.getElementById("camp-barrio").value,
+                divisa: document.getElementById("camp-divisa").value,
+                banco_nombre: document.getElementById("camp-banco-nombre").value,
+                banco_tipo_cuenta: document.getElementById("camp-banco-tipo").value,
+                banco_numero_cuenta: document.getElementById("camp-banco-numero").value,
+                banco_titular: document.getElementById("camp-banco-titular").value,
+                banco_titular_identificacion: document.getElementById("camp-banco-identificacion").value,
+                banco_telefono_reporte: document.getElementById("camp-banco-telefono").value
+            };
+
+            if (window.supabase && window.supabase.auth) {
+                let error;
+                if (configCampeonato && configCampeonato.id) {
+                    const res = await window.supabase.from('campeonatos').update(nuevoCamp).eq('id', configCampeonato.id);
+                    error = res.error;
+                } else {
+                    // Si no hay campeonato en la base de datos, lo insertamos
+                    const sessionUser = (await window.supabase.auth.getUser())?.data?.user;
+                    const organizador_id = sessionUser ? sessionUser.id : localStorage.getItem("session_id");
+                    
+                    const res = await window.supabase.from('campeonatos').insert([{ 
+                        ...nuevoCamp, 
+                        organizador_id: organizador_id 
+                    }]).select();
+                    error = res.error;
+                    if (!error && res.data && res.data.length > 0) {
+                        configCampeonato = res.data[0];
+                    }
+                }
+                if (error) {
+                    alert("Error al guardar: " + error.message);
+                    return;
+                }
+            } else {
+                const localDb = getMockDB();
+                if (localDb.campeonatos && localDb.campeonatos.length > 0) {
+                    localDb.campeonatos[0] = { ...localDb.campeonatos[0], ...nuevoCamp };
+                } else {
+                    localDb.campeonatos = [{ id: genRandomId(), ...nuevoCamp }];
+                }
+                saveMockDB(localDb);
+            }
+            alert("¡Configuración guardada exitosamente!");
+            window.location.reload();
+        });
+
+        // Registrar Nuevo Equipo
+        document.getElementById("equipo-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const catId = document.getElementById("eq-categoria-id").value;
+            const nombreEq = document.getElementById("eq-nombre").value.trim();
+
+            if (!catId) {
+                alert("Debes seleccionar una Categoría válida. Si no hay ninguna, créala primero en la pestaña de Categorías.");
+                return;
+            }
+
+            // Validar nombre único por categoría en el mock local
+            const yaExiste = cacheEquipos.some(eq => eq.categoria_id === catId && eq.nombre.toLowerCase() === nombreEq.toLowerCase());
+            if (yaExiste) {
+                alert(`Error: Ya existe un equipo con el nombre "${nombreEq}" registrado en esta categoría.`);
+                return;
+            }
+
+            const nuevoEq = {
+                campeonato_id: configCampeonato.id || "c1",
+                categoria_id: catId,
+                nombre: nombreEq,
+                contacto_nombre: document.getElementById("eq-contacto-nombre").value,
+                contacto_responsable: document.getElementById("eq-contacto-responsable").value,
+                logo_url: document.getElementById("eq-logo").value || null,
+                monto_pagado_inscripcion: parseFloat(document.getElementById("eq-abono").value || 0),
+                monto_garantia_pagado: 10.00 // Garantía default configurada
+            };
+
+            await dbInsertRow("equipos", nuevoEq);
+            hideModalAgregarEquipo();
+            alert(`Equipo "${nuevoEq.nombre}" inscrito exitosamente.`);
+            await cargarDatos();
+        });
+
+        // Registrar Abono
+        document.getElementById("abono-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const eqId = document.getElementById("abono-equipo-id").value;
+            const concepto = document.getElementById("abono-concepto").value;
+            const monto = parseFloat(document.getElementById("abono-monto").value);
+
+            const nuevoPago = {
+                equipo_id: eqId,
+                concepto: concepto,
+                monto: monto,
+                metodo_pago: 'efectivo',
+                estado: 'aprobado'
+            };
+
+            // 1. Insertar en pagos_abonos
+            await dbInsertRow("pagos_abonos", nuevoPago);
+
+            // 2. Modificar en DB (Legacy/Compatibilidad)
+            if (concepto === "inscripcion" || concepto === "garantia") {
+                if (supabase && supabase.auth) {
+                    if (concepto === "inscripcion") {
+                        const eqObj = cacheEquipos.find(e => e.id === eqId);
+                        const nuevoMonto = parseFloat(eqObj.monto_pagado_inscripcion || 0) + monto;
+                        await supabase.from('equipos').update({ monto_pagado_inscripcion: nuevoMonto }).eq('id', eqId);
+                    } else if (concepto === "garantia") {
+                        const eqObj = cacheEquipos.find(e => e.id === eqId);
+                        const nuevoMonto = parseFloat(eqObj.monto_garantia_pagado || 0) + monto;
+                        await supabase.from('equipos').update({ monto_garantia_pagado: nuevoMonto }).eq('id', eqId);
+                    }
+                } else {
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    const eqIdx = localDb.equipos.findIndex(e => e.id === eqId);
+                    if (eqIdx !== -1) {
+                        if (concepto === "inscripcion") {
+                            localDb.equipos[eqIdx].monto_pagado_inscripcion = (parseFloat(localDb.equipos[eqIdx].monto_pagado_inscripcion || 0) + monto);
+                        } else if (concepto === "garantia") {
+                            localDb.equipos[eqIdx].monto_garantia_pagado = (parseFloat(localDb.equipos[eqIdx].monto_garantia_pagado || 0) + monto);
+                        }
+                        localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                    }
+                }
+            }
+
+            hideModalAbono();
+            alert("Abono registrado con éxito.");
+            await cargarDatos();
+        });
+
+        // ==========================================
+        // AUSPICIANTES Y LICENCIA DE PLATAFORMA
+        // ==========================================
+
+        // Variable para almacenar la foto del auspiciante en Base64
+        let fotoAuspicianteBase64 = null;
+
+        // Función para leer y procesar la imagen cargada
+        function procesarFotoAuspiciante(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fotoAuspicianteBase64 = e.target.result;
+                
+                // Mostrar preview y ocultar placeholder
+                document.getElementById("img-logo-preview").src = fotoAuspicianteBase64;
+                document.getElementById("preview-logo-auspiciante").style.display = "block";
+                document.getElementById("placeholder-logo-auspiciante").style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function renderizarAuspiciantes() {
+            const container = document.getElementById("auspiciantes-lista-container");
+            container.innerHTML = "";
+
+            // Inicializar propiedad en mock si no existe
+            const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db")) || {};
+            if (!localDb.auspiciantes) {
+                localDb.auspiciantes = [
+                    { id: "a1", campeonato_id: "c1", nombre: "Cervecería Nacional", logo_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100", prioridad: "alta" },
+                    { id: "a2", campeonato_id: "c1", nombre: "Panadería Don Pancho", logo_url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100", prioridad: "media" }
+                ];
+                localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+            }
+
+            const auspiciantes = await dbGetTable("auspiciantes");
+
+            if (auspiciantes.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;">No hay auspiciantes registrados en este torneo.</div>`;
+                return;
+            }
+
+            // Ordenar por prioridad (alta -> media -> baja)
+            const ordenPrioridades = { 'alta': 1, 'media': 2, 'baja': 3 };
+            auspiciantes.sort((a, b) => (ordenPrioridades[a.prioridad || 'media'] || 2) - (ordenPrioridades[b.prioridad || 'media'] || 2));
+
+            auspiciantes.forEach(aus => {
+                const prioridad = aus.prioridad || "media";
+                
+                // Estilizado según prioridad
+                let styleCard = "background:rgba(0,0,0,0.2); border:1px solid var(--border-glass); padding:12px;";
+                let badgePrioridad = "";
+                let styleImg = "width:40px; height:40px;";
+
+                if (prioridad === "alta") {
+                    styleCard = "background:rgba(0, 255, 135, 0.05); border: 2px solid var(--color-primary); box-shadow: 0 0 15px rgba(0, 255, 135, 0.15); padding: 18px;";
+                    badgePrioridad = `<span class="badge badge-success" style="background:var(--color-primary); color:var(--text-dark); font-size:0.65rem; margin-top:2px; display:inline-block;">Auspicio VIP Alta</span>`;
+                    styleImg = "width:55px; height:55px; border-color: var(--color-primary);";
+                } else if (prioridad === "baja") {
+                    styleCard = "background:rgba(0,0,0,0.1); border:1px dashed var(--border-glass); opacity:0.7; padding:10px;";
+                    badgePrioridad = `<span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); font-size:0.6rem; display:inline-block;">Auspicio Bajo</span>`;
+                    styleImg = "width:32px; height:32px;";
+                } else {
+                    badgePrioridad = `<span class="badge badge-warning" style="font-size:0.65rem; display:inline-block;">Auspicio Estándar</span>`;
+                }
+
+                container.innerHTML += `
+                    <div style="${styleCard} border-radius:var(--radius-md); display:flex; align-items:center; justify-content:space-between; gap:15px; transition:var(--transition-smooth);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${aus.logo_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=50'}" style="${styleImg} border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--border-glass);">
+                            <div>
+                                <div style="font-weight:700; font-size:1rem; color:var(--text-main);">${aus.nombre}</div>
+                                ${badgePrioridad}
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" style="padding:6px 12px; font-size:0.75rem;" onclick="eliminarAuspiciante('${aus.id}')">Eliminar</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Registrar auspiciante
+        document.getElementById("auspiciante-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById("aus-nombre").value;
+            const prioridad = document.getElementById("aus-prioridad").value;
+
+            const nuevoAus = {
+                campeonato_id: configCampeonato.id || "c1",
+                nombre: nombre,
+                logo_url: fotoAuspicianteBase64 || "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100", // Fallback imagen por defecto
+                prioridad: prioridad
+            };
+
+            await dbInsertRow("auspiciantes", nuevoAus);
+            
+            // Reestablecer formulario e interfaz
+            document.getElementById("auspiciante-form").reset();
+            fotoAuspicianteBase64 = null;
+            document.getElementById("preview-logo-auspiciante").style.display = "none";
+            document.getElementById("placeholder-logo-auspiciante").style.display = "block";
+            
+            alert(`Auspiciante "${nombre}" agregado con éxito con prioridad "${prioridad.toUpperCase()}".`);
+            await renderizarAuspiciantes();
+        });
+
+        // Eliminar auspiciante
+        async function eliminarAuspiciante(id) {
+            if (confirm("¿Estás seguro de eliminar este auspiciante?")) {
+                if (supabase && supabase.auth) {
+                    await supabase.from('auspiciantes').delete().eq('id', id);
+                } else {
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    localDb.auspiciantes = localDb.auspiciantes.filter(a => a.id !== id);
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+                await renderizarAuspiciantes();
+            }
+        }
+
+        // Simular pago de licencia de plataforma
+        async function simularPagoPlataforma() {
+            const montoPago = cacheEquipos.length * 1.00;
+            
+            if (confirm(`¿Estás seguro de simular el pago de uso de la plataforma por valor de $${montoPago.toFixed(2)} USD a la administración de QFutbol?`)) {
+                
+                if (supabase && supabase.auth) {
+                    await supabase.from('campeonatos').update({
+                        pago_plataforma_realizado: true,
+                        monto_pago_plataforma: montoPago
+                    }).eq('id', configCampeonato.id);
+                } else {
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    localDb.campeonatos[0].pago_plataforma_realizado = true;
+                    localDb.campeonatos[0].monto_pago_plataforma = montoPago;
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+
+                alert(`¡Pago recibido con éxito! La generación de fixture automático ha sido desbloqueada.`);
+                await cargarDatos();
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE CATEGORÍAS
+        // ==========================================
+        let cacheCategorias = [];
+        let cacheSanciones = [];
+
+        const modalCategoria = document.getElementById("modal-categoria");
+        
+        function abrirModalCategoria() {
+            modalCategoria.style.display = "flex";
+            document.getElementById("form-categoria").reset();
+            document.getElementById("txt-cat-id").value = "";
+            document.getElementById("lbl-modal-categoria-titulo").innerHTML = `<i data-lucide="layers"></i> Crear Categoría`;
+            toggleMixtoParams();
+            lucide.createIcons();
+        }
+
+        function cerrarModalCategoria() {
+            modalCategoria.style.display = "none";
+        }
+
+        function toggleMixtoParams() {
+            const genero = document.getElementById("select-cat-genero").value;
+            const container = document.getElementById("mixto-parametros-container");
+            container.style.display = (genero === "mixto") ? "grid" : "none";
+        }
+
+        function renderizarCategorias() {
+            const tbody = document.getElementById("tbody-categorias");
+            tbody.innerHTML = "";
+
+            if (cacheCategorias.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No hay categorías creadas. Agrega una para organizar los equipos.</td></tr>`;
+                return;
+            }
+
+            cacheCategorias.forEach(cat => {
+                const generoTxt = cat.genero === "mixto" ? `Mixto (Mín: ${cat.mixto_minimo_mujeres}M / ${cat.mixto_minimo_hombres}H)` : cat.genero.toUpperCase();
+                const premiosList = `
+                    <div style="font-size:0.75rem; color:var(--text-muted);">
+                        🥇 ${cat.premio_primer_lugar || "-"}<br>
+                        🥈 ${cat.premio_segundo_lugar || "-"}<br>
+                        🥉 ${cat.premio_tercer_lugar || "-"}
+                    </div>
+                `;
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:700; color:var(--color-secondary);">${cat.nombre}</td>
+                        <td>${generoTxt}</td>
+                        <td>${cat.modalidad.replace('_', ' ').toUpperCase()}</td>
+                        <td>$${parseFloat(cat.costo_inscripcion || 0).toFixed(2)}</td>
+                        <td>${premiosList}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding:4px 8px;font-size:0.75rem;margin-right:5px;" onclick="editarCategoria('${cat.id}')">Editar</button>
+                            <button class="btn btn-danger" style="padding:4px 8px;font-size:0.75rem;" onclick="eliminarCategoria('${cat.id}')">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function editarCategoria(id) {
+            const cat = cacheCategorias.find(c => c.id === id);
+            if (!cat) return;
+
+            abrirModalCategoria();
+            document.getElementById("lbl-modal-categoria-titulo").innerHTML = `<i data-lucide="edit"></i> Editar Categoría`;
+            document.getElementById("txt-cat-id").value = cat.id;
+            document.getElementById("txt-cat-nombre").value = cat.nombre;
+            document.getElementById("select-cat-modalidad").value = cat.modalidad;
+            document.getElementById("select-cat-genero").value = cat.genero;
+            document.getElementById("txt-cat-costo").value = cat.costo_inscripcion;
+            
+            toggleMixtoParams();
+            if (cat.genero === "mixto") {
+                document.getElementById("txt-cat-mixto-mujeres").value = cat.mixto_minimo_mujeres || 2;
+                document.getElementById("txt-cat-mixto-hombres").value = cat.mixto_minimo_hombres || 2;
+            }
+
+            document.getElementById("txt-cat-premio1").value = cat.premio_primer_lugar || "";
+            document.getElementById("txt-cat-premio2").value = cat.premio_segundo_lugar || "";
+            document.getElementById("txt-cat-premio3").value = cat.premio_tercer_lugar || "";
+
+            document.getElementById("chk-cat-premio-jugador").checked = cat.tiene_premio_mejor_jugador !== false;
+            document.getElementById("chk-cat-premio-dt").checked = cat.tiene_premio_mejor_dt !== false;
+            document.getElementById("chk-cat-premio-arquero").checked = cat.tiene_premio_mejor_arquero !== false;
+            document.getElementById("chk-cat-premio-barra").checked = cat.tiene_premio_mejor_barra !== false;
+            document.getElementById("txt-cat-premios-detalles").value = cat.detalles_premios_especiales || "";
+
+            document.getElementById("txt-cat-duracion").value = cat.duracion_tiempo_minutos || 25;
+            document.getElementById("select-cat-empate").value = cat.resolucion_empate_eliminatoria || "penales_directos";
+            document.getElementById("txt-cat-max-jug").value = cat.max_jugadores_inscritos || 18;
+            document.getElementById("txt-cat-min-jug").value = cat.min_jugadores_presentarse || 7;
+            document.getElementById("txt-cat-espera").value = cat.tiempo_espera_wo_minutos || 15;
+            document.getElementById("select-cat-llaves").value = cat.tipo_llaves_eliminatorias || "clasificacion_directa";
+            document.getElementById("select-cat-uniforme").value = cat.juega_con_uniforme_completo ? "si" : "no";
+            document.getElementById("select-cat-cambios").value = cat.limite_cambios || "ilimitados_con_reingreso";
+            
+            lucide.createIcons();
+        }
+
+        document.getElementById("form-categoria").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("txt-cat-id").value;
+            const genero = document.getElementById("select-cat-genero").value;
+
+            const datosCat = {
+                campeonato_id: configCampeonato.id || "c1",
+                nombre: document.getElementById("txt-cat-nombre").value.trim(),
+                modalidad: document.getElementById("select-cat-modalidad").value,
+                genero: genero,
+                costo_inscripcion: parseFloat(document.getElementById("txt-cat-costo").value),
+                mixto_minimo_mujeres: genero === "mixto" ? parseInt(document.getElementById("txt-cat-mixto-mujeres").value) : 0,
+                mixto_minimo_hombres: genero === "mixto" ? parseInt(document.getElementById("txt-cat-mixto-hombres").value) : 0,
+                premio_primer_lugar: document.getElementById("txt-cat-premio1").value,
+                premio_segundo_lugar: document.getElementById("txt-cat-premio2").value,
+                premio_tercer_lugar: document.getElementById("txt-cat-premio3").value,
+                tiene_premio_mejor_jugador: document.getElementById("chk-cat-premio-jugador").checked,
+                tiene_premio_mejor_dt: document.getElementById("chk-cat-premio-dt").checked,
+                tiene_premio_mejor_arquero: document.getElementById("chk-cat-premio-arquero").checked,
+                tiene_premio_mejor_barra: document.getElementById("chk-cat-premio-barra").checked,
+                detalles_premios_especiales: document.getElementById("txt-cat-premios-detalles").value,
+                duracion_tiempo_minutos: parseInt(document.getElementById("txt-cat-duracion").value),
+                resolucion_empate_eliminatoria: document.getElementById("select-cat-empate").value,
+                max_jugadores_inscritos: parseInt(document.getElementById("txt-cat-max-jug").value),
+                min_jugadores_presentarse: parseInt(document.getElementById("txt-cat-min-jug").value),
+                tiempo_espera_wo_minutos: parseInt(document.getElementById("txt-cat-espera").value),
+                tipo_llaves_eliminatorias: document.getElementById("select-cat-llaves").value,
+                juega_con_uniforme_completo: document.getElementById("select-cat-uniforme").value === "si",
+                limite_cambios: document.getElementById("select-cat-cambios").value
+            };
+
+            if (id) {
+                // Modificar existente
+                if (supabase && supabase.auth) {
+                    await supabase.from('categorias').update(datosCat).eq('id', id);
+                } else {
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    const idx = localDb.categorias.findIndex(c => c.id === id);
+                    if (idx !== -1) localDb.categorias[idx] = { id, ...datosCat };
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+                alert("Categoría actualizada con éxito.");
+            } else {
+                // Crear nueva
+                await dbInsertRow("categorias", datosCat);
+                alert("Categoría creada con éxito.");
+            }
+
+            cerrarModalCategoria();
+            await cargarDatos();
+        });
+
+        async function eliminarCategoria(id) {
+            if (confirm("¿Estás seguro de eliminar esta categoría? Se eliminarán los equipos y partidos asociados.")) {
+                if (supabase && supabase.auth) {
+                    await supabase.from('categorias').delete().eq('id', id);
+                } else {
+                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                    localDb.categorias = localDb.categorias.filter(c => c.id !== id);
+                    localDb.equipos = localDb.equipos.filter(e => e.categoria_id !== id);
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+                await cargarDatos();
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE SANCIONES DIRECTAS A EQUIPOS
+        // ==========================================
+        function renderizarSanciones() {
+            const container = document.getElementById("sanciones-historial-container");
+            container.innerHTML = "";
+
+            if (!cacheSanciones || cacheSanciones.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:15px;">No hay sanciones registradas.</div>`;
+                return;
+            }
+
+            cacheSanciones.forEach(sanc => {
+                const eq = cacheEquipos.find(e => e.id === sanc.equipo_id) || { nombre: "Equipo" };
+                const puntosTxt = sanc.puntos_restados > 0 ? `-${sanc.puntos_restados} Puntos` : "";
+                const multaTxt = sanc.monto_multa > 0 ? `$${parseFloat(sanc.monto_multa).toFixed(2)} Multa` : "";
+                
+                let penalidadLabel = [puntosTxt, multaTxt].filter(Boolean).join(" | ");
+
+                container.innerHTML += `
+                    <div style="background:rgba(255,77,77,0.06); border:1px solid rgba(255,77,77,0.15); border-radius:var(--radius-sm); padding:10px 15px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="color:var(--color-danger); font-size:0.9rem; display:block;">${eq.nombre}</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted); display:block;">${sanc.motivo}</span>
+                            <span style="font-size:0.7rem; color:var(--color-primary); font-weight:700;">Penalización: ${penalidadLabel}</span>
+                        </div>
+                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="eliminarSancion('${sanc.id}')">
+                            Quitar
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("form-sancionar-equipo").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const eqId = document.getElementById("select-sancion-equipo").value;
+            const puntos = parseInt(document.getElementById("txt-sancion-puntos").value) || 0;
+            const multa = parseFloat(document.getElementById("txt-sancion-multa").value) || 0;
+            const motivo = document.getElementById("txt-sancion-motivo").value.trim();
+
+            if (!eqId) {
+                alert("Debes seleccionar un equipo para sancionar.");
+                return;
+            }
+            if (puntos === 0 && multa === 0) {
+                alert("Debes indicar al menos una penalización de puntos a restar o un monto de multa económica.");
+                return;
+            }
+
+            const nuevaSancion = {
+                equipo_id: eqId,
+                puntos_restados: puntos,
+                monto_multa: multa,
+                motivo: motivo
+            };
+
+            await dbInsertRow("sanciones_equipos", nuevaSancion);
+            
+            // Si la sanción es de multa económica, también la registramos en la contabilidad general de pagos_abonos como multa pendiente
+            if (multa > 0) {
+                const nuevoAbono = {
+                    equipo_id: eqId,
+                    concepto: 'multa_tarjeta',
+                    monto: multa,
+                    metodo_pago: 'efectivo',
+                    estado: 'pendiente'
+                };
+                await dbInsertRow("pagos_abonos", nuevoAbono);
+            }
+
+            document.getElementById("form-sancionar-equipo").reset();
+            alert("Sanción aplicada con éxito al equipo.");
+            await cargarDatos();
+        });
+
+        async function eliminarSancion(id) {
+            if (confirm("¿Estás seguro de anular esta sanción?")) {
+                if (window.supabase && window.supabase.auth) {
+                    await window.supabase.from('sanciones_equipos').delete().eq('id', id);
+                } else {
+                    const localDb = getMockDB();
+                    localDb.sanciones_equipos = localDb.sanciones_equipos.filter(s => s.id !== id);
+                    saveMockDB(localDb);
+                }
+                await cargarDatos();
+            }
+        }
+
+        async function autoDetectarUbicacion() {
+            try {
+                const res = await fetch("https://ipapi.co/json/");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data) {
+                        const inputPais = document.getElementById("camp-pais");
+                        const inputProv = document.getElementById("camp-provincia");
+                        const inputCanton = document.getElementById("camp-canton");
+                        const inputCiudad = document.getElementById("camp-ciudad");
+                        
+                        if (inputPais && !inputPais.value) inputPais.value = data.country_name || "";
+                        if (inputProv && !inputProv.value) inputProv.value = data.region || "";
+                        if (inputCanton && !inputCanton.value) inputCanton.value = data.city || "";
+                        if (inputCiudad && !inputCiudad.value) inputCiudad.value = data.city || "";
+                    }
+                }
+            } catch (e) {
+                console.warn("No se pudo autodetectar la ubicación por IP:", e);
+            }
+        }
+
+        // Cargar todo al iniciar
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(cargarDatos, 1100); // Dar un segundo a Supabase para cargar
+        });
+    </script>
+</body>
+</html>

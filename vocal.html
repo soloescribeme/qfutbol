@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Planilla del Vocal de Mesa</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .player-row {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .player-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .stat-badge-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-glass);
+            background: rgba(255,255,255,0.02);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            gap: 6px;
+        }
+        .stat-badge-btn:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.06);
+        }
+        .btn-card-active-yellow {
+            background: rgba(255, 211, 42, 0.15) !important;
+            color: var(--color-warning) !important;
+            border-color: var(--color-warning) !important;
+            box-shadow: 0 0 10px rgba(255, 211, 42, 0.2);
+        }
+        .btn-card-active-red {
+            background: rgba(255, 77, 77, 0.15) !important;
+            color: var(--color-danger) !important;
+            border-color: var(--color-danger) !important;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+        }
+        .btn-etilicidad-active {
+            background: rgba(125, 95, 255, 0.15) !important;
+            color: var(--color-accent) !important;
+            border-color: var(--color-accent) !important;
+            box-shadow: 0 0 10px rgba(125, 95, 255, 0.2);
+        }
+        .marcador-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        .marcador-team {
+            flex: 1;
+            text-align: center;
+            max-width: 120px;
+        }
+        .marcador-goles {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            width: 70px;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius-md);
+            padding: 5px 0;
+            border: 1px solid var(--border-glass);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" style="max-width: 700px;">
+        <!-- HEADER -->
+        <header class="glass-panel" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 36px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.3rem; font-weight: 800;">Planilla Vocal</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="offline-indicator" class="player-score" style="background: rgba(0, 255, 135, 0.1); color: var(--color-primary); font-size: 0.75rem;">
+                    Online
+                </span>
+                <a href="index.html" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                    Salir
+                </a>
+            </div>
+        </header>
+
+        <!-- SELECCIONADOR DE PARTIDO -->
+        <section id="partidos-selector-section" class="glass-panel" style="margin-bottom: 25px;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 15px;"><i data-lucide="play"></i> Selecciona el partido a controlar</h2>
+            <div class="form-group" style="margin-bottom: 0;">
+                <select id="select-partido-activo" class="form-input" onchange="cargarPartidoSeleccionado()">
+                    <option value="">-- Elige un partido de la fecha --</option>
+                    <!-- Carga dinámica -->
+                </select>
+            </div>
+        </section>
+
+        <!-- PLANILLA DE CONTROL ACTIVO (Se muestra al elegir un partido) -->
+        <div id="control-activo-container" style="display: none;">
+            
+            <!-- MARCADOR DEL PARTIDO EN VIVO -->
+            <section class="marcador-box">
+                <div class="marcador-team">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="lbl-local-nombre">Local</div>
+                    <button class="btn btn-secondary" style="padding:6px;width:100%;" onclick="ajustarMarcador('local', 1)"><i data-lucide="plus"></i> GOL</button>
+                </div>
+                <div class="marcador-goles" id="lbl-local-goles">0</div>
+                
+                <div style="font-weight:800;color:var(--text-muted);font-size:1.5rem;">VS</div>
+                
+                <div class="marcador-goles" id="lbl-visitante-goles">0</div>
+                <div class="marcador-team">
+                    <div style="font-weight:700;font-size:0.9rem;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="lbl-visitante-nombre">Visitante</div>
+                    <button class="btn btn-secondary" style="padding:6px;width:100%;" onclick="ajustarMarcador('visitante', 1)"><i data-lucide="plus"></i> GOL</button>
+                </div>
+            </section>
+
+            <!-- DATOS ADICIONALES DEL ENCUENTRO -->
+            <section class="glass-panel" style="margin-bottom:20px; padding:15px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="vocal-arbitro-nombre"><i data-lucide="user" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:5px;color:var(--color-primary);"></i> Nombre del Árbitro del Encuentro</label>
+                    <input type="text" id="vocal-arbitro-nombre" class="form-input" placeholder="Ej. Juan Pérez (Árbitro Principal)" value="Juan Pérez">
+                </div>
+            </section>
+
+            <!-- PESTAÑAS LOCAL / VISITANTE -->
+            <div class="tabs-header" style="margin-bottom:15px;border-bottom:1px solid var(--border-glass);">
+                <button class="tab-btn active" id="btn-tab-local" onclick="switchTeamTab('local')">Local (Equip. A)</button>
+                <button class="tab-btn" id="btn-tab-visitante" onclick="switchTeamTab('visitante')">Visitante (Equip. B)</button>
+            </div>
+
+            <!-- LISTADO DE JUGADORES Y ESTADÍSTICAS -->
+            <section id="jugadores-list-section" style="margin-bottom: 25px;">
+                <div id="jugadores-planilla-container">
+                    <!-- Filas dinámicas de jugadores -->
+                </div>
+            </section>
+
+            <!-- CONTROL FINANCIERO Y FIRMA DE ACTA -->
+            <!-- TANDA DE PENALES (Definición por Empate en Eliminatorias) -->
+            <div id="panel-tanda-penales" class="glass-panel" style="display:none; margin-bottom:20px; border-color:var(--color-warning); background:rgba(255, 211, 42, 0.02); padding:15px;">
+                <h4 style="font-size:1.05rem; color:var(--color-warning); margin-bottom:10px;"><i data-lucide="circle-dot"></i> Definición por Penales</h4>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Marcador empatado en fase de eliminación directa. Registra la nómina de cobradores y el resultado de cada tiro.</p>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <h5 style="font-size:0.85rem; color:var(--color-primary); margin-bottom:8px;" id="lbl-penales-local-nombre">Local</h5>
+                        <div style="display:flex; flex-direction:column; gap:8px;" id="cobradores-penales-local">
+                            <!-- Lista local -->
+                        </div>
+                        <button class="btn btn-secondary" style="font-size:0.75rem; padding:5px; margin-top:8px; width:100%;" onclick="agregarFilaPenal('local')">+ Añadir Cobro</button>
+                    </div>
+                    <div>
+                        <h5 style="font-size:0.85rem; color:var(--color-secondary); margin-bottom:8px;" id="lbl-penales-visitante-nombre">Visitante</h5>
+                        <div style="display:flex; flex-direction:column; gap:8px;" id="cobradores-penales-visitante">
+                            <!-- Lista visitante -->
+                        </div>
+                        <button class="btn btn-secondary" style="font-size:0.75rem; padding:5px; margin-top:8px; width:100%;" onclick="agregarFilaPenal('visitante')">+ Añadir Cobro</button>
+                    </div>
+                </div>
+            </div>
+
+            <section class="glass-panel" style="margin-bottom: 30px;">
+                <h3 style="font-size:1.15rem;margin-bottom:15px;color:var(--color-secondary);"><i data-lucide="shield-check"></i> Cierre y Conformidad del Acta</h3>
+                
+                <div class="alert alert-warning" id="alert-bloqueo-financiero" style="display:none;font-size:0.85rem;">
+                    <i data-lucide="alert-triangle"></i>
+                    <strong>Advertencia:</strong> El equipo tiene deudas pendientes. No se debería iniciar ni firmar el acta si no está autorizado por el organizador.
+                </div>
+
+                <!-- Firmas Digitales Simuladas -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+                    <button id="btn-firma-local" class="stat-badge-btn" style="padding:12px;height:55px;" onclick="firmarActa('local')">
+                        <i data-lucide="edit-3"></i>
+                        <span>Firma Del. Local</span>
+                    </button>
+                    <button id="btn-firma-visitante" class="stat-badge-btn" style="padding:12px;height:55px;" onclick="firmarActa('visitante')">
+                        <i data-lucide="edit-3"></i>
+                        <span>Firma Del. Visitante</span>
+                    </button>
+                </div>
+
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="guardarProgresoPartido()"><i data-lucide="save"></i> Guardar Borrador</button>
+                    <button class="btn btn-primary" style="flex:1.5;" onclick="finalizarYEnviarActa()"><i data-lucide="send"></i> Guardar y Enviar Acta</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/offline.js"></script>
+
+    <script>
+        lucide.createIcons();
+
+        let partidoSeleccionado = null;
+        let equipoLocal = null;
+        let equipoVisitante = null;
+        let jugadoresLocal = [];
+        let jugadoresVisitante = [];
+        
+        let localGoles = 0;
+        let visitanteGoles = 0;
+        
+        let firmaLocal = false;
+        let firmaVisitante = false;
+        
+        let tabActiva = "local"; // local vs visitante
+        
+        // Estructura para almacenar estadísticas en tiempo real en la vista
+        // { jugador_inscripcion_id: { goles, asistencias, amarillas, rojas, etilicidad, valoracion } }
+        let estadisticasPartido = {};
+
+        async function inicializarVocal() {
+            // Cargar estado de la red
+            actualizarIndicadorOffline();
+            window.addEventListener('online', actualizarIndicadorOffline);
+            window.addEventListener('offline', actualizarIndicadorOffline);
+
+            // Cargar partidos programados
+            const partidos = await dbGetTable("partidos");
+            const equipos = await dbGetTable("equipos");
+            const selectPartidos = document.getElementById("select-partido-activo");
+            
+            selectPartidos.innerHTML = '<option value="">-- Elige un partido de la fecha --</option>';
+            
+            // Filtrar programados o jugando
+            const partidosFiltrados = partidos.filter(p => p.estado !== 'finalizado');
+            
+            partidosFiltrados.forEach(p => {
+                const loc = equipos.find(e => e.id === p.equipo_local_id) || { nombre: "Local" };
+                const vis = equipos.find(e => e.id === p.equipo_visitante_id) || { nombre: "Visitante" };
+                const fase = p.fase === 'regular' ? p.grupo || 'Fase Regular' : p.fase;
+                
+                selectPartidos.innerHTML += `<option value="${p.id}">${loc.nombre} vs ${vis.nombre} (${fase})</option>`;
+            });
+        }
+
+        function actualizarIndicadorOffline() {
+            const ind = document.getElementById("offline-indicator");
+            if (navigator.onLine) {
+                ind.innerText = "Online";
+                ind.style.color = "var(--color-primary)";
+                ind.style.background = "rgba(0, 255, 135, 0.1)";
+            } else {
+                ind.innerText = "Offline Mode";
+                ind.style.color = "var(--color-warning)";
+                ind.style.background = "rgba(255, 211, 42, 0.1)";
+            }
+        }
+
+        async function cargarPartidoSeleccionado() {
+            const partidoId = document.getElementById("select-partido-activo").value;
+            const container = document.getElementById("control-activo-container");
+            
+            if (!partidoId) {
+                container.style.display = "none";
+                partidoSeleccionado = null;
+                return;
+            }
+
+            container.style.display = "block";
+            
+            const partidos = await dbGetTable("partidos");
+            partidoSeleccionado = partidos.find(p => p.id === partidoId);
+            
+            const equipos = await dbGetTable("equipos");
+            equipoLocal = equipos.find(e => e.id === partidoSeleccionado.equipo_local_id);
+            equipoVisitante = equipos.find(e => e.id === partidoSeleccionado.equipo_visitante_id);
+
+            // Colocar nombres e inicializar marcador
+            document.getElementById("lbl-local-nombre").innerText = equipoLocal.nombre;
+            document.getElementById("lbl-visitante-nombre").innerText = equipoVisitante.nombre;
+            
+            document.getElementById("btn-tab-local").innerText = equipoLocal.nombre;
+            document.getElementById("btn-tab-visitante").innerText = equipoVisitante.nombre;
+
+            localGoles = partidoSeleccionado.goles_local || 0;
+            visitanteGoles = partidoSeleccionado.goles_visitante || 0;
+            document.getElementById("lbl-local-goles").innerText = localGoles;
+            document.getElementById("lbl-visitante-goles").innerText = visitanteGoles;
+
+            // Cargar nombre del árbitro
+            document.getElementById("vocal-arbitro-nombre").value = partidoSeleccionado.arbitro_nombre || "";
+
+            firmaLocal = partidoSeleccionado.firma_local || false;
+            firmaVisitante = partidoSeleccionado.firma_visitante || false;
+            actualizarBotonesFirmas();
+
+            // Cargar Jugadores Inscritos
+            const inscripciones = await dbGetTable("inscripciones_equipo");
+            const jugadoresGlobales = await dbGetTable("jugadores");
+
+            // Filtrar inscripciones de cada equipo
+            const insLocal = inscripciones.filter(i => i.equipo_id === equipoLocal.id);
+            const insVisitante = inscripciones.filter(i => i.equipo_id === equipoVisitante.id);
+
+            // Cruzar con datos de jugadores globales
+            jugadoresLocal = insLocal.map(ins => {
+                const jG = jugadoresGlobales.find(j => j.id === ins.jugador_global_id) || { nombres: "Jugador", apellidos: "N", foto_url: "" };
+                return { ...ins, nombres: jG.nombres, apellidos: jG.apellidos, foto_url: jG.foto_url, cedula: jG.cedula };
+            });
+
+            jugadoresVisitante = insVisitante.map(ins => {
+                const jG = jugadoresGlobales.find(j => j.id === ins.jugador_global_id) || { nombres: "Jugador", apellidos: "N", foto_url: "" };
+                return { ...ins, nombres: jG.nombres, apellidos: jG.apellidos, foto_url: jG.foto_url, cedula: jG.cedula };
+            });
+
+            // Inicializar estructura de estadísticas en memoria si no existen
+            // Para el MVP, si el partido ya se estaba editando, podemos buscar en la tabla detalles_partido local
+            const detalles = await dbGetTable("detalles_partido");
+            const detallesDeEstePartido = detalles.filter(d => d.partido_id === partidoSeleccionado.id);
+
+            // Combinar todos los jugadores de ambos equipos para inicializar el objeto
+            const todosLosJugadores = [...jugadoresLocal, ...jugadoresVisitante];
+            todosLosJugadores.forEach(j => {
+                const detallePrevio = detallesDeEstePartido.find(d => d.inscripcion_jugador_id === j.id);
+                if (detallePrevio) {
+                    estadisticasPartido[j.id] = {
+                        goles: detallePrevio.goles || 0,
+                        asistencias: detallePrevio.asistencias || 0,
+                        amarillas: detallePrevio.amarillas || 0,
+                        rojas: detallePrevio.rojas || 0,
+                        etilicidad: detallePrevio.expulsado_etilicidad || false,
+                        valoracion: parseFloat(detallePrevio.valoracion || 6.00)
+                    };
+                } else {
+                    estadisticasPartido[j.id] = {
+                        goles: 0,
+                        asistencias: 0,
+                        amarillas: 0,
+                        rojas: 0,
+                        etilicidad: false,
+                        valoracion: 6.00
+                    };
+                }
+            });
+
+            renderizarPlanillaJugadores();
+        }
+
+        function switchTeamTab(team) {
+            tabActiva = team;
+            document.getElementById("btn-tab-local").classList.toggle("active", team === "local");
+            document.getElementById("btn-tab-visitante").classList.toggle("active", team === "visitante");
+            renderizarPlanillaJugadores();
+        }
+
+        function renderizarPlanillaJugadores() {
+            const container = document.getElementById("jugadores-planilla-container");
+            container.innerHTML = "";
+
+            const listaMostrar = tabActiva === "local" ? jugadoresLocal : jugadoresVisitante;
+
+            if (listaMostrar.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);">No hay jugadores inscritos en este equipo.</div>`;
+                return;
+            }
+
+            // Ordenar por dorsal
+            listaMostrar.sort((a,b) => a.dorsal - b.dorsal).forEach(j => {
+                const stats = estadisticasPartido[j.id] || { goles: 0, asistencias: 0, amarillas: 0, rojas: 0, etilicidad: false, valoracion: 6.00 };
+                
+                // Formatear botones activos
+                const clAmarilla = stats.amarillas > 0 ? "btn-card-active-yellow" : "";
+                const clRoja = stats.rojas > 0 ? "btn-card-active-red" : "";
+                const clEtilico = stats.etilicidad ? "btn-etilicidad-active" : "";
+
+                container.innerHTML += `
+                    <div class="player-row">
+                        <div class="player-header">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="player-score" style="font-size:0.9rem;padding:3px 8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--border-glass);">${j.dorsal}</span>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.95rem;">${j.nombres} ${j.apellidos}</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">${j.posicion} • C.I. ${j.cedula}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:5px;">
+                                <span style="font-size:0.75rem;color:var(--text-muted);">Calificación:</span>
+                                <input type="number" value="${stats.valoracion.toFixed(1)}" min="1.0" max="10.0" step="0.5" 
+                                    style="width:50px;background:rgba(0,0,0,0.3);border:1px solid var(--border-glass);color:var(--color-primary);text-align:center;border-radius:var(--radius-sm);font-weight:700;padding:2px 0;"
+                                    onchange="actualizarValoracion('${j.id}', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="player-actions-grid">
+                            <!-- Goles -->
+                            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.15);padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+                                <span style="font-size:0.8rem;color:var(--text-muted);">Goles</span>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <button class="counter-btn" style="width:22px;height:22px;font-size:0.75rem;" onclick="modificarGolesJugador('${j.id}', -1)">-</button>
+                                    <span style="font-weight:700;font-size:0.9rem;min-width:12px;text-align:center;">${stats.goles}</span>
+                                    <button class="counter-btn" style="width:22px;height:22px;font-size:0.75rem;" onclick="modificarGolesJugador('${j.id}', 1)">+</button>
+                                </div>
+                            </div>
+                            <!-- Asistencias -->
+                            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.15);padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+                                <span style="font-size:0.8rem;color:var(--text-muted);">Asistencias</span>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <button class="counter-btn" style="width:22px;height:22px;font-size:0.75rem;" onclick="modificarAsistenciasJugador('${j.id}', -1)">-</button>
+                                    <span style="font-weight:700;font-size:0.9rem;min-width:12px;text-align:center;">${stats.asistencias}</span>
+                                    <button class="counter-btn" style="width:22px;height:22px;font-size:0.75rem;" onclick="modificarAsistenciasJugador('${j.id}', 1)">+</button>
+                                </div>
+                            </div>
+                            <!-- Tarjeta Amarilla -->
+                            <button class="stat-badge-btn ${clAmarilla}" onclick="rotarAmarilla('${j.id}')">
+                                <i data-lucide="square" style="fill:var(--color-warning);stroke:var(--color-warning);width:12px;height:12px;"></i>
+                                <span>Amarillas (${stats.amarillas})</span>
+                            </button>
+                            <!-- Tarjeta Roja -->
+                            <button class="stat-badge-btn ${clRoja}" onclick="toggleRoja('${j.id}')">
+                                <i data-lucide="square" style="fill:var(--color-danger);stroke:var(--color-danger);width:12px;height:12px;"></i>
+                                <span>Roja Directa</span>
+                            </button>
+                            <!-- Estado Etílico -->
+                            <button class="stat-badge-btn ${clEtilico}" style="grid-column: span 2;" onclick="toggleEtilicidad('${j.id}')">
+                                <i data-lucide="glass-water" style="width:14px;height:14px;"></i>
+                                <span>Sanción por Alcoholemia</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // CONTROLADORES DE EVENTOS
+        // ==========================================
+        
+        function ajustarMarcador(equipo, delta) {
+            if (equipo === 'local') {
+                localGoles = Math.max(0, localGoles + delta);
+                document.getElementById("lbl-local-goles").innerText = localGoles;
+            } else {
+                visitanteGoles = Math.max(0, visitanteGoles + delta);
+                document.getElementById("lbl-visitante-goles").innerText = visitanteGoles;
+            }
+            evaluarTandaPenales();
+        }
+
+        function modificarGolesJugador(id, delta) {
+            const jStats = estadisticasPartido[id];
+            const golesViejos = jStats.goles;
+            jStats.goles = Math.max(0, jStats.goles + delta);
+            
+            // Si sumamos goles al jugador, podemos sumar opcionalmente al marcador global del equipo
+            if (delta > 0) {
+                ajustarMarcador(tabActiva, 1);
+            } else if (delta < 0 && golesViejos > 0) {
+                ajustarMarcador(tabActiva, -1);
+            }
+
+            renderizarPlanillaJugadores();
+        }
+
+        function modificarAsistenciasJugador(id, delta) {
+            estadisticasPartido[id].asistencias = Math.max(0, estadisticasPartido[id].asistencias + delta);
+            renderizarPlanillaJugadores();
+        }
+
+        function rotarAmarilla(id) {
+            const stats = estadisticasPartido[id];
+            // Rota entre 0, 1 y 2 amarillas
+            stats.amarillas = (stats.amarillas + 1) % 3;
+            renderizarPlanillaJugadores();
+        }
+
+        function toggleRoja(id) {
+            const stats = estadisticasPartido[id];
+            stats.rojas = stats.rojas === 1 ? 0 : 1;
+            renderizarPlanillaJugadores();
+        }
+
+        function toggleEtilicidad(id) {
+            const stats = estadisticasPartido[id];
+            stats.etilicidad = !stats.etilicidad;
+            renderizarPlanillaJugadores();
+        }
+
+        function actualizarValoracion(id, val) {
+            const num = parseFloat(val);
+            if (!isNaN(num) && num >= 1.0 && num <= 10.0) {
+                estadisticasPartido[id].valoracion = num;
+            }
+        }
+
+        function firmarActa(equipo) {
+            if (equipo === 'local') {
+                firmaLocal = !firmaLocal;
+            } else {
+                firmaVisitante = !firmaVisitante;
+            }
+            actualizarBotonesFirmas();
+        }
+
+        function actualizarBotonesFirmas() {
+            const btnLoc = document.getElementById("btn-firma-local");
+            const btnVis = document.getElementById("btn-firma-visitante");
+
+            btnLoc.className = firmaLocal ? "stat-badge-btn btn-card-active-yellow" : "stat-badge-btn";
+            btnVis.className = firmaVisitante ? "stat-badge-btn btn-card-active-yellow" : "stat-badge-btn";
+
+            btnLoc.querySelector("span").innerText = firmaLocal ? "Firmado por Local ✓" : "Firma Del. Local";
+            btnVis.querySelector("span").innerText = firmaVisitante ? "Firmado por Vis. ✓" : "Firma Del. Visitante";
+        }
+
+        // Estructura datos listos para persistir
+        function consolidarDatosPartido(estadoPartido = 'jugando') {
+            const detalles = [];
+            Object.keys(estadisticasPartido).forEach(jInscId => {
+                const stat = estadisticasPartido[jInscId];
+                detalles.push({
+                    partido_id: partidoSeleccionado.id,
+                    inscripcion_jugador_id: jInscId,
+                    goles: stat.goles,
+                    asistencias: stat.asistencias,
+                    amarillas: stat.amarillas,
+                    rojas: stat.rojas,
+                    expulsado_etilicidad: stat.etilicidad,
+                    valoracion: stat.valoracion,
+                    minutos_jugados: 50 // Por defecto para fútbol barrial
+                });
+            });
+
+            // Extraer Tanda de Penales (si la hubiese)
+            const penales = [];
+            const panelPenales = document.getElementById("panel-tanda-penales");
+            if (panelPenales && panelPenales.style.display === "block") {
+                // Local
+                document.querySelectorAll("#cobradores-penales-local .penal-fila").forEach((fila, idx) => {
+                    const cobradorId = fila.querySelector(".select-cobrador").value;
+                    const convertido = fila.querySelector(".select-convertido").value === "si";
+                    if (cobradorId) {
+                        penales.push({
+                            partido_id: partidoSeleccionado.id,
+                            equipo_id: partidoSeleccionado.equipo_local_id,
+                            inscripcion_jugador_id: cobradorId,
+                            orden: idx + 1,
+                            convertido: convertido
+                        });
+                    }
+                });
+                // Visitante
+                document.querySelectorAll("#cobradores-penales-visitante .penal-fila").forEach((fila, idx) => {
+                    const cobradorId = fila.querySelector(".select-cobrador").value;
+                    const convertido = fila.querySelector(".select-convertido").value === "si";
+                    if (cobradorId) {
+                        penales.push({
+                            partido_id: partidoSeleccionado.id,
+                            equipo_id: partidoSeleccionado.equipo_visitante_id,
+                            inscripcion_jugador_id: cobradorId,
+                            orden: idx + 1,
+                            convertido: convertido
+                        });
+                    }
+                });
+            }
+
+            return {
+                goles_local: localGoles,
+                goles_visitante: visitanteGoles,
+                firma_local: firmaLocal,
+                firma_visitante: firmaVisitante,
+                arbitro_nombre: document.getElementById("vocal-arbitro-nombre").value,
+                estado: estadoPartido,
+                detalles: detalles,
+                penales: penales
+            };
+        }
+
+        // GUARDAR PROGRESO (BORRADOR LOCAL)
+        async function guardarProgresoPartido() {
+            const datos = consolidarDatosPartido('jugando');
+            
+            if (supabase && supabase.auth) {
+                // Actualizar en base remota de Supabase
+                await supabase.from('partidos').update({
+                    goles_local: datos.goles_local,
+                    goles_visitante: datos.goles_visitante,
+                    firma_local: datos.firma_local,
+                    firma_visitante: datos.firma_visitante,
+                    arbitro_nombre: datos.arbitro_nombre
+                }).eq('id', partidoSeleccionado.id);
+            } else {
+                // Guardar en Mock db local
+                const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
+                const pIdx = localDb.partidos.findIndex(p => p.id === partidoSeleccionado.id);
+                if (pIdx !== -1) {
+                    localDb.partidos[pIdx].goles_local = datos.goles_local;
+                    localDb.partidos[pIdx].goles_visitante = datos.goles_visitante;
+                    localDb.partidos[pIdx].firma_local = datos.firma_local;
+                    localDb.partidos[pIdx].firma_visitante = datos.firma_visitante;
+                    localDb.partidos[pIdx].arbitro_nombre = datos.arbitro_nombre;
+                    
+                    // Reemplazar detalles de partido
+                    localDb.detalles_partido = localDb.detalles_partido.filter(d => d.partido_id !== partidoSeleccionado.id);
+                    localDb.detalles_partido.push(...datos.detalles.map((d, idx) => ({ id: `d_${partidoSeleccionado.id}_${idx}`, ...d })));
+                    
+                    // Guardar tanda de penales
+                    if (!localDb.detalles_penales) localDb.detalles_penales = [];
+                    localDb.detalles_penales = localDb.detalles_penales.filter(pen => pen.partido_id !== partidoSeleccionado.id);
+                    localDb.detalles_penales.push(...datos.penales.map((pen, idx) => ({ id: `pen_${partidoSeleccionado.id}_${idx}`, ...pen })));
+
+                    localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
+                }
+            }
+            alert("Borrador del partido guardado correctamente.");
+        }
+
+        // LÓGICA DE PENALES
+        function evaluarTandaPenales() {
+            const panelPenales = document.getElementById("panel-tanda-penales");
+            if (!partidoSeleccionado) return;
+            
+            // Si es fase eliminatoria (distinto a regular) y hay empate en goles, activamos tanda
+            const esEliminatoria = partidoSeleccionado.fase && partidoSeleccionado.fase !== 'regular';
+            const esEmpate = localGoles === visitanteGoles;
+
+            if (esEliminatoria && esEmpate) {
+                panelPenales.style.display = "block";
+                document.getElementById("lbl-penales-local-nombre").innerText = equipoLocal.nombre;
+                document.getElementById("lbl-penales-visitante-nombre").innerText = equipoVisitante.nombre;
+                
+                const contL = document.getElementById("cobradores-penales-local");
+                const contV = document.getElementById("cobradores-penales-visitante");
+                if (contL.children.length === 0) {
+                    for (let i = 0; i < 3; i++) {
+                        agregarFilaPenal('local');
+                        agregarFilaPenal('visitante');
+                    }
+                }
+            } else {
+                panelPenales.style.display = "none";
+                document.getElementById("cobradores-penales-local").innerHTML = "";
+                document.getElementById("cobradores-penales-visitante").innerHTML = "";
+            }
+        }
+
+        function agregarFilaPenal(bando) {
+            const container = document.getElementById(`cobradores-penales-${bando}`);
+            const jugadores = bando === 'local' ? jugadoresLocal : jugadoresVisitante;
+            
+            const div = document.createElement("div");
+            div.className = "penal-fila";
+            div.style.display = "flex";
+            div.style.gap = "8px";
+            div.style.alignItems = "center";
+            div.style.marginBottom = "5px";
+
+            let selectJug = `<select class="form-input select-cobrador" style="padding:4px; font-size:0.75rem; flex:1.5;">`;
+            selectJug += `<option value="">-- Elige Cobrador --</option>`;
+            jugadores.forEach(j => {
+                selectJug += `<option value="${j.id}">#${j.dorsal} - ${j.nombres} ${j.apellidos}</option>`;
+            });
+            selectJug += `</select>`;
+
+            div.innerHTML = `
+                ${selectJug}
+                <select class="form-input select-convertido" style="padding:4px; font-size:0.75rem; flex:1; background:rgba(0,0,0,0.2);">
+                    <option value="si">GOL ✓</option>
+                    <option value="no">ERRÓ ✗</option>
+                </select>
+                <button type="button" class="counter-btn" style="width:20px; height:20px; font-size:0.7rem; background:rgba(255,77,77,0.1); border-color:rgba(255,77,77,0.2); color:var(--color-danger);" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // FINALIZAR PARTIDO Y ENVIAR ACTA
+        async function finalizarYEnviarActa() {
+            if (!firmaLocal || !firmaVisitante) {
+                alert("Para finalizar el partido y consolidar las estadísticas, es obligatorio que ambos delegados (Local y Visitante) firmen digitalmente el acta de conformidad.");
+                return;
+            }
+
+            if (confirm("¿Estás seguro de finalizar el partido? Una vez enviado el acta, los resultados se congelarán y se calculará el Score de los jugadores participantes.")) {
+                const datos = consolidarDatosPartido('finalizado');
+                
+                // Guardar en la cola offline (IndexedDB/LocalStorage) para asegurar tolerancia a fallos
+                guardarPartidoOffline(partidoSeleccionado.id, datos);
+
+                // Intentar sincronizar de inmediato
+                const sincronizado = await sincronizarColaOffline();
+
+                if (sincronizado) {
+                    alert("¡Acta de partido enviada y sincronizada correctamente en la base de datos! Las puntuaciones se han recalculado.");
+                } else {
+                    alert("No hay internet en la cancha. El acta se ha guardado localmente en tu teléfono celular de forma segura. Se enviará a la base de datos automáticamente en cuanto recuperes cobertura.");
+                }
+
+                // Recargar interfaz
+                partidoSeleccionado = null;
+                document.getElementById("select-partido-activo").value = "";
+                document.getElementById("control-activo-container").style.display = "none";
+                await inicializarVocal();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(inicializarVocal, 1200);
+            
+            // Refrescar al sincronizarse la cola offline en segundo plano
+            window.addEventListener('offline_sync_completed', () => {
+                console.log("Cola sincronizada en segundo plano.");
+                if (partidoSeleccionado) cargarPartidoSeleccionado();
+            });
+        });
+    </script>
+</body>
+</html>

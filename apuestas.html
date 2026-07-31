@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Zona de Apuestas Deportivas</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .bet-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .bet-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: var(--transition-smooth);
+        }
+        .bet-card:hover {
+            border-color: var(--color-secondary);
+            box-shadow: 0 4px 20px rgba(96, 239, 255, 0.1);
+        }
+        .odds-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .odd-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+        .odd-btn:hover {
+            background: var(--color-secondary);
+            color: var(--text-dark);
+            border-color: var(--color-secondary);
+        }
+        .odd-btn.selected {
+            background: var(--color-primary);
+            color: var(--text-dark);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(0, 255, 135, 0.3);
+        }
+        .odd-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .odd-btn:hover .odd-label, .odd-btn.selected .odd-label {
+            color: inherit;
+        }
+        .ticket-box {
+            position: sticky;
+            top: 20px;
+        }
+        .recarga-option {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .recarga-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-secondary);
+        }
+        .recarga-option.active {
+            background: rgba(96, 239, 255, 0.08);
+            border-color: var(--color-secondary);
+        }
+        @media (max-width: 768px) {
+            .bet-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER / NAVBAR -->
+        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol Apuestas</span>
+            </div>
+            
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <!-- Perfil del Apostador en Barra -->
+                <div id="perfil-apostador-nav" style="display: none; align-items: center; gap: 10px;">
+                    <span style="font-size:0.9rem; color:var(--text-muted);">Hola, <strong id="lbl-nav-username" style="color:var(--text-main);">Apostador</strong></span>
+                    <span class="player-score" style="background: rgba(0, 255, 135, 0.1); color: var(--color-primary); font-size: 0.95rem; font-weight: 800; padding: 6px 12px; border: 1px solid var(--border-active);">
+                        <i data-lucide="wallet" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
+                        Saldo: $<span id="lbl-saldo-valor">0.00</span>
+                    </span>
+                    <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem; background:var(--grad-accent); border:none;" onclick="showModalRecarga()">
+                        <i data-lucide="arrow-up-right"></i> Recargar
+                    </button>
+                    <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;" onclick="cerrarSesionApostador()">
+                        Cerrar Sesión
+                    </button>
+                </div>
+
+                <div id="anon-nav" style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;" onclick="showModalLogin()"><i data-lucide="user"></i> Iniciar Sesión / Registro</button>
+                </div>
+
+                <a href="index.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    Volver a Gestión
+                </a>
+            </div>
+        </header>
+
+        <!-- BANNER DE BIENVENIDA -->
+        <section class="glass-panel" style="padding: 30px; margin-bottom: 30px; background: linear-gradient(135deg, rgba(13,14,21,0.9) 0%, rgba(125,95,255,0.15) 100%); border-color: rgba(125,95,255,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <span class="badge" style="background:var(--color-primary); color:var(--text-dark); margin-bottom:10px;">PRONÓSTICOS 100% GARANTIZADOS</span>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 10px;">Tu Apuesta Está Segura con Nosotros</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px;">
+                        Garantía de cobro inmediata, depósitos rápidos y la seguridad total de que tus fondos y ganancias están respaldados por el sistema oficial de la liga. ¡Apuesta con absoluta confianza!
+                    </p>
+                </div>
+                <i data-lucide="shield-check" style="color: var(--color-primary); width: 80px; height: 80px; opacity: 0.8;"></i>
+            </div>
+        </section>
+
+        <!-- PANEL DE APUESTAS -->
+        <div class="bet-grid">
+            <!-- Columna Izquierda: Listado de Partidos y Cuotas -->
+            <div>
+                <!-- Detalle de Nómina Activa y Cálculo de Cuotas -->
+                <div class="glass-panel alert alert-warning" style="margin-bottom: 20px; font-size: 0.85rem; display: block;">
+                    <i data-lucide="info" style="display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
+                    <strong>Nota del Sistema:</strong> Las cuotas iniciales se fijan en base al score promedio del equipo. No obstante, **se actualizan dinámicamente según la nómina de jugadores seleccionados por el vocal** para jugar el partido específico. Si las estrellas no juegan, las cuotas varían de inmediato.
+                </div>
+
+                <h2 style="font-size: 1.4rem; margin-bottom: 15px;"><i data-lucide="swords"></i> Próximos Partidos y Cuotas (Garantía de Margen de la Casa)</h2>
+                <div id="lista-apuestas-partidos">
+                    <!-- Carga dinámica -->
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Boleto de Apuesta (Bet Slip) y Balance -->
+            <div>
+                <!-- Panel de ganancias del apostador -->
+                <div class="glass-panel" id="panel-ganancias-apostador" style="display: none; margin-bottom: 20px; text-align: center; border-color: rgba(0, 255, 135, 0.2);">
+                    <h3 style="font-size:1.1rem; margin-bottom:12px;"><i data-lucide="bar-chart-2"></i> Mi Control de Ganancias</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="background: rgba(0, 255, 135, 0.05); padding: 10px; border-radius: var(--radius-sm);">
+                            <div style="font-size:0.75rem; color:var(--text-muted);">Ganado Histórico</div>
+                            <div style="font-size:1.3rem; font-weight:750; color:var(--color-primary);" id="lbl-ganado-historico">$0.00</div>
+                        </div>
+                        <div style="background: rgba(255, 77, 77, 0.05); padding: 10px; border-radius: var(--radius-sm);">
+                            <div style="font-size:0.75rem; color:var(--text-muted);">Perdido Histórico</div>
+                            <div style="font-size:1.3rem; font-weight:750; color:var(--color-danger);" id="lbl-perdido-historico">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boleto de Apuestas -->
+                <div class="glass-panel ticket-box">
+                    <h3 style="font-size: 1.2rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><i data-lucide="ticket"></i> Mi Boleto</span>
+                        <span id="ticket-count" class="player-score" style="font-size:0.75rem;background:rgba(96,239,255,0.1);color:var(--color-secondary);">0 apuestas</span>
+                    </h3>
+                    
+                    <div id="ticket-vacio" style="text-align: center; padding: 30px 10px; color: var(--text-muted);">
+                        <i data-lucide="shopping-bag" style="width:36px; height:36px; margin-bottom:10px; color:var(--border-glass);"></i>
+                        <p style="font-size:0.9rem;">Selecciona una cuota para armar tu cupón de apuesta.</p>
+                    </div>
+
+                    <div id="ticket-contenido" style="display: none;">
+                        <div style="background:rgba(0,0,0,0.2); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:12px; margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.95rem;">
+                                <span id="tick-partido">Local vs Visitante</span>
+                                <button onclick="limpiarTicket()" style="background:transparent; border:none; color:var(--color-danger); cursor:pointer;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.9rem;">
+                                <span id="tick-pronostico" style="color:var(--color-secondary);">Pronóstico: Local</span>
+                                <span id="tick-cuota" style="font-weight:700; color:var(--color-primary);">1.85</span>
+                            </div>
+                        </div>
+
+                        <!-- Monto a Apostar -->
+                        <div class="form-group">
+                            <label class="form-label" for="txt-monto-apuesta">Monto a apostar ($)</label>
+                            <input type="number" id="txt-monto-apuesta" class="form-input" value="5.00" min="1.00" max="500.00" oninput="calcularRetorno()">
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:0.95rem; border-top:1px dashed var(--border-glass); padding-top:12px;">
+                            <span style="color:var(--text-muted);">Retorno Estimado:</span>
+                            <span style="font-weight:700; color:var(--color-primary); font-size:1.1rem;" id="lbl-retorno">$9.25</span>
+                        </div>
+
+                        <div id="alerta-registro-apuesta" class="alert alert-danger" style="display: none; padding:10px; font-size:0.8rem; margin-bottom:15px;">
+                            <i data-lucide="info"></i> Debes iniciar sesión para realizar pronósticos.
+                        </div>
+
+                        <button class="btn btn-primary" style="width: 100%;" id="btn-colocar-apuesta" onclick="realizarApuesta()"><i data-lucide="shield-check"></i> Confirmar Pronóstico Seguro</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INICIO DE SESIÓN / REGISTRO DE APOSTADOR -->
+    <div id="modal-login-apostador" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-panel" style="width: 100%; max-width: 420px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 15px; text-align:center;"><i data-lucide="user-plus"></i> Iniciar Sesión / Registro</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; margin-bottom:20px;">Registra tus datos para llevar control de tu saldo y ganancias.</p>
+            
+            <form id="form-login-apostador">
+                <div class="form-group">
+                    <label class="form-label" for="ap-nombres">Nombres y Apellidos</label>
+                    <input type="text" id="ap-nombres" class="form-input" value="Juan Lozano" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ap-email">Email</label>
+                    <input type="email" id="ap-email" class="form-input" value="juan.lozano@ejemplo.com" required>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModalLogin()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrarse e Ingresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE RECARGAS DE SALDO (3 MÉTODOS) -->
+    <div id="modal-recarga-saldo" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-panel" style="width: 100%; max-width: 500px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px; text-align:center;"><i data-lucide="arrow-up-right"></i> Recarga de Saldo Seguro</h3>
+            
+            <!-- Selector de Métodos -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+                <div class="recarga-option active" id="rec-opt-tarjeta" onclick="switchMetodoRecarga('tarjeta')">
+                    <i data-lucide="credit-card" style="width:20px;height:20px;"></i>
+                    <span style="font-size:0.75rem; font-weight:700;">Tarjeta</span>
+                </div>
+                <div class="recarga-option" id="rec-opt-transferencia" onclick="switchMetodoRecarga('transferencia')">
+                    <i data-lucide="send" style="width:20px;height:20px;"></i>
+                    <span style="font-size:0.75rem; font-weight:700;">Transferencia</span>
+                </div>
+                <div class="recarga-option" id="rec-opt-deposito" onclick="switchMetodoRecarga('deposito')">
+                    <i data-lucide="banknote" style="width:20px;height:20px;"></i>
+                    <span style="font-size:0.75rem; font-weight:700;">Depósito</span>
+                </div>
+            </div>
+
+            <!-- Formulario de Recarga -->
+            <form id="form-recarga-saldo">
+                <input type="hidden" id="rec-metodo" value="tarjeta">
+                
+                <div class="form-group">
+                    <label class="form-label" for="rec-monto">Monto a Recargar ($)</label>
+                    <input type="number" id="rec-monto" class="form-input" value="10.00" min="5.00" max="500.00" step="5.00" required>
+                </div>
+
+                <!-- Detalles dinámicos según método -->
+                <div id="rec-detalles-tarjeta" style="background:rgba(0,0,0,0.15); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:15px; margin-bottom:20px;">
+                    <h4 style="font-size:0.9rem; margin-bottom:10px; color:var(--color-secondary);">Pago en Línea con Tarjeta (Simulado Stripe/Payphone)</h4>
+                    <div class="form-group">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="text" class="form-input" value="4111 2222 3333 4444" placeholder="4111 2222 3333 4444" required>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="form-group">
+                            <label class="form-label">Vencimiento</label>
+                            <input type="text" class="form-input" value="12/29" placeholder="MM/AA" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-input" value="123" placeholder="123" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rec-detalles-transferencia" style="display:none; background:rgba(0,0,0,0.15); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:15px; margin-bottom:20px;">
+                    <h4 style="font-size:0.9rem; margin-bottom:10px; color:var(--color-secondary);">Datos para Transferencia Bancaria</h4>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px; line-height:1.4;">
+                        Banco Pichincha - Cta. Corriente: 2200456789<br>
+                        A nombre de: QFutbol S.A.S.<br>
+                        RUC: 1792345678001
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Número de Referencia/Transferencia</label>
+                        <input type="text" id="rec-ref-transferencia" class="form-input" placeholder="Ej: 98765432">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subir Comprobante (Simulado)</label>
+                        <input type="file" class="form-input" accept="image/*">
+                    </div>
+                </div>
+
+                <div id="rec-detalles-deposito" style="display:none; background:rgba(0,0,0,0.15); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:15px; margin-bottom:20px;">
+                    <h4 style="font-size:0.9rem; margin-bottom:10px; color:var(--color-secondary);">Depósito en Red Física Autorizada</h4>
+                    <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+                        Visita cualquier local autorizado de nuestra red deportiva QFutbol, brinda tu correo/cédula y el cajero te cargará el saldo de inmediato en efectivo.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Código de Recarga Único (Muestra al Cajero)</label>
+                        <input type="text" class="form-input" value="QF-RECH-8839" readonly style="text-align:center; font-weight:700; color:var(--color-warning);">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModalRecarga()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Confirmar Recarga</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        lucide.createIcons();
+
+        let cachePartidos = [];
+        let cacheEquipos = [];
+        let cacheInscripciones = [];
+        let apuestaActiva = null; 
+        
+        // Estado del apostador logueado
+        let apostadorActual = null; 
+
+        // Recuperar sesión persistente de apostador mock
+        if (localStorage.getItem("qfutbol_apostador_activo")) {
+            apostadorActual = JSON.parse(localStorage.getItem("qfutbol_apostador_activo"));
+        }
+
+        async function inicializarApuestas() {
+            cachePartidos = await dbGetTable("partidos");
+            cacheEquipos = await dbGetTable("equipos");
+            cacheInscripciones = await dbGetTable("inscripciones_equipo");
+
+            actualizarVistaApostador();
+            renderizarPartidosApuestas();
+        }
+
+        // CONTROL DE SESIÓN APOSTADOR
+        function actualizarVistaApostador() {
+            const perfilNav = document.getElementById("perfil-apostador-nav");
+            const anonNav = document.getElementById("anon-nav");
+            const panelGanancias = document.getElementById("panel-ganancias-apostador");
+            const alertaRegistro = document.getElementById("alerta-registro-apuesta");
+
+            if (apostadorActual) {
+                perfilNav.style.display = "flex";
+                anonNav.style.display = "none";
+                panelGanancias.style.display = "block";
+                alertaRegistro.style.display = "none";
+
+                document.getElementById("lbl-nav-username").innerText = apostadorActual.nombres;
+                document.getElementById("lbl-saldo-valor").innerText = parseFloat(apostadorActual.balance_saldo).toFixed(2);
+                document.getElementById("lbl-ganado-historico").innerText = `$${parseFloat(apostadorActual.ganancias_totales || 0).toFixed(2)}`;
+                document.getElementById("lbl-perdido-historico").innerText = `$${parseFloat(apostadorActual.perdidas_totales || 0).toFixed(2)}`;
+            } else {
+                perfilNav.style.display = "none";
+                anonNav.style.display = "flex";
+                panelGanancias.style.display = "none";
+                alertaRegistro.style.display = "block";
+            }
+        }
+
+        const modalLogin = document.getElementById("modal-login-apostador");
+        function showModalLogin() {
+            modalLogin.style.display = "flex";
+        }
+        function hideModalLogin() {
+            modalLogin.style.display = "none";
+        }
+
+        const modalRecarga = document.getElementById("modal-recarga-saldo");
+        function showModalRecarga() {
+            modalRecarga.style.display = "flex";
+            document.getElementById("form-recarga-saldo").reset();
+            switchMetodoRecarga('tarjeta');
+        }
+        function hideModalRecarga() {
+            modalRecarga.style.display = "none";
+        }
+
+        function switchMetodoRecarga(metodo) {
+            document.getElementById("rec-metodo").value = metodo;
+            
+            // Marcar botón activo
+            document.getElementById("rec-opt-tarjeta").classList.toggle("active", metodo === 'tarjeta');
+            document.getElementById("rec-opt-transferencia").classList.toggle("active", metodo === 'transferencia');
+            document.getElementById("rec-opt-deposito").classList.toggle("active", metodo === 'deposito');
+
+            // Mostrar campos correspondientes
+            document.getElementById("rec-detalles-tarjeta").style.display = (metodo === 'tarjeta') ? "block" : "none";
+            document.getElementById("rec-detalles-transferencia").style.display = (metodo === 'transferencia') ? "block" : "none";
+            document.getElementById("rec-detalles-deposito").style.display = (metodo === 'deposito') ? "block" : "none";
+        }
+
+        // PROCESAR FORMULARIO LOGIN
+        document.getElementById("form-login-apostador").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nombres = document.getElementById("ap-nombres").value;
+            const email = document.getElementById("ap-email").value;
+
+            // Iniciar sesión simulada
+            apostadorActual = {
+                nombres: nombres,
+                email: email,
+                balance_saldo: 50.00,
+                ganancias_totales: 0.00,
+                perdidas_totales: 0.00
+            };
+
+            localStorage.setItem("qfutbol_apostador_activo", JSON.stringify(apostadorActual));
+            hideModalLogin();
+            actualizarVistaApostador();
+        });
+
+        function cerrarSesionApostador() {
+            apostadorActual = null;
+            localStorage.removeItem("qfutbol_apostador_activo");
+            limpiarTicket();
+            actualizarVistaApostador();
+        }
+
+        // PROCESAR FORMULARIO RECARGA
+        document.getElementById("form-recarga-saldo").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const monto = parseFloat(document.getElementById("rec-monto").value);
+            const metodo = document.getElementById("rec-metodo").value;
+
+            if (apostadorActual) {
+                if (metodo === 'transferencia') {
+                    alert(`Tu solicitud de recarga por Transferencia de $${monto.toFixed(2)} ha sido enviada para verificación. El saldo se acreditará tras validar el comprobante.`);
+                } else {
+                    apostadorActual.balance_saldo += monto;
+                    localStorage.setItem("qfutbol_apostador_activo", JSON.stringify(apostadorActual));
+                    alert(`¡Recarga exitosa! Se han acreditado $${monto.toFixed(2)} a tu cuenta de apuestas de forma segura.`);
+                }
+            }
+
+            hideModalRecarga();
+            actualizarVistaApostador();
+        });
+
+        // ==========================================================================
+        // CÁLCULO DE CUOTAS PREMIUM CON PROMEDIOS Y MARGEN DE CASA (LA CASA GANA SÍ O SÍ)
+        // ==========================================================================
+        function renderizarPartidosApuestas() {
+            const container = document.getElementById("lista-apuestas-partidos");
+            container.innerHTML = "";
+
+            const partidosActivos = cachePartidos.filter(p => p.estado !== 'finalizado');
+
+            if (partidosActivos.length === 0) {
+                container.innerHTML = `<div class="glass-panel" style="text-align:center;color:var(--text-muted);padding:30px;">No hay partidos programados para apuestas en este momento.</div>`;
+                return;
+            }
+
+            partidosActivos.forEach(p => {
+                const loc = cacheEquipos.find(e => e.id === p.equipo_local_id) || { id: "l", nombre: "Local" };
+                const vis = cacheEquipos.find(e => e.id === p.equipo_visitante_id) || { id: "v", nombre: "Visitante" };
+
+                // 1. CÁLCULO DEL SCORE DEL EQUIPO (Promedio de sus jugadores inscritos)
+                const insLocal = cacheInscripciones.filter(i => i.equipo_id === loc.id);
+                const insVisitante = cacheInscripciones.filter(i => i.equipo_id === vis.id);
+
+                const scoreEquipoLocal = insLocal.length > 0 
+                    ? insLocal.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / insLocal.length 
+                    : 6.00;
+
+                const scoreEquipoVisitante = insVisitante.length > 0 
+                    ? insVisitante.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / insVisitante.length 
+                    : 6.00;
+
+                // 2. FÓRMULA DE PROBABILIDADES JUSTAS (En base a scores)
+                // Se asume un peso de empate base de 2.0
+                const factorEmpate = 2.00; 
+                const totalPuntos = scoreEquipoLocal + scoreEquipoVisitante + factorEmpate;
+
+                const probLocalJusta = scoreEquipoLocal / totalPuntos;
+                const probVisitanteJusta = scoreEquipoVisitante / totalPuntos;
+                const probEmpateJusta = factorEmpate / totalPuntos;
+
+                // 3. GARANTÍA DE MARGEN DE LA CASA (Overround del 10% - La casa gana sí o sí)
+                const recargoCasa = 1.10; // Factor de recargo del 10%
+                
+                // Aplicamos recargo de probabilidad
+                const probLocalComercial = probLocalJusta * recargoCasa;
+                const probVisitanteComercial = probVisitanteJusta * recargoCasa;
+                const probEmpateComercial = probEmpateJusta * recargoCasa;
+
+                // Las cuotas finales publicadas son el inverso de las probabilidades comerciales
+                const cuotaL = (1 / probLocalComercial).toFixed(2);
+                const cuotaV = (1 / probVisitanteComercial).toFixed(2);
+                const cuotaE = (1 / probEmpateComercial).toFixed(2);
+
+                const labelPartido = `${loc.nombre} vs ${vis.nombre}`;
+
+                container.innerHTML += `
+                    <div class="bet-card">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+                            <span>${p.grupo || 'Liga Regular'}</span>
+                            <span><i data-lucide="shield" style="width:12px; height:12px; display:inline; vertical-align:middle; color:var(--color-primary)"></i> Apuesta Garantizada</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:1.1rem; margin: 5px 0;">
+                            <span>${loc.nombre}</span>
+                            <span style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">vs</span>
+                            <span>${vis.nombre}</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">
+                            <span>Score Promedio: <strong>${loc.nombre}</strong> (${scoreEquipoLocal.toFixed(2)}) vs <strong>${vis.nombre}</strong> (${scoreEquipoVisitante.toFixed(2)})</span>
+                        </div>
+                        <div class="odds-container">
+                            <button id="btn-odd-${p.id}-local" class="odd-btn" onclick="seleccionarApuesta('${p.id}', 'local', ${cuotaL}, '${labelPartido}', 'Victoria ${loc.nombre}')">
+                                <span class="odd-label">Local</span>
+                                ${cuotaL}
+                            </button>
+                            <button id="btn-odd-${p.id}-empate" class="odd-btn" onclick="seleccionarApuesta('${p.id}', 'empate', ${cuotaE}, '${labelPartido}', 'Empate')">
+                                <span class="odd-label">Empate</span>
+                                ${cuotaE}
+                            </button>
+                            <button id="btn-odd-${p.id}-visitante" class="odd-btn" onclick="seleccionarApuesta('${p.id}', 'visitante', ${cuotaV}, '${labelPartido}', 'Victoria ${vis.nombre}')">
+                                <span class="odd-label">Visitante</span>
+                                ${cuotaV}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function seleccionarApuesta(partidoId, tipo, cuota, labelPartido, tipoLabel) {
+            if (!apostadorActual) {
+                alert("Debes iniciar sesión o registrarte para poder colocar una apuesta en tu boleto.");
+                showModalLogin();
+                return;
+            }
+
+            document.querySelectorAll('.odd-btn').forEach(btn => btn.classList.remove('selected'));
+            const btn = document.getElementById(`btn-odd-${partidoId}-${tipo}`);
+            btn.classList.add('selected');
+
+            apuestaActiva = {
+                partidoId: partidoId,
+                tipoPronostico: tipo,
+                cuota: cuota,
+                partidoLabel: labelPartido,
+                tipoLabel: tipoLabel
+            };
+
+            document.getElementById("ticket-vacio").style.display = "none";
+            document.getElementById("ticket-contenido").style.display = "block";
+            document.getElementById("ticket-count").innerText = "1 apuesta";
+
+            document.getElementById("tick-partido").innerText = labelPartido;
+            document.getElementById("tick-pronostico").innerText = `Pronóstico: ${tipoLabel}`;
+            document.getElementById("tick-cuota").innerText = cuota.toFixed(2);
+
+            calcularRetorno();
+        }
+
+        function calcularRetorno() {
+            if (!apuestaActiva) return;
+            const monto = parseFloat(document.getElementById("txt-monto-apuesta").value) || 0;
+            const retorno = monto * apuestaActiva.cuota;
+            document.getElementById("lbl-retorno").innerText = `$${retorno.toFixed(2)}`;
+        }
+
+        function limpiarTicket() {
+            apuestaActiva = null;
+            document.querySelectorAll('.odd-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById("ticket-vacio").style.display = "block";
+            document.getElementById("ticket-contenido").style.display = "none";
+            document.getElementById("ticket-count").innerText = "0 apuestas";
+        }
+
+        function realizarApuesta() {
+            if (!apuestaActiva) return;
+            const monto = parseFloat(document.getElementById("txt-monto-apuesta").value) || 0;
+            
+            if (monto <= 0) {
+                alert("Por favor, ingresa un monto válido para apostar.");
+                return;
+            }
+            if (monto > apostadorActual.balance_saldo) {
+                alert("Saldo insuficiente para realizar esta apuesta.");
+                return;
+            }
+
+            // Registrar apuesta en saldo
+            apostadorActual.balance_saldo -= monto;
+            apostadorActual.perdidas_totales += monto; // Se contabiliza como pérdida inicial hasta que gane
+            
+            // Simular resultado de forma aleatoria para demostración
+            const ganoApuesta = Math.random() > 0.5; // 50% probabilidad
+            const ganancia = monto * apuestaActiva.cuota;
+
+            if (ganoApuesta) {
+                apostadorActual.balance_saldo += ganancia;
+                apostadorActual.ganancias_totales += (ganancia - monto);
+                apostadorActual.perdidas_totales -= monto; // quitamos de perdidas ya que gano
+                alert(`¡Apuesta realizada de forma segura! \n\nResultado del partido: ¡GANADA! 🎉 \n\nRecibes: $${ganancia.toFixed(2)} \nGanancia neta: $${(ganancia - monto).toFixed(2)}`);
+            } else {
+                alert(`¡Apuesta realizada de forma segura! \n\nResultado del partido: Perdida. \n\nMonto apostado: $${monto.toFixed(2)}`);
+            }
+
+            localStorage.setItem("qfutbol_apostador_activo", JSON.stringify(apostadorActual));
+            
+            actualizarVistaApostador();
+            limpiarTicket();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(inicializarApuestas, 1200);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Portal del Jugador</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        @media (min-width: 992px) {
+            .portal-grid {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--color-secondary);
+            margin-top: 5px;
+        }
+        .sponsor-marquee {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 15px 10px;
+            border-top: 1px solid var(--border-glass);
+            margin-top: 30px;
+        }
+        .sponsor-badge-vip {
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 0 12px rgba(0, 255, 135, 0.2);
+            background: rgba(0, 255, 135, 0.04);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .sponsor-badge-normal {
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 15px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER / NAVBAR -->
+        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Portal de Jugadores</span>
+            </div>
+            <a href="index.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                Volver a la Landing
+            </a>
+        </header>
+
+        <!-- SECCIÓN BUSCADOR DE CÉDULA -->
+        <section class="glass-panel" style="max-width: 550px; margin: 0 auto 30px; text-align: center; padding: 25px;">
+            <h2 style="font-size: 1.4rem; margin-bottom: 10px;"><i data-lucide="search" style="color:var(--color-primary); display:inline-block; vertical-align:middle; margin-right:6px;"></i> Consulta de Jugador y Ficha de Equipo</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Ingresa tu Cédula de Identidad para ver estadísticas de juego, partidos programados y estado de cuenta de tu club.</p>
+            
+            <form id="form-consulta-cedula" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="txt-consulta-cedula" class="form-input" placeholder="Ej: 1723456789" required style="font-size: 1.1rem; text-align:center; font-weight:700; flex:1;">
+                    <button type="submit" class="btn btn-primary" style="padding:0 24px;"><i data-lucide="arrow-right"></i> Consultar</button>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <input type="checkbox" id="chk-es-delegado" style="width:16px; height:16px; cursor:pointer;">
+                    <label for="chk-es-delegado" style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;">¿Eres DT o Delegado Autorizado del Equipo? (Acceso Financiero)</label>
+                </div>
+            </form>
+            
+            <div style="margin-top: 12px; font-size:0.75rem; color:var(--text-muted);">
+                Cédula demo DT: <strong style="color:var(--color-secondary);">1720000001</strong> | Cédula demo Jugador: <strong style="color:var(--color-primary);">1720000002</strong>
+            </div>
+        </section>
+
+        <!-- PORTAL DE INFORMACIÓN (Oculto al inicio) -->
+        <div class="portal-grid" id="container-portal-info" style="display: none;">
+            
+            <!-- Columna Izquierda: Ficha de Jugador -->
+            <div>
+                <div class="glass-panel" style="text-align: center; position: sticky; top: 20px;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 15px;">
+                        <img id="j-perfil-foto" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Foto Jugador" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-secondary);">
+                        <span class="player-score" id="j-perfil-score" style="position: absolute; bottom: 0; right: 0; background: var(--color-primary); color: var(--text-dark); font-weight: 800; font-size: 0.85rem; border: 2px solid var(--text-dark);">
+                            7.85
+                        </span>
+                    </div>
+
+                    <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 2px;" id="j-perfil-nombre">Nombre Jugador</h3>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">C.I. <span id="j-perfil-cedula">1720000000</span></div>
+
+                    <!-- Alertas de Disciplina (Sanciones) -->
+                    <div id="j-perfil-alerta-suspension" class="alert alert-danger" style="display:none; font-size:0.75rem; padding:10px; margin-bottom:15px; text-align:left;">
+                        <!-- Alertas de suspensión -->
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-glass); padding-top: 15px; text-align: left;">
+                        <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Estadísticas del Torneo</h4>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Goles</div>
+                                <div class="stat-val" id="j-stat-goles">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Asistencias</div>
+                                <div class="stat-val" id="j-stat-asistencias">0</div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid" style="margin-top: 10px;">
+                            <div class="stat-item" style="border-color: rgba(255, 211, 42, 0.2);">
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">T. Amarillas</div>
+                                <div class="stat-val" id="j-stat-amarillas" style="color: #ffd32a;">0</div>
+                            </div>
+                            <div class="stat-item" style="border-color: rgba(255, 77, 77, 0.2);">
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">T. Rojas</div>
+                                <div class="stat-val" id="j-stat-rojas" style="color: #ff4d4d;">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Información del Equipo, Fixtures y Tablas -->
+            <div style="display: flex; flex-direction: column; gap: 25px;">
+                
+                <!-- Ficha del Equipo y Finanzas -->
+                <div class="glass-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-glass); padding-bottom:15px; margin-bottom:20px; flex-wrap:wrap; gap:15px;">
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <img id="eq-escudo" src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=80" style="width:50px; height:50px; border-radius:var(--radius-sm); object-fit:cover; border:1px solid var(--border-glass);">
+                            <div>
+                                <h3 style="font-size:1.4rem; font-weight:800;" id="eq-nombre">Mi Equipo</h3>
+                                <span class="badge badge-success" id="eq-estado-habilitado">Habilitado para jugar</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.75rem; color:var(--text-muted);">Posición en Tabla</div>
+                            <div style="font-size:1.6rem; font-weight:850; color:var(--color-secondary);" id="eq-posicion">#0</div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de Aviso para Jugadores estándar -->
+                    <div id="aviso-finanzas-oculto" class="alert alert-warning" style="margin-top: 15px; margin-bottom: 5px; font-size: 0.85rem;">
+                        <i data-lucide="lock" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:6px;"></i>
+                        <strong>Área Reservada:</strong> La información detallada de abonos de inscripción, multas de tarjetas y los datos bancarios del campeonato se muestran de forma exclusiva al **Director Técnico (DT) y Delegados Autorizados** de los equipos.
+                    </div>
+
+                    <!-- Datos Financieros Privados (Solo DT / Delegado) -->
+                    <div id="panel-finanzas-equipo-privado" style="display: none; margin-top: 15px;">
+                        <h4 style="font-size: 1rem; color: var(--text-main); margin-bottom: 12px;"><i data-lucide="wallet" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:6px;color:var(--color-primary);"></i> Estado Financiero del Club</h4>
+                        
+                        <!-- Resumen Deuda Total -->
+                        <div id="eq-fin-resumen-deuda-card" class="alert alert-warning" style="margin-bottom:20px; border-color:var(--color-warning); display:flex; flex-direction:column; gap:6px;">
+                            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Total Pendiente de Pago</div>
+                            <div style="font-size:1.8rem; font-weight:850; color:var(--color-warning);" id="eq-fin-deuda-total">$0.00</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;" id="eq-fin-deuda-status">Habilitación del equipo sujeta a saldos pendientes</div>
+                        </div>
+
+                        <!-- Desglose de Cuentas -->
+                        <div style="overflow-x: auto; margin-bottom: 20px; border: 1px solid var(--border-glass); border-radius: var(--radius-md);">
+                            <table style="margin: 0; width: 100%; font-size:0.85rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border-glass);">
+                                        <th style="padding: 10px;">Concepto</th>
+                                        <th style="padding: 10px;">Cargado</th>
+                                        <th style="padding: 10px;">Abonado</th>
+                                        <th style="padding: 10px;">Pendiente</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-finanzas-delegado">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Cuenta de Banco de la Liga para depósitos -->
+                        <div id="liga-banco-container" style="background:rgba(96,239,255,0.04); border:1px solid rgba(96,239,255,0.15); border-radius:var(--radius-sm); padding:15px; font-size:0.85rem; margin-bottom: 10px;">
+                            <h5 style="font-weight:750; color:var(--color-secondary); margin-bottom:6px;"><i data-lucide="landmark" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px;"></i> Cuenta para Abonos de Inscripción y Multas:</h5>
+                            <p style="color:var(--text-muted); line-height:1.4;" id="lbl-banco-datos-liga">
+                                Cargando datos bancarios de la liga...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendario de Partidos del Equipo -->
+                <div class="glass-panel">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 15px;"><i data-lucide="calendar" style="color:var(--color-secondary);"></i> Partidos del Equipo</h3>
+                    <div style="display:flex; flex-direction:column; gap:12px;" id="eq-partidos-container">
+                        <!-- Partidos cargados dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Tabla de Posiciones General -->
+                <div class="glass-panel">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 15px;"><i data-lucide="list-ordered" style="color:var(--color-accent);"></i> Tabla de Posiciones Campeonato</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Equipo</th>
+                                    <th>PTS</th>
+                                    <th>PJ</th>
+                                    <th>PG</th>
+                                    <th>PE</th>
+                                    <th>PP</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DG</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-posiciones">
+                                <!-- Tabla cargada dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SECCIÓN AUSPICIANTES DESTACADOS -->
+        <div class="glass-panel" style="margin-top:35px; text-align:center; padding:20px;">
+            <h4 style="font-size:0.95rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:15px; font-weight:750; letter-spacing:1px;">Nuestros Auspiciantes Oficiales</h4>
+            <div class="sponsor-marquee" id="sponsors-marquee-container">
+                <!-- Auspiciantes cargados dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts CDN de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        lucide.createIcons();
+
+        let cachePartidos = [];
+        let cacheEquipos = [];
+        let cacheJugadores = [];
+        let cacheInscripciones = [];
+        let cacheAuspiciantes = [];
+        let configCampeonato = {};
+
+        function formatMoney(amount) {
+            const currency = configCampeonato.divisa || 'USD';
+            const val = parseFloat(amount || 0).toFixed(2);
+            if (currency === 'USD') return `$${val}`;
+            if (currency === 'EUR') return `€${val}`;
+            if (currency === 'PEN') return `S/. ${val}`;
+            return `${currency} $${val}`;
+        }
+
+        async function inicializarPortal() {
+            cachePartidos = await dbGetTable("partidos");
+            cacheEquipos = await dbGetTable("equipos");
+            cacheJugadores = await dbGetTable("jugadores");
+            cacheInscripciones = await dbGetTable("inscripciones_equipo");
+            cacheAuspiciantes = await dbGetTable("auspiciantes");
+
+            // Configuración semilla para demostración local si no hay Supabase conectado
+            if (cacheInscripciones.length > 0) {
+                // Inyectamos es_delegado en memoria para las pruebas locales
+                cacheInscripciones[0].es_delegado = true; // El jugador de Pedro Vargas (1720000001) será DT / Delegado
+                if (cacheInscripciones[1]) {
+                    cacheInscripciones[1].es_delegado = false; // El jugador de Carlos Mena (1720000002) será Jugador estándar
+                }
+            }
+
+            const campeonatos = await dbGetTable("campeonatos");
+            if (campeonatos.length > 0) configCampeonato = campeonatos[0];
+
+            renderizarAuspiciantesMarquee();
+        }
+
+        // RENDER DE AUSPICIANTES
+        function renderizarAuspiciantesMarquee() {
+            const container = document.getElementById("sponsors-marquee-container");
+            container.innerHTML = "";
+
+            if (!cacheAuspiciantes || cacheAuspiciantes.length === 0) {
+                container.innerHTML = `<span style="color:var(--text-muted); font-size:0.8rem;">Auspiciantes oficiales del campeonato</span>`;
+                return;
+            }
+
+            // Ordenar por prioridad
+            const ordenPrioridades = { 'alta': 1, 'media': 2, 'baja': 3 };
+            cacheAuspiciantes.sort((a, b) => (ordenPrioridades[a.prioridad || 'media'] || 2) - (ordenPrioridades[b.prioridad || 'media'] || 2));
+
+            cacheAuspiciantes.forEach(aus => {
+                const prioridad = aus.prioridad || "media";
+                if (prioridad === 'alta') {
+                    container.innerHTML += `
+                        <div class="sponsor-badge-vip">
+                            <img src="${aus.logo_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100'}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <span style="font-weight:800; font-size:0.85rem; color:var(--text-main);">${aus.nombre}</span>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML += `
+                        <div class="sponsor-badge-normal">
+                            <img src="${aus.logo_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100'}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;">
+                            <span style="font-weight:600; font-size:0.8rem; color:var(--text-muted);">${aus.nombre}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // PROCESAR BÚSQUEDA POR CÉDULA
+        document.getElementById("form-consulta-cedula").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const cedula = document.getElementById("txt-consulta-cedula").value.trim();
+
+            const jugador = cacheJugadores.find(j => j.cedula === cedula);
+            if (!jugador) {
+                alert("No se encontró ningún jugador registrado con esa Cédula de Identidad en la base de datos.");
+                return;
+            }
+
+            // Buscar inscripción activa de este jugador en el torneo
+            const inscripcion = cacheInscripciones.find(i => i.jugador_global_id === jugador.id);
+            if (!inscripcion) {
+                alert(`Jugador ${jugador.nombres} ${jugador.apellidos} encontrado en el sistema, pero no está inscrito en ningún equipo en el campeonato activo.`);
+                return;
+            }
+
+            const equipo = cacheEquipos.find(eq => eq.id === inscripcion.equipo_id);
+            if (!equipo) {
+                alert("Error al cargar los datos del equipo del jugador.");
+                return;
+            }
+
+            document.getElementById("container-portal-info").style.display = "grid";
+            
+            // 1. CARGAR FICHA JUGADOR
+            document.getElementById("j-perfil-nombre").innerText = `${jugador.nombres} ${jugador.apellidos}`;
+            document.getElementById("j-perfil-cedula").innerText = jugador.cedula;
+            document.getElementById("j-perfil-score").innerText = parseFloat(inscripcion.rating_campeonato || 6.00).toFixed(2);
+            if (jugador.foto_url) {
+                document.getElementById("j-perfil-foto").src = jugador.foto_url;
+            }
+
+            // Obtener acumulados en partidos finalizados
+            const detallesGlobales = await dbGetTable("detalles_partido");
+            const misDetalles = detallesGlobales.filter(d => d.inscripcion_jugador_id === inscripcion.id);
+
+            let goles = 0;
+            let asistencias = 0;
+            let amarillas = 0;
+            let rojas = 0;
+            let expulsadoEtil = false;
+
+            misDetalles.forEach(d => {
+                goles += d.goles || 0;
+                asistencias += d.asistencias || 0;
+                amarillas += d.amarillas || 0;
+                rojas += d.rojas || 0;
+                if (d.expulsado_etilicidad) expulsadoEtil = true;
+            });
+
+            document.getElementById("j-stat-goles").innerText = goles;
+            document.getElementById("j-stat-asistencias").innerText = asistencias;
+            document.getElementById("j-stat-amarillas").innerText = amarillas;
+            document.getElementById("j-stat-rojas").innerText = rojas;
+
+            // Alerta de Sanciones
+            const alertaSuspension = document.getElementById("j-perfil-alerta-suspension");
+            alertaSuspension.innerHTML = "";
+            let suspendido = false;
+
+            if (expulsadoEtil) {
+                suspendido = true;
+                alertaSuspension.innerHTML += `<div><i data-lucide="alert-octagon" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:5px;"></i> SUSPENDIDO: Expulsión por estado etílico.</div>`;
+            }
+            if (rojas > 0) {
+                suspendido = true;
+                alertaSuspension.innerHTML += `<div><i data-lucide="alert-octagon" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:5px;"></i> SUSPENDIDO: Tarjeta roja directa acumulada.</div>`;
+            }
+            const amarillasLimite = parseInt(configCampeonato.amarillas_suspension || 5);
+            if (amarillas >= amarillasLimite) {
+                suspendido = true;
+                alertaSuspension.innerHTML += `<div><i data-lucide="alert-octagon" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:5px;"></i> SUSPENDIDO: Acumulación de ${amarillas} Tarjetas Amarillas (límite es ${amarillasLimite}).</div>`;
+            } else if (amarillas === (amarillasLimite - 1)) {
+                alertaSuspension.innerHTML += `<div><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:5px;color:#ffd32a;"></i> ADVERTENCIA: Tienes ${amarillas} amarillas acumuladas. 1 más y serás suspendido.</div>`;
+            }
+
+            if (alertaSuspension.innerHTML !== "") {
+                alertaSuspension.style.display = "block";
+            } else {
+                alertaSuspension.style.display = "none";
+            }
+
+            // 2. CARGAR FICHA EQUIPO
+            document.getElementById("eq-nombre").innerText = equipo.nombre;
+            if (equipo.logo_url) {
+                document.getElementById("eq-escudo").src = equipo.logo_url;
+            }
+
+            // Control de Visibilidad Financiera (Solo DT / Delegado con checkbox activo)
+            const deseaFinanzas = document.getElementById("chk-es-delegado").checked;
+            const esDelegadoOficial = inscripcion.es_delegado || false;
+            
+            const panelFinanzas = document.getElementById("panel-finanzas-equipo-privado");
+            const avisoFinanzas = document.getElementById("aviso-finanzas-oculto");
+
+            if (deseaFinanzas) {
+                if (esDelegadoOficial) {
+                    panelFinanzas.style.display = "block";
+                    avisoFinanzas.style.display = "none";
+
+                    // Cargar Finanzas dinámicas
+                    const fin = await calcularFinanzasEquipo(equipo.id);
+                    
+                    document.getElementById("eq-fin-deuda-total").innerText = formatMoney(fin.totalDeuda);
+
+                    const tbodyDel = document.getElementById("tbody-finanzas-delegado");
+                    tbodyDel.innerHTML = `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Abono Inscripción</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoInscripcion)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoInscripcion)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoInscripcion > 0 ? 'var(--color-danger)' : 'var(--color-primary)'};">${formatMoney(fin.saldoInscripcion)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Garantía de Disciplina</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoGarantia)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoGarantia)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoGarantia > 0 ? 'var(--color-danger)' : 'var(--text-main)'};">${formatMoney(fin.saldoGarantia)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Arbitrajes (${fin.partidosJugados} part.)</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoArbitrajeTotal)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoArbitraje)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoArbitraje > 0 ? 'var(--color-danger)' : 'var(--text-main)'};">${formatMoney(fin.saldoArbitraje)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Vocalías (${fin.partidosJugados} part.)</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoVocaliaTotal)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoVocalia)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoVocalia > 0 ? 'var(--color-danger)' : 'var(--text-main)'};">${formatMoney(fin.saldoVocalia)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Multas por Tarjetas</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoTarjetasTotal)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoTarjetas)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoTarjetas > 0 ? 'var(--color-danger)' : 'var(--text-main)'};">${formatMoney(fin.saldoTarjetas)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <td style="padding: 10px;">Otras Multas</td>
+                            <td style="padding: 10px;">${formatMoney(fin.costoSancionesTotal)}</td>
+                            <td style="padding: 10px;">${formatMoney(fin.pagadoOtrasMultas)}</td>
+                            <td style="padding: 10px; font-weight:700; color:${fin.saldoOtrasMultas > 0 ? 'var(--color-danger)' : 'var(--text-main)'};">${formatMoney(fin.saldoOtrasMultas)}</td>
+                        </tr>
+                    `;
+
+                    // Habilitación o bloqueo por deudas
+                    const badgeHabilitado = document.getElementById("eq-estado-habilitado");
+                    const statusCard = document.getElementById("eq-fin-resumen-deuda-card");
+
+                    if (fin.totalDeuda > 0) {
+                        badgeHabilitado.className = "badge badge-danger";
+                        badgeHabilitado.innerText = "Bloqueado por Deudas Pendientes";
+                        statusCard.className = "alert alert-danger";
+                        document.getElementById("eq-fin-deuda-status").innerText = "Debe cancelarse el saldo pendiente para ser habilitado en el fixture de la jornada.";
+                    } else {
+                        badgeHabilitado.className = "badge badge-success";
+                        badgeHabilitado.innerText = "Habilitado para Jugar";
+                        statusCard.className = "alert alert-success";
+                        document.getElementById("eq-fin-deuda-status").innerText = "El club se encuentra solvente y al día con todas sus obligaciones financieras.";
+                    }
+
+                    // Cuentas Bancarias de la Liga
+                    const bancoContainer = document.getElementById("liga-banco-container");
+                    if (configCampeonato.banco_nombre && configCampeonato.banco_numero_cuenta) {
+                        bancoContainer.style.display = "block";
+                        document.getElementById("lbl-banco-datos-liga").innerHTML = `
+                            <strong>Banco:</strong> ${configCampeonato.banco_nombre} (${configCampeonato.banco_tipo_cuenta || 'Ahorros'})<br>
+                            <strong>Nro. Cuenta:</strong> ${configCampeonato.banco_numero_cuenta}<br>
+                            <strong>Titular:</strong> ${configCampeonato.banco_titular}<br>
+                            <strong>Identificación (C.I./RUC):</strong> ${configCampeonato.banco_titular_identificacion || 'N/A'}<br>
+                            <strong>Reportar Depósitos al Nro:</strong> ${configCampeonato.banco_telefono_reporte || 'N/A'}
+                        `;
+                    } else {
+                        bancoContainer.style.display = "none";
+                    }
+                } else {
+                    panelFinanzas.style.display = "none";
+                    avisoFinanzas.style.display = "block";
+                    avisoFinanzas.innerHTML = `<i data-lucide="alert-triangle" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:6px; color:var(--color-warning);"></i> <strong>Acceso Denegado:</strong> Tu número de cédula no está registrado como DT o Delegado autorizado para el equipo **${equipo.nombre}**.`;
+                }
+            } else {
+                panelFinanzas.style.display = "none";
+                avisoFinanzas.style.display = "block";
+                avisoFinanzas.innerHTML = `<i data-lucide="lock" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:6px;"></i> <strong>Área Reservada:</strong> Los datos financieros y bancarios del equipo están ocultos. Activa el acceso de DT/Delegado si cuentas con la autorización.`;
+            }
+
+            // 3. CALENDARIO DE PARTIDOS DEL EQUIPO
+            const partidosDelEquipo = cachePartidos.filter(p => p.equipo_local_id === equipo.id || p.equipo_visitante_id === equipo.id);
+            const eqPartidosContainer = document.getElementById("eq-partidos-container");
+            eqPartidosContainer.innerHTML = "";
+
+            if (partidosDelEquipo.length === 0) {
+                eqPartidosContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:15px;">No hay partidos agendados para tu equipo en este momento.</div>`;
+            } else {
+                partidosDelEquipo.forEach(p => {
+                    const local = cacheEquipos.find(eq => eq.id === p.equipo_local_id) || { nombre: "Local" };
+                    const visitante = cacheEquipos.find(eq => eq.id === p.equipo_visitante_id) || { nombre: "Visitante" };
+
+                    let resText = `${p.goles_local} - ${p.goles_visitante}`;
+                    if (p.estado === 'programado') resText = "VS";
+                    if (p.estado === 'suspendido') resText = "SUSPENDIDO";
+
+                    eqPartidosContainer.innerHTML += `
+                        <div style="background:rgba(0,0,0,0.15); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:10px 15px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-size:0.7rem; color:var(--text-muted); display:block;">${p.grupo || 'Liga'}</span>
+                                <span style="font-weight:600; font-size:0.9rem;">${local.nombre} vs ${visitante.nombre}</span>
+                                <span style="font-size:0.7rem; color:var(--color-primary); display:block; margin-top:2px;">Árbitro: ${p.arbitro_nombre || 'No asignado'}</span>
+                            </div>
+                            <div style="font-weight:800; font-size:1.05rem; color:var(--color-secondary);">${resText}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 4. TABLA DE POSICIONES GENERAL
+            calcularTablaPortal();
+
+            lucide.createIcons();
+        });
+
+        // CÁLCULO DE TABLA
+        function calcularTablaPortal() {
+            let tabla = {};
+            
+            // Inicializar equipos
+            cacheEquipos.forEach(eq => {
+                tabla[eq.id] = {
+                    id: eq.id,
+                    nombre: eq.nombre,
+                    pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, pts: 0
+                };
+            });
+
+            // Procesar partidos
+            cachePartidos.forEach(p => {
+                if (p.estado === 'finalizado') {
+                    const locId = p.equipo_local_id;
+                    const visId = p.equipo_visitante_id;
+
+                    if (!tabla[locId] || !tabla[visId]) return;
+
+                    tabla[locId].pj += 1;
+                    tabla[visId].pj += 1;
+                    tabla[locId].gf += p.goles_local;
+                    tabla[locId].gc += p.goles_visitante;
+                    tabla[visId].gf += p.goles_visitante;
+                    tabla[visId].gc += p.goles_local;
+
+                    if (p.goles_local > p.goles_visitante) {
+                        tabla[locId].pg += 1;
+                        tabla[locId].pts += 3;
+                        tabla[visId].pp += 1;
+                    } else if (p.goles_local < p.goles_visitante) {
+                        tabla[visId].pg += 1;
+                        tabla[visId].pts += 3;
+                        tabla[locId].pp += 1;
+                    } else {
+                        tabla[locId].pe += 1;
+                        tabla[locId].pts += 1;
+                        tabla[visId].pe += 1;
+                        tabla[visId].pts += 1;
+                    }
+                }
+            });
+
+            // Convertir a Array y Ordenar
+            let tablaArray = Object.values(tabla);
+            tablaArray.sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                const dgA = a.gf - a.gc;
+                const dgB = b.gf - b.gc;
+                if (dgB !== dgA) return dgB - dgA;
+                return b.gf - a.gf;
+            });
+
+            const tbody = document.getElementById("tbody-posiciones");
+            tbody.innerHTML = "";
+
+            tablaArray.forEach((t, index) => {
+                const dg = t.gf - t.gc;
+                const sign = dg > 0 ? "+" : "";
+                
+                // Buscar si es el equipo del jugador buscado
+                const cedulaBuscada = document.getElementById("txt-consulta-cedula").value.trim();
+                const jugador = cacheJugadores.find(j => j.cedula === cedulaBuscada);
+                const inscripcion = jugador ? cacheInscripciones.find(i => i.jugador_global_id === jugador.id) : null;
+                const esMiEquipo = inscripcion && inscripcion.equipo_id === t.id;
+
+                const styleRow = esMiEquipo ? "background:rgba(0, 255, 135, 0.08); font-weight:700; border:1px solid var(--color-primary);" : "";
+
+                if (esMiEquipo) {
+                    document.getElementById("eq-posicion").innerText = `#${index + 1}`;
+                }
+
+                tbody.innerHTML += `
+                    <tr style="${styleRow}">
+                        <td style="font-weight:800; color:var(--color-secondary);">${index + 1}</td>
+                        <td>${t.nombre} ${esMiEquipo ? '⭐' : ''}</td>
+                        <td style="color:var(--color-primary); font-weight:800;">${t.pts}</td>
+                        <td>${t.pj}</td>
+                        <td>${t.pg}</td>
+                        <td>${t.pe}</td>
+                        <td>${t.pp}</td>
+                        <td>${t.gf}</td>
+                        <td>${t.gc}</td>
+                        <td style="font-weight:700;">${sign}${dg}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(inicializarPortal, 1200);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Gestión y Perfiles de Jugadores</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--color-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 135, 0.2);
+        }
+        .stat-box-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .stat-value-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-value-num {
+            font-size: 1.5rem;
+            font-weight: 750;
+            color: var(--color-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER / NAVBAR -->
+        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem; border-left: 1px solid var(--border-glass); padding-left: 12px; margin-left: 4px;">Jugadores</span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <a href="dashboard.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i> Panel Organizador
+                </a>
+                <a href="index.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    Volver
+                </a>
+            </div>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            
+            <!-- SECCIÓN IZQUIERDA: INSCRIPCIÓN Y BUSCADOR POR CÉDULA -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Buscador de Cédula y Registro -->
+                <section class="glass-panel">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="user-check"></i> Buscar / Registrar por Cédula</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Busca jugadores en la base histórica de QFutbol usando el número de cédula.</p>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                        <input type="text" id="txt-buscar-cedula" class="form-input" placeholder="Ingresa Cédula (Ej: 1723456789)" style="flex:1;">
+                        <button class="btn btn-primary" onclick="buscarJugadorCedula()"><i data-lucide="search"></i> Buscar</button>
+                    </div>
+
+                    <!-- Formulario de Inscripción de Jugador (Se activa al buscar) -->
+                    <div id="form-inscripcion-container" style="display: none; border-top: 1px solid var(--border-glass); padding-top: 20px;">
+                        <h3 id="form-inscripcion-title" style="font-size:1.1rem; margin-bottom:15px; color:var(--color-primary);">Inscribir en Campeonato</h3>
+                        <form id="jugador-inscripcion-form">
+                            <input type="hidden" id="reg-id-global">
+                            <div class="form-group">
+                                <label class="form-label" for="reg-nombres">Nombres</label>
+                                <input type="text" id="reg-nombres" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="reg-apellidos">Apellidos</label>
+                                <input type="text" id="reg-apellidos" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="reg-foto">Foto URL (Opcional)</label>
+                                <input type="text" id="reg-foto" class="form-input" placeholder="https://images.unsplash.com/photo-...">
+                            </div>
+                            
+                            <!-- Datos del Torneo Actual -->
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="reg-equipo">Equipo Destino</label>
+                                    <select id="reg-equipo" class="form-input" required>
+                                        <!-- Carga dinámica de equipos -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="reg-posicion">Posición</label>
+                                    <select id="reg-posicion" class="form-input" required>
+                                        <option value="DEL">Delantero (DEL)</option>
+                                        <option value="MED">Mediocampo (MED)</option>
+                                        <option value="DEF">Defensa (DEF)</option>
+                                        <option value="ARQ">Arquero (ARQ)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="reg-dorsal">Número de Camiseta (Dorsal)</label>
+                                <input type="number" id="reg-dorsal" class="form-input" value="9" min="1" max="99" required>
+                            </div>
+
+                            <!-- Casilla de Privacidad obligatoria -->
+                            <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                                <input type="checkbox" id="reg-terminos" required style="width:16px;height:16px;">
+                                <label for="reg-terminos" style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;">Acepto el consentimiento de uso de datos personales.</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i data-lucide="check-circle"></i> Confirmar Inscripción</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Carga Masiva CSV -->
+                <section class="glass-panel">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 10px;"><i data-lucide="file-spreadsheet"></i> Carga Masiva (CSV)</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Sube un archivo CSV para inscribir múltiples jugadores al mismo tiempo.</p>
+                    
+                    <div style="background:rgba(0,0,0,0.2); border: 2px dashed var(--border-glass); border-radius: var(--radius-md); padding: 20px; text-align: center; margin-bottom: 15px;">
+                        <i data-lucide="upload-cloud" style="width:36px; height:36px; color:var(--text-muted); margin-bottom: 8px;"></i>
+                        <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="procesarArchivoCSV()">
+                        <div>
+                            <button class="btn btn-secondary" onclick="document.getElementById('csv-file-input').click()">Elegir Archivo</button>
+                        </div>
+                        <span id="csv-filename" style="font-size:0.8rem; color:var(--color-primary); display:block; margin-top:8px;"></span>
+                    </div>
+                    
+                    <div style="font-size:0.75rem; color:var(--text-muted);">
+                         Formato del archivo CSV (separado por comas):<br>
+                        <code>cedula, nombres, apellidos, posicion, dorsal, equipo_id</code>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECCIÓN DERECHA: TOP RATINGS Y PERFIL DETALLADO -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Ficha del Jugador Seleccionado -->
+                <section class="glass-panel" id="ficha-jugador-section" style="display: none;">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="contact"></i> Ficha Técnica del Jugador</h2>
+                    
+                    <div class="profile-header">
+                        <img id="ficha-avatar" src="" alt="Avatar" class="profile-avatar">
+                        <div>
+                            <h3 id="ficha-nombre" style="font-size: 1.4rem;">Nombres Apellidos</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;" id="ficha-cedula">C.I. 0000000000</p>
+                            <span id="ficha-score-badge" class="player-score" style="font-size:0.95rem; padding:4px 10px; margin-top:8px;">
+                                Score QFutbol: 0.00
+                            </span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 1rem; color:var(--text-muted); margin-bottom: 10px;">Estadísticas del Campeonato</h4>
+                    <div class="stat-box-container">
+                        <div class="stat-value-card">
+                            <span class="stat-value-num" id="stat-goles">0</span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:3px;">Goles</div>
+                        </div>
+                        <div class="stat-value-card">
+                            <span class="stat-value-num" id="stat-asistencias">0</span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:3px;">Asistencias</div>
+                        </div>
+                        <div class="stat-value-card">
+                            <span class="stat-value-num" id="stat-amarillas" style="color:var(--color-warning);">0</span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:3px;">Amarillas</div>
+                        </div>
+                        <div class="stat-value-card">
+                            <span class="stat-value-num" id="stat-rojas" style="color:var(--color-danger);">0</span>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:3px;">Rojas</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Listado del Top de la Liga (Clasificación por Score) -->
+                <section class="glass-panel">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="award"></i> Clasificación QFutbol (Top Rating)</h2>
+                    <div style="display:flex; flex-direction:column; gap:10px;" id="top-jugadores-container">
+                        <!-- Carga dinámica -->
+                    </div>
+                </section>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        lucide.createIcons();
+
+        let cacheJugadores = [];
+        let cacheInscripciones = [];
+        let cacheEquipos = [];
+        let cacheDetallesPartidos = [];
+        let configCampeonato = null;
+
+        async function cargarDatosJugadores() {
+            cacheJugadores = await dbGetTable("jugadores");
+            cacheInscripciones = await dbGetTable("inscripciones_equipo");
+            cacheEquipos = await dbGetTable("equipos");
+            cacheDetallesPartidos = await dbGetTable("detalles_partido");
+            
+            const campeonatos = await dbGetTable("campeonatos");
+            if (campeonatos.length > 0) configCampeonato = campeonatos[0];
+
+            renderizarTopJugadores();
+            cargarEquiposDropdown();
+        }
+
+        function cargarEquiposDropdown() {
+            const dropdown = document.getElementById("reg-equipo");
+            dropdown.innerHTML = "";
+            cacheEquipos.forEach(eq => {
+                dropdown.innerHTML += `<option value="${eq.id}">${eq.nombre}</option>`;
+            });
+        }
+
+        function renderizarTopJugadores() {
+            const container = document.getElementById("top-jugadores-container");
+            container.innerHTML = "";
+
+            if (cacheJugadores.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:10px;">No hay jugadores cargados en la base de datos.</div>`;
+                return;
+            }
+
+            // Ordenar por rating general/histórico de forma descendente
+            const top = [...cacheJugadores].sort((a,b) => parseFloat(b.rating_general || 0) - parseFloat(a.rating_general || 0));
+
+            top.forEach((j, index) => {
+                const rankingBadge = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+                
+                container.innerHTML += `
+                    <div class="player-card" style="cursor:pointer;" onclick="mostrarFichaJugador('${j.id}')">
+                        <div style="font-weight:700;font-size:1.1rem;color:var(--text-muted);min-width:25px;">${rankingBadge}</div>
+                        <img src="${j.foto_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100'}" alt="Avatar" class="player-avatar" style="width:40px;height:40px;border-width:1px;">
+                        <div class="player-info">
+                            <div class="player-name" style="font-size:0.95rem;">${j.nombres} ${j.apellidos}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">C.I. ${j.cedula}</div>
+                        </div>
+                        <div class="player-score" style="font-size:0.75rem;">Score: ${(j.rating_general || 6.00)}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // BUSCAR JUGADOR POR CÉDULA
+        function buscarJugadorCedula() {
+            const cedula = document.getElementById("txt-buscar-cedula").value.trim();
+            if (!cedula) {
+                alert("Por favor, ingresa un número de cédula para realizar la búsqueda.");
+                return;
+            }
+
+            const jugador = cacheJugadores.find(j => j.cedula === cedula);
+            const formContainer = document.getElementById("form-inscripcion-container");
+            formContainer.style.display = "block";
+
+            const title = document.getElementById("form-inscripcion-title");
+            const txtId = document.getElementById("reg-id-global");
+            const txtNombres = document.getElementById("reg-nombres");
+            const txtApellidos = document.getElementById("reg-apellidos");
+            const txtFoto = document.getElementById("reg-foto");
+            const cbTerminos = document.getElementById("reg-terminos");
+
+            if (jugador) {
+                // Jugador existe - Jalar datos
+                title.innerText = "¡Jugador Registrado! Inscribir en Equipo";
+                txtId.value = jugador.id;
+                txtNombres.value = jugador.nombres;
+                txtNombres.readOnly = true;
+                txtApellidos.value = jugador.apellidos;
+                txtApellidos.readOnly = true;
+                txtFoto.value = jugador.foto_url || "";
+                txtFoto.readOnly = true;
+                cbTerminos.checked = true;
+                cbTerminos.disabled = true;
+            } else {
+                // Nuevo Jugador - Habilitar campos
+                title.innerText = "Nuevo Jugador: Registrar e Inscribir";
+                txtId.value = "";
+                txtNombres.value = "";
+                txtNombres.readOnly = false;
+                txtApellidos.value = "";
+                txtApellidos.readOnly = false;
+                txtFoto.value = "";
+                txtFoto.readOnly = false;
+                cbTerminos.checked = false;
+                cbTerminos.disabled = false;
+            }
+        }
+
+        // FORMULARIO: INSCRIPCIÓN DE JUGADOR
+        document.getElementById("jugador-inscripcion-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const idGlobal = document.getElementById("reg-id-global").value;
+            const cedula = document.getElementById("txt-buscar-cedula").value.trim();
+            const nombres = document.getElementById("reg-nombres").value;
+            const apellidos = document.getElementById("reg-apellidos").value;
+            const fotoUrl = document.getElementById("reg-foto").value || null;
+            const equipoId = document.getElementById("reg-equipo").value;
+            const posicion = document.getElementById("reg-posicion").value;
+            const dorsal = parseInt(document.getElementById("reg-dorsal").value);
+
+            // Validar restricción: No puede estar en 2 equipos del mismo campeonato
+            const campeonatoIdActivo = (configCampeonato && configCampeonato.id) ? configCampeonato.id : 'c1';
+            // Busquemos si este jugador ya tiene una inscripción activa en algún equipo de este campeonato
+            const inscripcionPrevia = cacheInscripciones.find(ins => ins.jugador_global_id === idGlobal);
+            if (inscripcionPrevia) {
+                const eqPrevia = cacheEquipos.find(e => e.id === inscripcionPrevia.equipo_id);
+                if (eqPrevia && eqPrevia.campeonato_id === campeonatoIdActivo) {
+                    alert(`Error de validación: El jugador ya está inscrito en este campeonato en el equipo "${eqPrevia.nombre}". No puede participar en dos equipos del mismo torneo.`);
+                    return;
+                }
+            }
+
+            // Validar dorsal único en el equipo
+            const dorsalDuplicado = cacheInscripciones.find(ins => ins.equipo_id === equipoId && ins.dorsal === dorsal);
+            if (dorsalDuplicado) {
+                alert(`Error de validación: El dorsal ${dorsal} ya está ocupado por otro jugador en este equipo. Elige otro número.`);
+                return;
+            }
+
+            let jugadorId = idGlobal;
+
+            // 1. Si es nuevo, insertarlo en jugadores globales primero
+            if (!jugadorId) {
+                const nuevoJ = {
+                    cedula: cedula,
+                    nombres: nombres,
+                    apellidos: apellidos,
+                    foto_url: fotoUrl,
+                    aceptacion_terminos: true,
+                    rating_general: 6.00
+                };
+                
+                const jGuardado = await dbInsertRow("jugadores", nuevoJ);
+                jugadorId = jGuardado.id;
+            }
+
+            // 2. Inscribir en el equipo seleccionado
+            const nuevaInsc = {
+                equipo_id: equipoId,
+                jugador_global_id: jugadorId,
+                dorsal: dorsal,
+                posicion: posicion,
+                rating_campeonato: 6.00
+            };
+
+            await dbInsertRow("inscripciones_equipo", nuevaInsc);
+
+            alert("¡Jugador inscrito con éxito!");
+            document.getElementById("form-inscripcion-container").style.display = "none";
+            document.getElementById("txt-buscar-cedula").value = "";
+            document.getElementById("jugador-inscripcion-form").reset();
+            
+            await cargarDatosJugadores();
+        });
+
+        // VER FICHA DETALLADA DEL JUGADOR
+        function mostrarFichaJugador(jugadorId) {
+            const j = cacheJugadores.find(x => x.id === jugadorId);
+            if (!j) return;
+
+            document.getElementById("ficha-jugador-section").style.display = "block";
+            document.getElementById("ficha-avatar").src = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200";
+            document.getElementById("ficha-nombre").innerText = `${j.nombres} ${j.apellidos}`;
+            document.getElementById("ficha-cedula").innerText = `C.I. ${j.cedula}`;
+            document.getElementById("ficha-score-badge").innerText = `Score QFutbol: ${parseFloat(j.rating_general || 6.00).toFixed(2)}`;
+
+            // Calcular estadísticas acumuladas reales de este jugador en base a los detalles cargados
+            // Primero, buscamos las inscripciones de este jugador
+            const inscs = cacheInscripciones.filter(ins => ins.jugador_global_id === j.id);
+            const inscIds = inscs.map(i => i.id);
+
+            let goles = 0;
+            let asistencias = 0;
+            let amarillas = 0;
+            let rojas = 0;
+
+            cacheDetallesPartidos.forEach(dp => {
+                if (inscIds.includes(dp.inscripcion_jugador_id)) {
+                    goles += parseInt(dp.goles || 0);
+                    asistencias += parseInt(dp.asistencias || 0);
+                    amarillas += parseInt(dp.amarillas || 0);
+                    rojas += parseInt(dp.rojas || 0);
+                }
+            });
+
+            document.getElementById("stat-goles").innerText = goles;
+            document.getElementById("stat-asistencias").innerText = asistencias;
+            document.getElementById("stat-amarillas").innerText = amarillas;
+            document.getElementById("stat-rojas").innerText = rojas;
+        }
+
+        // CARGA MASIVA MEDIANTE EXCEL/CSV PARSEADOR EN CLIENTE JS
+        function procesarArchivoCSV() {
+            const input = document.getElementById("csv-file-input");
+            const file = input.files[0];
+            if (!file) return;
+
+            document.getElementById("csv-filename").innerText = `Archivo cargado: ${file.name}`;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lineas = text.split("\n");
+                
+                let cargados = 0;
+                let errores = 0;
+
+                // Empezamos en 1 si el CSV tiene cabecera: cedula, nombres, apellidos, posicion, dorsal, equipo_id
+                for (let i = 1; i < lineas.length; i++) {
+                    const linea = lineas[i].trim();
+                    if (!linea) continue;
+
+                    const campos = linea.split(",");
+                    if (campos.length >= 6) {
+                        const cedula = campos[0].trim();
+                        const nombres = campos[1].trim();
+                        const apellidos = campos[2].trim();
+                        const posicion = campos[3].trim();
+                        const dorsal = parseInt(campos[4].trim());
+                        const equipoId = campos[5].trim(); // Supongamos que ingresan el ID o nombre
+
+                        if (cedula && nombres && apellidos && posicion && !isNaN(dorsal) && equipoId) {
+                            try {
+                                // 1. Buscar o registrar jugador global
+                                let jExistente = cacheJugadores.find(j => j.cedula === cedula);
+                                let jId = jExistente ? jExistente.id : null;
+
+                                if (!jId) {
+                                    const nuevoJ = {
+                                        cedula: cedula,
+                                        nombres: nombres,
+                                        apellidos: apellidos,
+                                        aceptacion_terminos: true,
+                                        rating_general: 6.00
+                                    };
+                                    const guardado = await dbInsertRow("jugadores", nuevoJ);
+                                    jId = guardado.id;
+                                    cacheJugadores.push(guardado);
+                                }
+
+                                // 2. Registrar inscripción
+                                const nuevaInsc = {
+                                    equipo_id: equipoId,
+                                    jugador_global_id: jId,
+                                    dorsal: dorsal,
+                                    posicion: posicion,
+                                    rating_campeonato: 6.00
+                                };
+                                await dbInsertRow("inscripciones_equipo", nuevaInsc);
+                                cacheInscripciones.push(nuevaInsc);
+                                cargados++;
+                            } catch (err) {
+                                console.error(err);
+                                errores++;
+                            }
+                        } else {
+                            errores++;
+                        }
+                    }
+                }
+
+                alert(`Carga masiva finalizada. \nInscritos exitosamente: ${cargados} jugadores. \nErrores en líneas: ${errores}.`);
+                await cargarDatosJugadores();
+            };
+            reader.readAsText(file);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(cargarDatosJugadores, 1200);
+        });
+    </script>
+</body>
+</html>

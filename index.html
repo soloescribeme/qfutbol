@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFutbol - Gestión y Estadísticas de Fútbol Barrial</title>
+    <!-- CSS Estilos Premium -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER / NAVBAR -->
+        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 45px; border-radius: var(--radius-sm); object-fit: cover;">
+                <span style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
+            </div>
+            <nav style="display: flex; gap: 20px; align-items: center;">
+                <a href="#caracteristicas" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Características</a>
+                <a href="portal_jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Portal Jugadores</a>
+                <a href="jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Buscador Global</a>
+                <a href="apuestas.html" style="color: var(--color-secondary); text-decoration: none; font-weight: 600; transition: var(--transition-smooth); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-secondary)'">
+                    <i data-lucide="trending-up" style="width:16px;height:16px;"></i> Pronósticos
+                </a>
+                <span id="connection-status" class="player-score" style="background: rgba(125, 95, 255, 0.1); color: var(--color-accent);">
+                    <i data-lucide="database" style="width: 14px; height: 14px; display: inline; vertical-align: middle; margin-right: 4px;"></i>
+                    Cargando Base...
+                </span>
+            </nav>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section style="text-align: center; padding: 30px 20px; margin-bottom: 40px;">
+            <img src="img/logo.jpg" alt="Logo QFutbol Oficial" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: 0 0 20px rgba(0, 255, 135, 0.2); margin-bottom: 20px;">
+            <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800;">
+                El Control Total de tu <br>
+                <span style="background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Campeonato de Barrio</span>
+            </h1>
+            <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 30px;">
+                Gestión financiera, fixtures automáticos por grupos, planillas de vocal offline y estadísticas avanzadas para tu liga de fútbol barrial.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <a href="#login" class="btn btn-primary">
+                    <i data-lucide="log-in"></i> Acceso Staff
+                </a>
+                <a href="portal_jugadores.html" class="btn btn-primary" style="background: var(--grad-accent); color: var(--text-main); box-shadow: 0 4px 15px rgba(125, 95, 255, 0.3);">
+                    <i data-lucide="user"></i> Portal de Jugadores
+                </a>
+                <a href="jugadores.html" class="btn btn-secondary">
+                    <i data-lucide="search"></i> Buscador de Jugadores
+                </a>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE ESTADÍSTICAS GLOBALES -->
+        <section style="max-width: 900px; margin: 0 auto 50px; padding: 0 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
+                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div id="stat-campeonatos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">40+</div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Campeonatos</div>
+                </div>
+                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div id="stat-activos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">30+</div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Torneos Activos</div>
+                </div>
+                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div id="stat-equipos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">1,000+</div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Equipos Inscritos</div>
+                </div>
+                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div id="stat-jugadores" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">5,000+</div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Jugadores Activos</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL DE ACCESO / LOGIN & REGISTRO (GLASSMORPHISM) -->
+        <section id="login" class="glass-panel" style="max-width: 480px; margin: 0 auto 60px; padding: 25px;">
+            <!-- Tabs -->
+            <div style="display:flex; border-bottom:1px solid var(--border-glass); margin-bottom:25px;">
+                <button type="button" id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1; padding:12px; background:none; border:none; color:var(--color-primary); border-bottom:2px solid var(--color-primary); font-weight:700; cursor:pointer; font-family:inherit; transition:var(--transition-smooth);">Acceder</button>
+                <button type="button" id="auth-tab-register" onclick="switchAuthTab('register')" style="flex:1; padding:12px; background:none; border:none; color:var(--text-muted); border-bottom:2px solid transparent; font-weight:600; cursor:pointer; font-family:inherit; transition:var(--transition-smooth);">Registrarse</button>
+            </div>
+
+            <!-- LOGIN CONTENT -->
+            <div id="auth-login-container">
+                <!-- Login con Email (Se muestra si Supabase está activo) -->
+                <form id="login-email-form" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="login-email">Correo Electrónico</label>
+                        <input class="form-input" type="email" id="login-email" placeholder="correo@ejemplo.com" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" for="login-password">Contraseña</label>
+                        <input class="form-input" type="password" id="login-password" placeholder="Tu contraseña" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">
+                        <i data-lucide="log-in"></i> Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Login Simulado / Local Offline -->
+                <form id="login-simulado-form">
+                    <div class="form-group">
+                        <label class="form-label" for="login-user">Usuario de Prueba (Rol)</label>
+                        <select class="form-input" id="login-user" style="cursor: pointer;">
+                            <!-- Cargado dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" for="login-pass">Contraseña (Simulada)</label>
+                        <input class="form-input" type="password" id="login-pass" value="••••••••" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">
+                        <i data-lucide="play-circle"></i> Ingresar al Sistema
+                    </button>
+                </form>
+
+                <!-- Botón de Alternancia de Login si Supabase está conectado -->
+                <div id="auth-toggle-login-mode" style="text-align: center; font-size: 0.85rem; display: none;">
+                    <a href="#" onclick="toggleLoginMode(event)" id="lbl-toggle-login-mode" style="color: var(--color-secondary); text-decoration: none;">Usar Acceso Simulado (Desarrollo)</a>
+                </div>
+            </div>
+
+            <!-- REGISTER CONTENT -->
+            <div id="auth-register-container" style="display: none;">
+                <form id="register-form">
+                    <div class="form-group">
+                        <label class="form-label" for="reg-nombres">Nombres</label>
+                        <input class="form-input" type="text" id="reg-nombres" placeholder="Ej. Pedro" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-apellidos">Apellidos</label>
+                        <input class="form-input" type="text" id="reg-apellidos" placeholder="Ej. Vargas" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-email">Correo Electrónico</label>
+                        <input class="form-input" type="email" id="reg-email" placeholder="correo@ejemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-password">Contraseña</label>
+                        <input class="form-input" type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <label class="form-label" for="reg-rol">Rol en la Liga</label>
+                        <select class="form-input" id="reg-rol" style="cursor: pointer;">
+                            <option value="organizador">Organizador del Torneo</option>
+                            <option value="vocal">Vocal de Mesa / Cancha</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i data-lucide="user-plus"></i> Crear Cuenta
+                    </button>
+                </form>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.82rem; text-align: center; color: var(--text-muted); border-top: 1px solid var(--border-glass); padding-top: 15px;">
+                <i data-lucide="info" style="width: 14px; height: 14px; display: inline; vertical-align: middle; margin-right: 4px;"></i>
+                <span id="lbl-auth-info-footer">En este modo puedes entrar sin configurar Supabase para probar la interfaz.</span>
+            </div>
+        </section>
+
+        <!-- CARACTERÍSTICAS DE LA PLATAFORMA -->
+        <section id="caracteristicas" style="margin-bottom: 60px;">
+            <h2 style="font-size: 2rem; margin-bottom: 30px; text-align: center;">Todo lo que ofrece QFutbol</h2>
+            <div class="card-grid">
+                <!-- Tarjeta 1: Fixtures -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="calendar" style="color: var(--color-primary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Fixture Automático</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Generación de calendarios en un clic mediante algoritmo circular Round Robin (ida, o ida y vuelta) o por grupos, reduciendo errores manuales.</p>
+                </div>
+                <!-- Tarjeta 2: Grupos y Series -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="layers" style="color: var(--color-secondary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Series y Grupos</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Organización en Series (A, B) y distribución balanceada de equipos en grupos con llaves de Playoff (octavos, cuartos, semis y final).</p>
+                </div>
+                <!-- Tarjeta 3: Posiciones -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="list-ordered" style="color: var(--color-accent); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Tablas Dinámicas</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Cálculo en vivo de puntos, gol diferencia, goles a favor, enfrentamientos particulares y tabla de juego limpio (Fair Play).</p>
+                </div>
+                <!-- Tarjeta 4: Registro Único -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="user-check" style="color: var(--color-warning); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Inscripción Única</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Control estricto por Cédula de Identidad en la base de datos que bloquea de manera absoluta que un jugador sea inscrito en 2 equipos del mismo torneo.</p>
+                </div>
+                <!-- Tarjeta 5: Tarjetas y Multas -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="alert-triangle" style="color: var(--color-primary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Disciplina y Sanciones</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Control automático de suspensiones al acumular tarjetas amarillas (configurable) o rojas, y cálculo de multas de cobro obligatorio.</p>
+                </div>
+                <!-- Tarjeta 6: Modalidades -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="sliders" style="color: var(--color-secondary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Modalidades de Juego</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Soporte configurable para torneos de Fútbol 7, Fútbol 9 y Fútbol 11, con tiempos de juego y límites de cambios totalmente adaptables.</p>
+                </div>
+                <!-- Tarjeta 7: Finanzas -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="wallet" style="color: var(--color-accent); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Control Financiero</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Gestión detallada de cobros de inscripciones por abonos, depósitos de garantía, pago de arbitrajes, vocalías y multas acumuladas.</p>
+                </div>
+                <!-- Tarjeta 8: Firma Digital y Offline -->
+                <div class="glass-panel" style="padding: 20px;">
+                    <i data-lucide="shield-check" style="color: var(--color-warning); width: 36px; height: 36px; margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Firma Digital y Offline</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Planilla móvil offline para registrar estadísticas en cancha sin señal, firmada digitalmente por los delegados de cada equipo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer style="text-align: center; padding: 30px 10px; border-top: 1px solid var(--border-glass); font-size: 0.9rem; color: var(--text-muted);">
+            <p>© 2026 QFutbol Platform. Desarrollado con tecnología premium ultrarrápida.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts CDN de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Configuración e Inicialización -->
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        let activeAuthTab = 'login';
+        let useSimulatedLogin = true;
+
+        function switchAuthTab(tab) {
+            activeAuthTab = tab;
+            const btnLogin = document.getElementById("auth-tab-login");
+            const btnRegister = document.getElementById("auth-tab-register");
+            const containerLogin = document.getElementById("auth-login-container");
+            const containerRegister = document.getElementById("auth-register-container");
+
+            if (tab === 'login') {
+                btnLogin.style.color = "var(--color-primary)";
+                btnLogin.style.borderBottom = "2px solid var(--color-primary)";
+                btnRegister.style.color = "var(--text-muted)";
+                btnRegister.style.borderBottom = "2px solid transparent";
+                containerLogin.style.display = "block";
+                containerRegister.style.display = "none";
+            } else {
+                btnRegister.style.color = "var(--color-primary)";
+                btnRegister.style.borderBottom = "2px solid var(--color-primary)";
+                btnLogin.style.color = "var(--text-muted)";
+                btnLogin.style.borderBottom = "2px solid transparent";
+                containerLogin.style.display = "none";
+                containerRegister.style.display = "block";
+            }
+        }
+
+        function toggleLoginMode(event) {
+            if (event) event.preventDefault();
+            useSimulatedLogin = !useSimulatedLogin;
+            const emailForm = document.getElementById("login-email-form");
+            const simuladoForm = document.getElementById("login-simulado-form");
+            const toggleLink = document.getElementById("lbl-toggle-login-mode");
+
+            if (useSimulatedLogin) {
+                emailForm.style.display = "none";
+                simuladoForm.style.display = "block";
+                toggleLink.innerText = "Usar Acceso con Correo y Contraseña";
+            } else {
+                emailForm.style.display = "block";
+                simuladoForm.style.display = "none";
+                toggleLink.innerText = "Usar Acceso Simulado (Desarrollo)";
+            }
+        }
+
+        async function cargarEstadisticasLanding() {
+            let campeonatosCount = 40; // Base de promoción
+            let activosCount = 30;
+            let equiposCount = 1000;
+            let jugadoresCount = 5000;
+
+            try {
+                // Si Supabase está conectado, sumamos los registros reales a los valores de promoción
+                if (window.supabase && window.supabase.auth) {
+                    const { count: cCount, error: cErr } = await window.supabase.from('campeonatos').select('*', { count: 'exact', head: true });
+                    const { count: eCount, error: eErr } = await window.supabase.from('equipos').select('*', { count: 'exact', head: true });
+                    const { count: jCount, error: jErr } = await window.supabase.from('jugadores_globales').select('*', { count: 'exact', head: true });
+                    const { count: aCount, error: aErr } = await window.supabase.from('campeonatos').select('*', { count: 'exact', head: true }).neq('estado', 'finalizado');
+
+                    if (!cErr && cCount !== null) campeonatosCount += cCount;
+                    if (!eErr && eCount !== null) equiposCount += eCount;
+                    if (!jErr && jCount !== null) jugadoresCount += jCount;
+                    if (!aErr && aCount !== null) activosCount += aCount;
+                } else {
+                    // Fallback Local/Mock
+                    const localDb = getMockDB();
+                    const cCount = (localDb && localDb.campeonatos) ? localDb.campeonatos.length : 0;
+                    const eCount = (localDb && localDb.equipos) ? localDb.equipos.length : 0;
+                    const jCount = (localDb && localDb.jugadores) ? localDb.jugadores.length : 0;
+                    const aCount = (localDb && localDb.campeonatos) ? localDb.campeonatos.filter(c => c.estado !== 'finalizado').length : 0;
+
+                    campeonatosCount += cCount;
+                    equiposCount += eCount;
+                    jugadoresCount += jCount;
+                    activosCount += aCount;
+                }
+            } catch (err) {
+                console.warn("No se pudieron cargar estadísticas en tiempo real:", err);
+            }
+
+            // Actualizar la interfaz
+            const elCamp = document.getElementById("stat-campeonatos");
+            const elAct = document.getElementById("stat-activos");
+            const elEq = document.getElementById("stat-equipos");
+            const elJug = document.getElementById("stat-jugadores");
+
+            if (elCamp) elCamp.innerText = `${campeonatosCount}+`;
+            if (elAct) elAct.innerText = `${activosCount}+`;
+            if (elEq) elEq.innerText = `${equiposCount.toLocaleString()}+`;
+            if (elJug) elJug.innerText = `${jugadoresCount.toLocaleString()}+`;
+        }
+
+        async function cargarUsuariosLogin() {
+            const select = document.getElementById("login-user");
+            if (!select) return;
+            select.innerHTML = "";
+            try {
+                const perfiles = await dbGetTable("perfiles");
+                if (perfiles.length === 0) {
+                    select.innerHTML = `
+                        <option value="organizador" data-rol="organizador">Pedro Vargas (Organizador del Torneo)</option>
+                        <option value="vocal" data-rol="vocal">Carlos Mena (Vocal de Mesa / Cancha)</option>
+                    `;
+                    return;
+                }
+                perfiles.forEach(p => {
+                    const rolText = p.rol === 'organizador' ? 'Organizador' : (p.rol === 'vocal' ? 'Vocal' : 'Admin');
+                    select.innerHTML += `
+                        <option value="${p.id}" data-rol="${p.rol}">${p.nombres} ${p.apellidos} (${rolText})</option>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                select.innerHTML = `
+                    <option value="organizador" data-rol="organizador">Pedro Vargas (Organizador del Torneo)</option>
+                    <option value="vocal" data-rol="vocal">Carlos Mena (Vocal de Mesa / Cancha)</option>
+                `;
+            }
+        }
+
+        // Controlar visualmente el estado de Supabase
+        document.addEventListener("DOMContentLoaded", async () => {
+            const statusLabel = document.getElementById("connection-status");
+            const authInfoFooter = document.getElementById("lbl-auth-info-footer");
+            
+            setTimeout(async () => {
+                if (window.supabase && window.supabase.auth) {
+                    statusLabel.innerHTML = `<i data-lucide="database" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Supabase Conectado`;
+                    statusLabel.style.color = "var(--color-primary)";
+                    statusLabel.style.background = "rgba(0, 255, 135, 0.1)";
+                    authInfoFooter.innerText = "Conectado a la base de datos Supabase. Inicia sesión con tus credenciales o regístrate.";
+
+                    useSimulatedLogin = false;
+                    document.getElementById("login-email-form").style.display = "block";
+                    document.getElementById("login-simulado-form").style.display = "none";
+                    document.getElementById("auth-toggle-login-mode").style.display = "block";
+                    document.getElementById("lbl-toggle-login-mode").innerText = "Usar Acceso Simulado (Desarrollo)";
+                } else {
+                    statusLabel.innerHTML = `<i data-lucide="database-zap" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Local Offline Mode`;
+                    statusLabel.style.color = "var(--color-warning)";
+                    statusLabel.style.background = "rgba(255, 211, 42, 0.1)";
+                    authInfoFooter.innerText = "Modo simulado sin Supabase. Los registros se guardarán temporalmente en el navegador.";
+                    
+                    useSimulatedLogin = true;
+                    document.getElementById("login-email-form").style.display = "none";
+                    document.getElementById("login-simulado-form").style.display = "block";
+                    document.getElementById("auth-toggle-login-mode").style.display = "none";
+                }
+                
+                await cargarUsuariosLogin();
+                await cargarEstadisticasLanding();
+                lucide.createIcons();
+            }, 1000);
+
+            // Manejo de Login Simulado / Local
+            document.getElementById("login-simulado-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const select = document.getElementById("login-user");
+                const selectedOpt = select.options[select.selectedIndex];
+                const rol = selectedOpt.getAttribute("data-rol");
+
+                if (rol === "organizador") {
+                    window.location.href = "dashboard.html";
+                } else if (rol === "vocal") {
+                    window.location.href = "vocal.html";
+                }
+            });
+
+            // Manejo de Login Real con Supabase Auth
+            document.getElementById("login-email-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const email = document.getElementById("login-email").value;
+                const pass = document.getElementById("login-password").value;
+
+                if (window.supabase && window.supabase.auth) {
+                    const { data, error } = await window.supabase.auth.signInWithPassword({
+                        email: email,
+                        password: pass
+                    });
+
+                    if (error) {
+                        alert("Error de inicio de sesión: " + error.message);
+                        return;
+                    }
+
+                    if (data && data.user) {
+                        // Obtener su perfil para saber el rol
+                        const { data: profile, error: profileErr } = await window.supabase.from('perfiles').select('rol').eq('id', data.user.id).single();
+                        if (profileErr || !profile) {
+                            alert("No se encontró un perfil asociado a esta cuenta.");
+                            return;
+                        }
+
+                        if (profile.rol === "organizador") {
+                            window.location.href = "dashboard.html";
+                        } else if (profile.rol === "vocal") {
+                            window.location.href = "vocal.html";
+                        } else {
+                            alert("Rol no configurado para redirección.");
+                        }
+                    }
+                }
+            });
+
+            // Manejo de Registro (Supabase + Local)
+            document.getElementById("register-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const nombres = document.getElementById("reg-nombres").value;
+                const apellidos = document.getElementById("reg-apellidos").value;
+                const email = document.getElementById("reg-email").value;
+                const pass = document.getElementById("reg-password").value;
+                const rol = document.getElementById("reg-rol").value;
+
+                try {
+                    if (window.supabase && window.supabase.auth) {
+                        // 1. Crear usuario en Supabase Auth
+                        const { data, error } = await window.supabase.auth.signUp({
+                            email: email,
+                            password: pass
+                        });
+
+                        if (error) {
+                            alert("Error en Supabase Auth: " + error.message);
+                            return;
+                        }
+
+                        if (data && data.user) {
+                            // 2. Crear registro en la tabla 'perfiles' vinculada por ID
+                            const { error: profileErr } = await window.supabase.from('perfiles').insert({
+                                id: data.user.id,
+                                nombres: nombres,
+                                apellidos: apellidos,
+                                rol: rol
+                            });
+
+                            if (profileErr) {
+                                alert("Cuenta creada en Auth, pero error al crear el perfil: " + profileErr.message);
+                                return;
+                            }
+                        }
+                    } else {
+                        // Modo Local: Insertar en perfiles mock local
+                        const newProfile = {
+                            nombres: nombres,
+                            apellidos: apellidos,
+                            rol: rol
+                        };
+                        await dbInsertRow("perfiles", newProfile);
+                    }
+
+                    alert("¡Registro completado exitosamente! Ya puedes iniciar sesión.");
+                    // Limpiar campos y cambiar de tab
+                    document.getElementById("register-form").reset();
+                    switchAuthTab('login');
+                    await cargarUsuariosLogin();
+                } catch (err) {
+                    console.error(err);
+                    alert("Error durante el registro: " + err.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
