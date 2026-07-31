@@ -141,6 +141,27 @@
             </div>
         </div>
 
+        <!-- LEYENDA DESTACADA DEL COSTO DE LA APP PARA EL ORGANIZADOR AL INICIO -->
+        <div id="banner-costo-organizador" class="glass-panel" style="margin-bottom: 20px; padding: 16px 22px; border-left: 5px solid var(--color-primary); background: linear-gradient(135deg, rgba(0, 255, 135, 0.08) 0%, rgba(125, 95, 255, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="flex: 1; min-width: 280px;">
+                    <div style="font-weight: 800; font-size: 0.98rem; color: var(--color-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="credit-card" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
+                        Licencia y Costo por Uso de la App QFutbol ($1.00 USD por Equipo Inscrito)
+                    </div>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.45;">
+                        Estimado Organizador: El costo por el uso de la plataforma es de <strong>$1.00 USD por cada equipo inscrito</strong> en el torneo, pagaderos mediante depósito o transferencia bancaria a la cuenta de ahorros del administrador. La opción para generar calendarios y encuentros deportivos se habilitará una vez sea confirmado el pago <strong>por el administrador de la app Qfutbol</strong>.
+                    </p>
+                </div>
+                <div style="text-align: right; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); min-width: 200px;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Estado de Licencia</div>
+                    <div id="status-licencia-org-badge" style="font-size: 0.85rem; font-weight: 800; color: var(--color-warning); margin-top: 3px;">
+                        ⏳ Pendiente de Confirmación
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- KPI METRICS (ORGANIZADOR) -->
         <div class="dashboard-grid">
             <div class="metric-card">
@@ -1609,57 +1630,54 @@
         }
 
         async function generarCategoriasEscolaresAuto() {
-            const niveles = [
-                {
-                    nombre: "Preparatoria (Inicial 1, 2 y 1er Año)",
-                    nivel_escolar: "preparatoria",
-                    modalidad: "futbol_7"
-                },
-                {
-                    nombre: "Básica Elemental (2do, 3er y 4to Año)",
-                    nivel_escolar: "basica_elemental",
-                    modalidad: "futbol_7"
-                },
-                {
-                    nombre: "Básica Media (5to, 6to y 7mo Año)",
-                    nivel_escolar: "basica_media",
-                    modalidad: "futbol_9"
-                },
-                {
-                    nombre: "Básica Superior (8vo, 9no y 10mo Año)",
-                    nivel_escolar: "basica_superior",
-                    modalidad: "futbol_11"
-                },
-                {
-                    nombre: "Bachillerato (1ro, 2do y 3er Bachillerato)",
-                    nivel_escolar: "bachillerato",
-                    modalidad: "futbol_11"
-                }
-            ];
+            const opcion = prompt("Selecciona el género para generar los Niveles Educativos:\n\n1 - Generar para Ambos (Varones y Damas)\n2 - Solo Varones (Masculino)\n3 - Solo Damas (Femenino)", "1");
 
-            if (!confirm("¿Deseas generar automáticamente los 5 Niveles Educativos oficiales para el Campeonato Escolar y Colegial?\n\n1. Preparatoria (Inicial 1, 2 y 1er año)\n2. Básica Elemental (2do, 3er y 4to año)\n3. Básica Media (5to, 6to y 7mo año)\n4. Básica Superior (8vo, 9no y 10mo año)\n5. Bachillerato (1er, 2do y 3er año)")) return;
+            if (!opcion) return;
+
+            let generos = [];
+            if (opcion === "1") generos = ["masculino", "femenino"];
+            else if (opcion === "2") generos = ["masculino"];
+            else if (opcion === "3") generos = ["femenino"];
+            else {
+                alert("Opción no válida.");
+                return;
+            }
+
+            const nivelesBase = [
+                { nombre: "Preparatoria", nivel_escolar: "preparatoria", modalidad: "futbol_7", desc: "(Inicial 1, 2 y 1er Año)" },
+                { nombre: "Básica Elemental", nivel_escolar: "basica_elemental", modalidad: "futbol_7", desc: "(2do, 3er y 4to Año)" },
+                { nombre: "Básica Media", nivel_escolar: "basica_media", modalidad: "futbol_9", desc: "(5to, 6to y 7mo Año)" },
+                { nombre: "Básica Superior", nivel_escolar: "basica_superior", modalidad: "futbol_11", desc: "(8vo, 9no y 10mo Año)" },
+                { nombre: "Bachillerato", nivel_escolar: "bachillerato", modalidad: "futbol_11", desc: "(1ro, 2do y 3er Bachillerato)" }
+            ];
 
             try {
                 const campId = configCampeonato.id || null;
-                for (const n of niveles) {
-                    await dbInsertRow("categorias", {
-                        campeonato_id: campId,
-                        nombre: n.nombre,
-                        nivel_escolar: n.nivel_escolar,
-                        modalidad: n.modalidad,
-                        genero: "masculino",
-                        costo_inscripcion: 30.00,
-                        premio_primer_lugar: "Trofeo Institucional + Medallas de Oro (Campeón de Nivel)",
-                        premio_segundo_lugar: "Trofeo + Medallas de Plata",
-                        premio_tercer_lugar: "Medallas de Bronce"
-                    });
+                let creadas = 0;
+
+                for (const gen of generos) {
+                    const genTxt = gen === "masculino" ? "Varones" : "Damas";
+                    for (const n of nivelesBase) {
+                        await dbInsertRow("categorias", {
+                            campeonato_id: campId,
+                            nombre: `${n.nombre} ${genTxt} ${n.desc}`,
+                            nivel_escolar: n.nivel_escolar,
+                            modalidad: n.modalidad,
+                            genero: gen,
+                            costo_inscripcion: 30.00,
+                            premio_primer_lugar: `Trofeo Institucional + Medallas de Oro (Campeón ${genTxt} ${n.nombre})`,
+                            premio_segundo_lugar: "Trofeo + Medallas de Plata",
+                            premio_tercer_lugar: "Medallas de Bronce"
+                        });
+                        creadas++;
+                    }
                 }
 
-                alert("¡Los 5 Niveles Educativos Escolares y Colegiales han sido creados con éxito!");
+                alert(`¡Se crearon con éxito ${creadas} Niveles Educativos Escolares/Colegiales para ${generos.map(g => g === 'masculino' ? 'Varones' : 'Damas').join(' y ')}!`);
                 await cargarCategorias();
             } catch(err) {
                 console.error("Error al generar categorías escolares:", err);
-                alert("Ocurrió un error al generar los niveles escolares: " + err.message);
+                alert("Ocurrió un error al generar las categorías escolares: " + err.message);
             }
         }
 
@@ -1742,20 +1760,35 @@
             const pagoRealizado = configCampeonato.pago_plataforma_realizado || false;
             const btnFixture = document.getElementById("btn-generar-fixture");
             const alertaFixture = document.getElementById("alerta-pago-plataforma-fixture");
+            const statusOrgBadge = document.getElementById("status-licencia-org-badge");
 
             if (pagoRealizado) {
-                alertaFixture.style.display = "none";
-                btnFixture.disabled = false;
-                btnFixture.style.opacity = "1";
-                btnFixture.style.cursor = "pointer";
+                if (alertaFixture) alertaFixture.style.display = "none";
+                if (btnFixture) {
+                    btnFixture.disabled = false;
+                    btnFixture.style.opacity = "1";
+                    btnFixture.style.cursor = "pointer";
+                }
+                if (statusOrgBadge) {
+                    statusOrgBadge.style.color = "var(--color-primary)";
+                    statusOrgBadge.innerText = "Confirmado por el Administrador ✓";
+                }
             } else {
-                alertaFixture.style.display = "flex";
-                btnFixture.disabled = true;
-                btnFixture.style.opacity = "0.5";
-                btnFixture.style.cursor = "not-allowed";
+                if (alertaFixture) alertaFixture.style.display = "flex";
+                if (btnFixture) {
+                    btnFixture.disabled = true;
+                    btnFixture.style.opacity = "0.5";
+                    btnFixture.style.cursor = "not-allowed";
+                }
+                if (statusOrgBadge) {
+                    statusOrgBadge.style.color = "var(--color-warning)";
+                    statusOrgBadge.innerText = "⏳ Pendiente de Confirmación ($1.00/Equipo)";
+                }
                 
-                document.getElementById("lbl-plataforma-equipos-count").innerText = cacheEquipos.length;
-                document.getElementById("lbl-plataforma-monto-pago").innerText = `$${(cacheEquipos.length * 1.00).toFixed(2)} USD`;
+                const countLbl = document.getElementById("lbl-plataforma-equipos-count");
+                if (countLbl) countLbl.innerText = cacheEquipos.length;
+                const montoLbl = document.getElementById("lbl-plataforma-monto-pago");
+                if (montoLbl) montoLbl.innerText = `$${(cacheEquipos.length * 1.00).toFixed(2)} USD`;
             }
 
             // Alimentar select de categorías para inscribir equipos
