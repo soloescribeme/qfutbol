@@ -148,11 +148,16 @@
 
         <!-- TAB: PANEL ADMINISTRADOR QFUTBOL -->
         <div id="tab-admin" class="tab-content glass-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:12px;">
                 <h2 style="font-size: 1.5rem;"><i data-lucide="shield-check" style="color:var(--color-primary);"></i> Panel de Administración Global QFutbol</h2>
                 <div style="background:rgba(125,95,255,0.15); color:var(--color-secondary); padding:8px 14px; border-radius:var(--radius-sm); border:1px solid rgba(125,95,255,0.3); font-size:0.85rem; font-weight:600;">
                     <i data-lucide="user-check" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Propietario: Luis Antonio Lozano Lozano (soloescribeme@gmail.com)
                 </div>
+            </div>
+
+            <div style="background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:12px 16px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
+                <i data-lucide="info" style="color:var(--color-primary); width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:6px;"></i>
+                <strong>Administración de la App:</strong> Este módulo está destinado exclusivamente a la gestión global de QFutbol (cobros de licencias de $1.00 USD/equipo, auditoría de métricas y estado del sistema). La creación y configuración de campeonatos se realiza únicamente desde el <strong>Panel del Organizador</strong> (pestaña <em>Configuración</em>).
             </div>
 
             <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN (COMPACTAS) -->
@@ -2261,7 +2266,12 @@
 
         // Cargar todo al iniciar
         document.addEventListener("DOMContentLoaded", () => {
-            setTimeout(cargarDatos, 1100); // Dar un segundo a Supabase para cargar
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'admin') {
+                const btnAdmin = document.getElementById("btn-tab-admin");
+                if (btnAdmin) switchTab('admin');
+            }
+            setTimeout(cargarDatos, 1100);
         });
     </script>
 </body>
