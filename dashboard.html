@@ -98,8 +98,10 @@
         <!-- HEADER / NAVBAR -->
         <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
-                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
+                <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;" title="Ir a la página de inicio de QFutbol">
+                    <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 38px; border-radius: var(--radius-sm); object-fit: cover;">
+                    <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
+                </a>
                 <span style="color: var(--text-muted); font-size: 0.9rem; border-left: 1px solid var(--border-glass); padding-left: 12px; margin-left: 4px;">Organizador</span>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
@@ -1101,10 +1103,19 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Marcar botón activo
-            event.currentTarget.classList.add('active');
-            // Mostrar contenido correspondiente
-            document.getElementById(`tab-${tabId}`).classList.add('active');
+            if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
+                window.event.currentTarget.classList.add('active');
+            } else {
+                const navBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${tabId}'`));
+                if (navBtn) navBtn.classList.add('active');
+            }
+
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
+
+            if (tabId === 'categorias') {
+                renderizarCategorias();
+            }
         }
 
         // Mostrar / Ocultar opciones de grupos en generación de fixture
@@ -1801,6 +1812,8 @@
             cachePartidos = await dbGetTable("partidos");
             cacheCategorias = await dbGetTable("categorias");
             cacheSanciones = await dbGetTable("sanciones_equipos");
+
+            renderizarCategorias();
 
             // Control de Bloqueo de Fixture por Licencia de QFutbol
             const pagoRealizado = configCampeonato.pago_plataforma_realizado || false;
@@ -2692,8 +2705,10 @@
                 alert("Categoría creada con éxito.");
             }
 
-            cerrarModalCategoria();
-            await cargarDatos();
+            modalCategoria.style.display = "none";
+            cacheCategorias = await dbGetTable("categorias");
+            renderizarCategorias();
+            switchTab('categorias');
         });
 
         async function eliminarCategoria(id) {
