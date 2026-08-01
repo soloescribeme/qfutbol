@@ -336,6 +336,9 @@
                         <div class="form-group">
                             <label class="form-label" for="camp-nombre">Nombre del Campeonato</label>
                             <input type="text" id="camp-nombre" class="form-input" placeholder="Ej. Torneo Intercolegial / Copa de Barrio" required>
+                            <div id="badge-nombre-bloqueado" style="display:none; background:rgba(255, 171, 0, 0.12); border:1px solid var(--color-warning); color:var(--color-warning); padding:8px 12px; border-radius:var(--radius-sm); font-size:0.8rem; margin-top:6px; font-weight:600;">
+                                🔒 El nombre del campeonato se encuentra bloqueado para prevenir modificaciones una vez generado el primer calendario de partidos (fixture).
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="camp-tipo">Modalidad / Enfoque del Campeonato</label>
@@ -1791,8 +1794,17 @@
         function mostrarFormularioNuevoCampeonato() {
             configCampeonato = {};
             document.getElementById("config-form").reset();
+
+            const inputNombre = document.getElementById("camp-nombre");
+            const badgeBloqueado = document.getElementById("badge-nombre-bloqueado");
+            if (inputNombre) {
+                inputNombre.disabled = false;
+                inputNombre.style.opacity = "1";
+            }
+            if (badgeBloqueado) badgeBloqueado.style.display = "none";
+
             const lblTitulo = document.getElementById("lbl-titulo-form-campeonato");
-            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="trophy"></i> Registrar Nuevo Campeonato`;
+            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="trophy" style="color:var(--color-primary);"></i> Registrar Nuevo Campeonato`;
             document.getElementById("container-form-campeonato").style.display = "block";
             document.getElementById("camp-nombre").focus();
             if (window.lucide) lucide.createIcons();
@@ -1800,7 +1812,23 @@
 
         function editarAjustesCampeonato() {
             if (configCampeonato && configCampeonato.nombre) {
-                document.getElementById("camp-nombre").value = configCampeonato.nombre || "";
+                const inputNombre = document.getElementById("camp-nombre");
+                const badgeBloqueado = document.getElementById("badge-nombre-bloqueado");
+                
+                inputNombre.value = configCampeonato.nombre || "";
+
+                // REGLA DE NEGOCIO: Si ya se generó el primer calendario de partidos (fixture) o estado !== 'registro', bloquear edición de nombre
+                const fixtureGenerado = (cachePartidos && cachePartidos.length > 0) || (configCampeonato.estado && configCampeonato.estado !== 'registro');
+                if (fixtureGenerado) {
+                    inputNombre.disabled = true;
+                    inputNombre.style.opacity = "0.7";
+                    if (badgeBloqueado) badgeBloqueado.style.display = "block";
+                } else {
+                    inputNombre.disabled = false;
+                    inputNombre.style.opacity = "1";
+                    if (badgeBloqueado) badgeBloqueado.style.display = "none";
+                }
+
                 const selectTipo = document.getElementById("camp-tipo");
                 if (selectTipo) {
                     selectTipo.value = configCampeonato.tipo_campeonato || "barrial_abierto";
@@ -1832,7 +1860,7 @@
                 document.getElementById("camp-banco-telefono").value = configCampeonato.banco_telefono_reporte || "";
             }
             const lblTitulo = document.getElementById("lbl-titulo-form-campeonato");
-            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit"></i> Editar Ajustes del Campeonato`;
+            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit" style="color:var(--color-primary);"></i> Editando Campeonato: <strong style="color:var(--color-primary); font-size:1.15rem;">${configCampeonato.nombre}</strong>`;
             document.getElementById("container-form-campeonato").style.display = "block";
             if (window.lucide) lucide.createIcons();
         }
@@ -2427,7 +2455,7 @@
             }
 
             const nuevoCamp = {
-                nombre: document.getElementById("camp-nombre").value,
+                nombre: document.getElementById("camp-nombre").value || configCampeonato.nombre,
                 tipo_campeonato: document.getElementById("camp-tipo") ? document.getElementById("camp-tipo").value : "barrial_abierto",
                 duracion_estimada_meses: parseInt(document.getElementById("camp-duracion").value),
                 canchas_nombres: document.getElementById("camp-canchas").value,
