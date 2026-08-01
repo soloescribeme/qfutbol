@@ -1131,6 +1131,8 @@
 
             if (tabId === 'categorias') {
                 renderizarCategorias();
+            } else if (tabId === 'campeonato') {
+                dbGetTable("campeonatos").then(c => renderizarListaCampeonatos(c || []));
             }
         }
 
@@ -1895,23 +1897,25 @@
                 container.innerHTML = `
                     <div style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.15); border:1px dashed var(--border-glass); border-radius:var(--radius-md);">
                         <i data-lucide="trophy" style="width:48px; height:48px; color:var(--color-primary); margin-bottom:12px; opacity:0.6;"></i>
-                        <h3 style="font-size:1.15rem; color:var(--text-main); font-weight:700;">No hay ningún campeonato registrado aún</h3>
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:18px;">Empieza registrando los datos generales, reglas y modalidad de tu torneo deportivo.</p>
+                        <h3 style="font-size:1.15rem; color:var(--text-main); font-weight:700;">Aún no tienes ningún campeonato registrado</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:18px;">Empieza registrando los datos generales, reglas y modalidad de tu primer torneo deportivo.</p>
                         <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.9rem; padding:8px 18px;">
-                            <i data-lucide="plus-circle"></i> + Registrar Primer Campeonato
+                            <i data-lucide="plus-circle"></i> + Registrar Mi Primer Campeonato
                         </button>
                     </div>
                 `;
+                // Mostrar automáticamente el formulario si no hay torneos para facilitar el registro
+                document.getElementById("container-form-campeonato").style.display = "block";
                 if (window.lucide) lucide.createIcons();
                 return;
             }
 
             let html = `
                 <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>Campeonato(s) Registrado(s) (${campeonatos.length})</span>
-                    <small style="color:var(--color-primary);">Selecciona 'Editar Ajustes' para modificar</small>
+                    <span>Lista de Campeonato(s) Registrado(s) (${campeonatos.length})</span>
+                    <small style="color:var(--color-primary);">Selecciona 'Editar Ajustes' para modificar cualquier campeonato</small>
                 </div>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
             `;
 
             campeonatos.forEach(c => {
@@ -1920,19 +1924,19 @@
                 const ubicacionText = [c.ciudad, c.pais].filter(Boolean).join(', ') || 'Ubicación no definida';
                 
                 html += `
-                    <div style="background:${esActivo ? 'rgba(0, 255, 135, 0.05)' : 'rgba(255,255,255,0.02)'}; border:${esActivo ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)'}; border-radius:var(--radius-md); padding:18px; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="background:${esActivo ? 'rgba(0, 255, 135, 0.06)' : 'rgba(255,255,255,0.02)'}; border:${esActivo ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)'}; border-radius:var(--radius-md); padding:18px; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
-                                <h3 style="font-size:1.15rem; color:${esActivo ? 'var(--color-primary)' : 'var(--text-main)'}; font-weight:800; line-height:1.2;">${c.nombre}</h3>
+                                <h3 style="font-size:1.2rem; color:${esActivo ? 'var(--color-primary)' : 'var(--text-main)'}; font-weight:800; line-height:1.2;">🏆 ${c.nombre}</h3>
                                 ${esActivo ? `<span style="background:rgba(0, 255, 135, 0.15); color:var(--color-primary); font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap;">Activo ✓</span>` : ''}
                             </div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">${tipoText}</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">${tipoText}</div>
                             <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> ${ubicacionText}</div>
                         </div>
                         
                         <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:12px; margin-top:10px;">
-                            <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px; width:100%; border-color:var(--color-primary); color:var(--color-primary);" onclick="seleccionarYEditarCampeonato('${c.id}')">
-                                <i data-lucide="edit"></i> ✏️ Editar Ajustes del Campeonato
+                            <button type="button" class="btn btn-primary" style="font-size:0.85rem; padding:8px 14px; width:100%; border-color:var(--color-primary);" onclick="seleccionarYEditarCampeonato('${c.id}')">
+                                <i data-lucide="edit"></i> ✏️ Editar Ajustes de ${c.nombre}
                             </button>
                         </div>
                     </div>
