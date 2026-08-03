@@ -2485,33 +2485,14 @@
                 banco_telefono_reporte: document.getElementById("camp-banco-telefono").value
             };
 
-            if (window.supabase && window.supabase.auth) {
-                let error;
-                if (configCampeonato && configCampeonato.id) {
-                    const res = await window.supabase.from('campeonatos').update(nuevoCamp).eq('id', configCampeonato.id);
-                    error = res.error;
-                } else {
-                    const sessionUser = (await window.supabase.auth.getUser())?.data?.user;
-                    const organizador_id = sessionUser ? sessionUser.id : localStorage.getItem("session_id");
-                    
-                    const res = await window.supabase.from('campeonatos').insert([{ 
-                        ...nuevoCamp, 
-                        organizador_id: organizador_id 
-                    }]).select();
-                    error = res.error;
-                    if (!error && res.data && res.data.length > 0) {
-                        configCampeonato = res.data[0];
-                    }
-                }
-                if (error) {
-                    alert("Error al guardar: " + error.message);
-                    return;
-                }
+            if (configCampeonato && configCampeonato.id) {
+                await dbUpdateRow("campeonatos", configCampeonato.id, nuevoCamp);
             } else {
-                await dbInsertRow("campeonatos", nuevoCamp);
+                const inserted = await dbInsertRow("campeonatos", nuevoCamp);
+                if (inserted) configCampeonato = inserted;
             }
             
-            alert(`¡Campeonato "${nuevoCamp.nombre}" registrado y guardado exitosamente!`);
+            alert(`¡Campeonato "${nuevoCamp.nombre}" guardado exitosamente en la base de datos!`);
             document.getElementById("config-form").reset();
             document.getElementById("container-form-campeonato").style.display = "none";
             await cargarDatos();
