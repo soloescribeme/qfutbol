@@ -8,12 +8,22 @@
 
 ### 🎯 Siguiente Paso Inmediato (Retomar aquí)
 - [ ] Módulo de Vocalía: Registro de inscripción de jugadores en nómina de partido diferenciando Titulares y Suplentes, carnet digital con foto/cédula para verificación previa a cambios.
+- [ ] Para jugadores extranjeros sera necesario incluir foto de pasaporte y fecha de expiracion del mismo.
+- []  Crear la funcionalidad de carnet digital.
+- Registrar tarjetas de los jugadores con los valores respectivos a cobrar en el mismo partido o en el siguiente partido.
+
 - [ ] Restricción de sustituciones: solo jugadores registrados como suplentes en nómina pueden ingresar de cambio por un titular.
+- [ ] No se podra inscribir mas jugadores para octavos de finales en adelante.
 - [ ] Control de tarjetas amarillas (acumulación de 5 tarjetas = 1 partido de suspensión, multa $1.00 USD) y rojas directas/indirectas.
 
 ---
 
 ### ⏳ En Progreso / Revisión
+- [x] Recuperación de contraseña: flujo completo de reseteo de clave por correo o cédula en la portada (`index.html`).
+- [x] Corrección integral del panel del organizador (`dashboard.html`): resolución del anidamiento de `tab-admin`, restaurando la funcionalidad completa de las pestañas Configuración, Categorías, Equipos, Vocales, Auspiciantes, Fixture y Finanzas.
+- [x] Pizarra multitorneo para el Organizador: selector rápido de campeonato activo en cabecera con KPIs dinámicos (equipos, jugadores activos, partidos, recaudación y multas por torneo).
+- [x] Listado y gestión individual de campeonatos creados por el organizador con botón de activación directa en pizarra y edición de parámetros.
+- [x] Filtrado cruzado por campeonato en nóminas de equipos, categorías, jornadas de fixture y finanzas.
 - [x] Nueva portada interactiva (`index.html`) con logo oficial en cabecera y accesos directos: "Registrarse o Ingresar", "Buscar mis datos", "Buscar campeonato".
 - [x] Mensaje central y hero destacado: "Crea, gestiona y administra tu campeonato tan solo por 1 dolar por equipo".
 - [x] Estadísticas en vivo de campeonatos activos, equipos inscritos y jugadores registrados en la portada.
@@ -35,7 +45,7 @@
 - [ ] Registro de consentimiento legal obligatorio para delegados (autorización de datos por cédula y cesión de imagen).
 - [ ] Opciones de suspensión de fecha/partido por fuerza mayor y expulsión por estado etílico.
 - [ ] Analizar los horarios de forma que un jugador no tenga la misma hora de partido en diferentes campeonatos o a su vez dar prioridad de cambio de horario a equipos con mayor número de jugadores afectados.
-- [ ] No permitir inscribir más jugadores para octavos de final en adelante.
+- [ ] No permitir inscribir más jugadores para octavos de final en adelante a menos que el organizador habilite esta opcion.
 - [ ] Para jugadores extranjeros: incluir foto de pasaporte y fecha de expiración del mismo.
 
 ---
@@ -60,4 +70,5 @@
 - Un jugador puede participar en diferentes campeonatos, pero nunca en dos equipos del mismo campeonato.
 - Las cuotas de apuestas por equipo se ajustan dinámicamente según los jugadores presentes en la nómina oficial del partido.
 - Jugadores extranjeros: será necesario incluir foto de pasaporte y fecha de expiración del mismo.
-- No se podrá inscribir más jugadores para octavos de final en adelante.
+- No se podrá inscribir más jugadores para octavos de final en adelante a menos que el organizador habilite esta opcion 
+

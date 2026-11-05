@@ -213,7 +213,7 @@ async function calcularFinanzasEquipo(equipoId) {
     const cacheSanciones = await dbGetTable("sanciones_equipos");
     const cacheCategorias = await dbGetTable("categorias");
     const campeonatos = await dbGetTable("campeonatos");
-    const configCampeonato = campeonatos.length > 0 ? campeonatos[0] : {};
+    const configCampeonato = (campeonatos || []).find(c => c.id === eq.campeonato_id) || (campeonatos && campeonatos.length > 0 ? campeonatos[0] : {});
 
     const eq = cacheEquipos.find(e => e.id === equipoId);
     if (!eq) return null;

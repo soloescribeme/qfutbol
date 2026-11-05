@@ -164,12 +164,47 @@
             </div>
         </div>
 
-        <!-- KPI METRICS (ORGANIZADOR) -->
-        <div class="dashboard-grid">
+        <!-- BARRA PIZARRA DEL ORGANIZADOR: SELECTOR DE CAMPEONATO ACTIVO -->
+        <div id="pizarra-organizador-header" class="glass-panel" style="margin-bottom: 22px; padding: 16px 22px; background: linear-gradient(135deg, rgba(0, 255, 135, 0.05) 0%, rgba(125, 95, 255, 0.04) 100%); border: 1px solid var(--color-primary); border-radius: var(--radius-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.6rem;">🏆</span>
+                        <div>
+                            <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; display: block;">Campeonato en Pizarra Activa:</span>
+                            <strong id="lbl-nombre-camp-activo-header" style="font-size: 1.25rem; color: var(--color-primary); line-height: 1.1;">Cargando campeonato...</strong>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+                        <label for="select-campeonato-activo" style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Cambiar Torneo:</label>
+                        <select id="select-campeonato-activo" onchange="seleccionarCampeonatoPizarra(this.value)" class="form-input" style="padding: 7px 14px; font-weight: 750; font-size: 0.9rem; border-color: var(--color-primary); min-width: 250px; background: #0c101c; color: #fff;">
+                            <!-- Opciones cargadas dinámicamente -->
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size: 0.82rem; padding: 7px 14px; border-color: var(--color-secondary); color: var(--color-secondary); font-weight: 600;">
+                        <i data-lucide="plus-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> + Registrar Nuevo Campeonato
+                    </button>
+                </div>
+
+                <div id="badge-camp-detalles-rapidos" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <!-- Badges del torneo seleccionado -->
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI METRICS (PIZARRA ORGANIZADOR) -->
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             <div class="metric-card">
                 <i data-lucide="shield" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
                 <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Equipos Inscritos</div>
                 <div id="metric-equipos" class="metric-value">0</div>
+            </div>
+            <div class="metric-card">
+                <i data-lucide="users" style="color: var(--color-accent); width: 24px; height: 24px;"></i>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Jugadores Activos</div>
+                <div id="metric-jugadores" class="metric-value">0</div>
             </div>
             <div class="metric-card">
                 <i data-lucide="calendar" style="color: var(--color-secondary); width: 24px; height: 24px;"></i>
@@ -178,12 +213,12 @@
             </div>
             <div class="metric-card">
                 <i data-lucide="dollar-sign" style="color: var(--color-primary); width: 24px; height: 24px;"></i>
-                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Recaudación (Abonos)</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Inscripciones y Abonos</div>
                 <div id="metric-recaudado" class="metric-value">$0.00</div>
             </div>
             <div class="metric-card">
                 <i data-lucide="alert-triangle" style="color: var(--color-danger); width: 24px; height: 24px;"></i>
-                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Multas Pendientes</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Multas y Saldos</div>
                 <div id="metric-deudas" class="metric-value">$0.00</div>
             </div>
         </div>
@@ -309,6 +344,7 @@
                     <div><strong>Tarifa Oficial:</strong> $1.00 USD / Equipo Participante</div>
                 </div>
             </div>
+        </div> <!-- FIN TAB: tab-admin -->
 
         <!-- TAB: CONFIGURACIÓN Y GESTIÓN DE CAMPEONATOS -->
         <div id="tab-campeonato" class="tab-content active glass-panel">
@@ -1407,21 +1443,29 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            if (window.event && window.event.currentTarget && window.event.currentTarget.classList) {
-                window.event.currentTarget.classList.add('active');
-            } else {
-                const navBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${tabId}'`));
-                if (navBtn) navBtn.classList.add('active');
-            }
+            const navBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${tabId}'`));
+            if (navBtn) navBtn.classList.add('active');
 
             const target = document.getElementById(`tab-${tabId}`);
             if (target) target.classList.add('active');
 
-            if (tabId === 'categorias') {
+            if (tabId === 'campeonato') {
+                renderizarListaCampeonatos(cacheCampeonatos || []);
+            } else if (tabId === 'categorias') {
                 renderizarCategorias();
-            } else if (tabId === 'campeonato') {
-                dbGetTable("campeonatos").then(c => renderizarListaCampeonatos(c || []));
+            } else if (tabId === 'equipos') {
+                renderizarEquipos();
+            } else if (tabId === 'vocales') {
+                cargarVocalesAutorizados();
+            } else if (tabId === 'auspiciantes') {
+                renderizarAuspiciantes();
+            } else if (tabId === 'calendario') {
+                renderizarFixture();
+            } else if (tabId === 'finanzas') {
+                renderizarFinanzas();
+                renderizarSanciones();
             }
+            if (window.lucide) lucide.createIcons();
         }
 
         // Mostrar / Ocultar opciones de grupos en generación de fixture
@@ -1523,6 +1567,8 @@
             const badge = document.getElementById("lbl-active-profile-badge");
             const subnavOrg = document.getElementById("subnav-organizador");
             const kpiGrid = document.querySelector(".dashboard-grid");
+            const pizarraHeader = document.getElementById("pizarra-organizador-header");
+            const bannerCosto = document.getElementById("banner-costo-organizador");
 
             if (profile === 'admin') {
                 if (btnAdmin) {
@@ -1538,6 +1584,8 @@
                     badge.style.background = "rgba(0, 255, 135, 0.15)";
                     badge.style.color = "var(--color-primary)";
                 }
+                if (pizarraHeader) pizarraHeader.style.display = "none";
+                if (bannerCosto) bannerCosto.style.display = "none";
                 if (subnavOrg) subnavOrg.style.display = "none";
                 if (kpiGrid) kpiGrid.style.display = "none";
                 
@@ -1556,6 +1604,8 @@
                     badge.style.background = "rgba(125, 95, 255, 0.15)";
                     badge.style.color = "var(--color-secondary)";
                 }
+                if (pizarraHeader) pizarraHeader.style.display = "block";
+                if (bannerCosto) bannerCosto.style.display = "block";
                 if (subnavOrg) subnavOrg.style.display = "flex";
                 if (kpiGrid) kpiGrid.style.display = "grid";
 
@@ -2154,8 +2204,14 @@
             }
         }
 
+        let cacheCampeonatos = [];
         let cacheEquipos = [];
         let cachePartidos = [];
+        let cacheCategorias = [];
+        let cacheSanciones = [];
+        let cacheJugadores = [];
+        let cacheInscripciones = [];
+        let finanzasCalculadasCache = {};
         let configCampeonato = {};
 
         function formatMoney(amount) {
@@ -2165,6 +2221,55 @@
             if (currency === 'EUR') return `€${val}`;
             if (currency === 'PEN') return `S/. ${val}`;
             return `${currency} $${val}`;
+        }
+
+        function poblarFormularioAjustesCampeonato(c) {
+            if (!c || !c.nombre) return;
+            const inputNombre = document.getElementById("camp-nombre");
+            const badgeBloqueado = document.getElementById("badge-nombre-bloqueado");
+            
+            inputNombre.value = c.nombre || "";
+
+            const fixtureGenerado = (cachePartidos && cachePartidos.some(p => p.campeonato_id === c.id)) || (c.estado && c.estado !== 'registro');
+            if (fixtureGenerado) {
+                inputNombre.disabled = true;
+                inputNombre.style.opacity = "0.7";
+                if (badgeBloqueado) badgeBloqueado.style.display = "block";
+            } else {
+                inputNombre.disabled = false;
+                inputNombre.style.opacity = "1";
+                if (badgeBloqueado) badgeBloqueado.style.display = "none";
+            }
+
+            const selectTipo = document.getElementById("camp-tipo");
+            if (selectTipo) {
+                selectTipo.value = c.tipo_campeonato || "barrial_abierto";
+                toggleInfoEscolar(selectTipo.value);
+            }
+            document.getElementById("camp-duracion").value = c.duracion_estimada_meses || 3;
+            document.getElementById("camp-canchas").value = c.canchas_nombres || "";
+            document.getElementById("camp-costo-arbitraje").value = c.costo_arbitraje || 0;
+            document.getElementById("camp-costo-vocalia").value = c.costo_vocalia || 0;
+            document.getElementById("camp-limite-pago").value = c.limite_pago_inscripcion || "";
+            document.getElementById("camp-costo").value = c.costo_inscripcion || 0;
+            document.getElementById("camp-garantia").value = c.garantia_disciplina || 0;
+            document.getElementById("camp-multa-amarilla").value = c.multa_amarilla || 0;
+            document.getElementById("camp-multa-roja").value = c.multa_roja_directa || 0;
+
+            document.getElementById("camp-pais").value = c.pais || "";
+            document.getElementById("camp-provincia").value = c.provincia || "";
+            document.getElementById("camp-canton").value = c.canton || "";
+            document.getElementById("camp-ciudad").value = c.ciudad || "";
+            document.getElementById("camp-parroquia").value = c.parroquia || "";
+            document.getElementById("camp-barrio").value = c.barrio_sector || "";
+            document.getElementById("camp-divisa").value = c.divisa || "USD";
+
+            document.getElementById("camp-banco-nombre").value = c.banco_nombre || "";
+            document.getElementById("camp-banco-tipo").value = c.banco_tipo_cuenta || "Ahorros";
+            document.getElementById("camp-banco-numero").value = c.banco_numero_cuenta || "";
+            document.getElementById("camp-banco-titular").value = c.banco_titular || "";
+            document.getElementById("camp-banco-identificacion").value = c.banco_titular_identificacion || "";
+            document.getElementById("camp-banco-telefono").value = c.banco_telefono_reporte || "";
         }
 
         function mostrarFormularioNuevoCampeonato() {
@@ -2188,55 +2293,10 @@
 
         function editarAjustesCampeonato() {
             if (configCampeonato && configCampeonato.nombre) {
-                const inputNombre = document.getElementById("camp-nombre");
-                const badgeBloqueado = document.getElementById("badge-nombre-bloqueado");
-                
-                inputNombre.value = configCampeonato.nombre || "";
-
-                // REGLA DE NEGOCIO: Si ya se generó el primer calendario de partidos (fixture) o estado !== 'registro', bloquear edición de nombre
-                const fixtureGenerado = (cachePartidos && cachePartidos.length > 0) || (configCampeonato.estado && configCampeonato.estado !== 'registro');
-                if (fixtureGenerado) {
-                    inputNombre.disabled = true;
-                    inputNombre.style.opacity = "0.7";
-                    if (badgeBloqueado) badgeBloqueado.style.display = "block";
-                } else {
-                    inputNombre.disabled = false;
-                    inputNombre.style.opacity = "1";
-                    if (badgeBloqueado) badgeBloqueado.style.display = "none";
-                }
-
-                const selectTipo = document.getElementById("camp-tipo");
-                if (selectTipo) {
-                    selectTipo.value = configCampeonato.tipo_campeonato || "barrial_abierto";
-                    toggleInfoEscolar(selectTipo.value);
-                }
-                document.getElementById("camp-duracion").value = configCampeonato.duracion_estimada_meses || 3;
-                document.getElementById("camp-canchas").value = configCampeonato.canchas_nombres || "";
-                document.getElementById("camp-costo-arbitraje").value = configCampeonato.costo_arbitraje || 0;
-                document.getElementById("camp-costo-vocalia").value = configCampeonato.costo_vocalia || 0;
-                document.getElementById("camp-limite-pago").value = configCampeonato.limite_pago_inscripcion || "";
-                document.getElementById("camp-costo").value = configCampeonato.costo_inscripcion || 0;
-                document.getElementById("camp-garantia").value = configCampeonato.garantia_disciplina || 0;
-                document.getElementById("camp-multa-amarilla").value = configCampeonato.multa_amarilla || 0;
-                document.getElementById("camp-multa-roja").value = configCampeonato.multa_roja_directa || 0;
-
-                document.getElementById("camp-pais").value = configCampeonato.pais || "";
-                document.getElementById("camp-provincia").value = configCampeonato.provincia || "";
-                document.getElementById("camp-canton").value = configCampeonato.canton || "";
-                document.getElementById("camp-ciudad").value = configCampeonato.ciudad || "";
-                document.getElementById("camp-parroquia").value = configCampeonato.parroquia || "";
-                document.getElementById("camp-barrio").value = configCampeonato.barrio_sector || "";
-                document.getElementById("camp-divisa").value = configCampeonato.divisa || "USD";
-
-                document.getElementById("camp-banco-nombre").value = configCampeonato.banco_nombre || "";
-                document.getElementById("camp-banco-tipo").value = configCampeonato.banco_tipo_cuenta || "Ahorros";
-                document.getElementById("camp-banco-numero").value = configCampeonato.banco_numero_cuenta || "";
-                document.getElementById("camp-banco-titular").value = configCampeonato.banco_titular || "";
-                document.getElementById("camp-banco-identificacion").value = configCampeonato.banco_titular_identificacion || "";
-                document.getElementById("camp-banco-telefono").value = configCampeonato.banco_telefono_reporte || "";
+                poblarFormularioAjustesCampeonato(configCampeonato);
             }
             const lblTitulo = document.getElementById("lbl-titulo-form-campeonato");
-            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit" style="color:var(--color-primary);"></i> Editando Campeonato: <strong style="color:var(--color-primary); font-size:1.15rem;">${configCampeonato.nombre}</strong>`;
+            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit" style="color:var(--color-primary);"></i> Editando Ajustes: <strong style="color:var(--color-primary); font-size:1.15rem;">${configCampeonato.nombre}</strong>`;
             document.getElementById("container-form-campeonato").style.display = "block";
             if (window.lucide) lucide.createIcons();
         }
@@ -2245,165 +2305,72 @@
             document.getElementById("container-form-campeonato").style.display = "none";
         }
 
-        function limpiarFormularioNuevoCampeonato() {
-            configCampeonato = {};
-            document.getElementById("config-form").reset();
-            document.getElementById("container-form-campeonato").style.display = "none";
-            const banner = document.getElementById("banner-campeonato-activo");
-            if (banner) banner.style.display = "none";
-            alert("Formulario limpiado.");
-        }
-
         async function seleccionarYEditarCampeonato(id) {
-            const campeonatos = await dbGetTable("campeonatos");
-            const target = (campeonatos || []).find(c => c.id === id);
+            const target = (cacheCampeonatos || []).find(c => c.id === id);
             if (target) {
-                configCampeonato = target;
+                await seleccionarCampeonatoPizarra(id);
                 editarAjustesCampeonato();
             }
         }
 
-        function renderizarListaCampeonatos(campeonatos) {
-            const container = document.getElementById("container-lista-campeonatos");
-            if (!container) return;
+        function actualizarSelectCampeonatosActivos() {
+            const selectEl = document.getElementById("select-campeonato-activo");
+            if (!selectEl) return;
+            selectEl.innerHTML = "";
 
-            if (!campeonatos || campeonatos.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.15); border:1px dashed var(--border-glass); border-radius:var(--radius-md);">
-                        <i data-lucide="trophy" style="width:48px; height:48px; color:var(--color-primary); margin-bottom:12px; opacity:0.6;"></i>
-                        <h3 style="font-size:1.15rem; color:var(--text-main); font-weight:700;">Aún no tienes ningún campeonato registrado</h3>
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:18px;">Empieza registrando los datos generales, reglas y modalidad de tu primer torneo deportivo.</p>
-                        <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.9rem; padding:8px 18px;">
-                            <i data-lucide="plus-circle"></i> + Registrar Mi Primer Campeonato
-                        </button>
-                    </div>
-                `;
-                // Mostrar automáticamente el formulario si no hay torneos para facilitar el registro
-                document.getElementById("container-form-campeonato").style.display = "block";
-                if (window.lucide) lucide.createIcons();
+            if (!cacheCampeonatos || cacheCampeonatos.length === 0) {
+                selectEl.innerHTML = `<option value="">-- No hay campeonatos registrados --</option>`;
                 return;
             }
 
-            let html = `
-                <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>Lista de Campeonato(s) Registrado(s) (${campeonatos.length})</span>
-                    <small style="color:var(--color-primary);">Selecciona 'Editar Ajustes' para modificar cualquier campeonato</small>
-                </div>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
-            `;
-
-            campeonatos.forEach(c => {
-                const esActivo = configCampeonato && configCampeonato.id === c.id;
-                const tipoText = c.tipo_campeonato === 'escolar_colegial' ? '🏫 Escolar y Colegial' : '⚽ Barrial / Libre / Senior';
-                const ubicacionText = [c.ciudad, c.pais].filter(Boolean).join(', ') || 'Ubicación no definida';
-                
-                html += `
-                    <div style="background:${esActivo ? 'rgba(0, 255, 135, 0.06)' : 'rgba(255,255,255,0.02)'}; border:${esActivo ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)'}; border-radius:var(--radius-md); padding:18px; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
-                        <div>
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
-                                <h3 style="font-size:1.2rem; color:${esActivo ? 'var(--color-primary)' : 'var(--text-main)'}; font-weight:800; line-height:1.2;">🏆 ${c.nombre}</h3>
-                                ${esActivo ? `<span style="background:rgba(0, 255, 135, 0.15); color:var(--color-primary); font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap;">Activo ✓</span>` : ''}
-                            </div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">${tipoText}</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> ${ubicacionText}</div>
-                        </div>
-                        
-                        <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:12px; margin-top:10px;">
-                            <button type="button" class="btn btn-primary" style="font-size:0.85rem; padding:8px 14px; width:100%; border-color:var(--color-primary);" onclick="seleccionarYEditarCampeonato('${c.id}')">
-                                <i data-lucide="edit"></i> ✏️ Editar Ajustes de ${c.nombre}
-                            </button>
-                        </div>
-                    </div>
-                `;
+            cacheCampeonatos.forEach(c => {
+                const eqCount = (cacheEquipos || []).filter(e => e.campeonato_id === c.id).length;
+                const tipo = c.tipo_campeonato === 'escolar_colegial' ? 'Escolar' : 'Barrial';
+                const selected = (configCampeonato && configCampeonato.id === c.id) ? 'selected' : '';
+                selectEl.innerHTML += `<option value="${c.id}" ${selected}>🏆 ${c.nombre} (${tipo} - ${eqCount} eq.)</option>`;
             });
-
-            html += `</div>`;
-            container.innerHTML = html;
-            if (window.lucide) lucide.createIcons();
         }
 
-        async function cargarDatos() {
-            verificarSesionAdmin();
-            await cargarAdminMetrics();
-            await cargarVocalesAutorizados();
+        function sincronizarVisualCampeonatoActivo() {
+            const lblHeader = document.getElementById("lbl-nombre-camp-activo-header");
+            const selectEl = document.getElementById("select-campeonato-activo");
+            const badgesContainer = document.getElementById("badge-camp-detalles-rapidos");
 
-            // Cargar estado de la conexión
-            const statusLabel = document.getElementById("connection-status");
-            if (statusLabel) {
-                statusLabel.innerHTML = `<i data-lucide="cloud-check" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Base de Datos en Línea`;
-                statusLabel.style.color = "var(--color-primary)";
-                statusLabel.style.background = "rgba(0, 255, 135, 0.1)";
+            if (!configCampeonato || !configCampeonato.id) {
+                if (lblHeader) lblHeader.innerText = "Sin campeonato registrado";
+                if (badgesContainer) badgesContainer.innerHTML = "";
+                return;
             }
 
-            // Cargar Campeonato y Configuración
-            const campeonatos = await dbGetTable("campeonatos");
-            renderizarListaCampeonatos(campeonatos || []);
+            if (lblHeader) lblHeader.innerText = configCampeonato.nombre || "Torneo Oficial";
+            if (selectEl) selectEl.value = configCampeonato.id;
 
-            if (campeonatos && campeonatos.length > 0) {
-                configCampeonato = campeonatos[0];
+            if (badgesContainer) {
+                const tipoLabel = configCampeonato.tipo_campeonato === 'escolar_colegial' ? '🏫 Escolar y Colegial' : '⚽ Modalidad Barrial';
+                const sedeLabel = configCampeonato.ciudad ? `📍 ${configCampeonato.ciudad}` : '📍 Sede General';
+                const licBadge = configCampeonato.pago_plataforma_realizado 
+                    ? `<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary); font-weight:700;"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;"></i> Licencia Activa ✓</span>`
+                    : (configCampeonato.comprobante_pago_plataforma 
+                        ? `<span class="status-badge" style="background:rgba(255,171,0,0.15); color:var(--color-warning); font-weight:700;"><i data-lucide="clock" style="width:13px;height:13px;display:inline;"></i> Licencia por Verificar</span>`
+                        : `<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger); font-weight:700;"><i data-lucide="lock" style="width:13px;height:13px;display:inline;"></i> Licencia Pendiente ($1/eq)</span>`);
 
-                const bannerActivo = document.getElementById("banner-campeonato-activo");
-                const lblActivo = document.getElementById("lbl-nombre-camp-activo");
-                if (bannerActivo && lblActivo) {
-                    lblActivo.innerText = configCampeonato.nombre;
-                    bannerActivo.style.display = "block";
-                }
-
-                document.getElementById("camp-nombre").value = configCampeonato.nombre;
-                const selectTipo = document.getElementById("camp-tipo");
-                if (selectTipo) {
-                    selectTipo.value = configCampeonato.tipo_campeonato || "barrial_abierto";
-                    toggleInfoEscolar(selectTipo.value);
-                }
-                document.getElementById("camp-duracion").value = configCampeonato.duracion_estimada_meses || 3;
-                document.getElementById("camp-canchas").value = configCampeonato.canchas_nombres || "Cancha Principal, Coliseo Cerrado";
-                document.getElementById("camp-costo-arbitraje").value = configCampeonato.costo_arbitraje || 0.00;
-                document.getElementById("camp-costo-vocalia").value = configCampeonato.costo_vocalia || 0.00;
-                document.getElementById("camp-limite-pago").value = configCampeonato.limite_pago_inscripcion;
-                document.getElementById("camp-costo").value = configCampeonato.costo_inscripcion;
-                document.getElementById("camp-garantia").value = configCampeonato.garantia_disciplina;
-                document.getElementById("camp-multa-amarilla").value = configCampeonato.multa_amarilla;
-                document.getElementById("camp-multa-roja").value = configCampeonato.multa_roja_directa;
-                
-                // Ubicación
-                document.getElementById("camp-pais").value = configCampeonato.pais || "";
-                document.getElementById("camp-provincia").value = configCampeonato.provincia || "";
-                document.getElementById("camp-canton").value = configCampeonato.canton || "";
-                document.getElementById("camp-ciudad").value = configCampeonato.ciudad || "";
-                document.getElementById("camp-parroquia").value = configCampeonato.parroquia || "";
-                document.getElementById("camp-barrio").value = configCampeonato.barrio_sector || "";
-                document.getElementById("camp-divisa").value = configCampeonato.divisa || "USD";
-
-                // Autodetectar por IP si no está configurada la ubicación
-                if (!configCampeonato.pais && !configCampeonato.ciudad) {
-                    autoDetectarUbicacion();
-                }
-                
-                // Rellenar datos bancarios
-                document.getElementById("camp-banco-nombre").value = configCampeonato.banco_nombre || "";
-                document.getElementById("camp-banco-tipo").value = configCampeonato.banco_tipo_cuenta || "Ahorros";
-                document.getElementById("camp-banco-numero").value = configCampeonato.banco_numero_cuenta || "";
-                document.getElementById("camp-banco-titular").value = configCampeonato.banco_titular || "";
-                document.getElementById("camp-banco-identificacion").value = configCampeonato.banco_titular_identificacion || "";
-                document.getElementById("camp-banco-telefono").value = configCampeonato.banco_telefono_reporte || "";
+                badgesContainer.innerHTML = `
+                    <span style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:4px; font-size:0.8rem; color:var(--text-main); font-weight:600;">${tipoLabel}</span>
+                    <span style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:4px; font-size:0.8rem; color:var(--color-secondary); font-weight:600;">${sedeLabel}</span>
+                    ${licBadge}
+                `;
             }
+        }
 
-            // Cargar Tablas del Campeonato
-            cacheEquipos = await dbGetTable("equipos");
-            cachePartidos = await dbGetTable("partidos");
-            cacheCategorias = await dbGetTable("categorias");
-            cacheSanciones = await dbGetTable("sanciones_equipos");
-
-            renderizarCategorias();
-
-            // Control de Bloqueo de Fixture por Licencia de QFutbol
+        function actualizarEstadoLicenciaTorneo() {
+            if (!configCampeonato || !configCampeonato.id) return;
             const pagoRealizado = configCampeonato.pago_plataforma_realizado || false;
             const btnFixture = document.getElementById("btn-generar-fixture");
             const alertaFixture = document.getElementById("alerta-pago-plataforma-fixture");
             const statusOrgBadge = document.getElementById("status-licencia-org-badge");
-
             const compReportado = configCampeonato.comprobante_pago_plataforma;
             const elCompInfo = document.getElementById("lbl-plataforma-comprobante-info");
+            const equiposTorneo = (cacheEquipos || []).filter(e => e.campeonato_id === configCampeonato.id);
 
             if (pagoRealizado) {
                 if (alertaFixture) alertaFixture.style.display = "none";
@@ -2442,28 +2409,24 @@
                 }
                 
                 const countLbl = document.getElementById("lbl-plataforma-equipos-count");
-                if (countLbl) countLbl.innerText = cacheEquipos.length;
+                if (countLbl) countLbl.innerText = equiposTorneo.length;
                 const montoLbl = document.getElementById("lbl-plataforma-monto-pago");
-                if (montoLbl) montoLbl.innerText = `$${(cacheEquipos.length * 1.00).toFixed(2)} USD`;
+                if (montoLbl) montoLbl.innerText = `$${(equiposTorneo.length * 1.00).toFixed(2)} USD`;
             }
+        }
 
-            // Alimentar select de categorías para inscribir equipos
-            const selectEqCat = document.getElementById("eq-categoria-id");
-            selectEqCat.innerHTML = "";
-            if (cacheCategorias.length === 0) {
-                selectEqCat.innerHTML = `<option value="">-- Primero crea una Categoría --</option>`;
-            } else {
-                cacheCategorias.forEach(cat => {
-                    selectEqCat.innerHTML += `<option value="${cat.id}">${cat.nombre} (${cat.genero.toUpperCase()})</option>`;
-                });
-            }
+        async function seleccionarCampeonatoPizarra(campId) {
+            const target = (cacheCampeonatos || []).find(c => c.id === campId);
+            if (!target) return;
 
-            // Alimentar select de equipos para sanciones
-            const selectSancionEq = document.getElementById("select-sancion-equipo");
-            selectSancionEq.innerHTML = `<option value="">-- Selecciona un Equipo --</option>`;
-            cacheEquipos.forEach(eq => {
-                selectSancionEq.innerHTML += `<option value="${eq.id}">${eq.nombre}</option>`;
-            });
+            configCampeonato = target;
+            sessionStorage.setItem("qfutbol_active_camp_id", target.id);
+            localStorage.setItem("qfutbol_active_camp_id", target.id);
+
+            sincronizarVisualCampeonatoActivo();
+            actualizarEstadoLicenciaTorneo();
+            poblarFormularioAjustesCampeonato(target);
+            actualizarSelectCampeonatosActivos();
 
             await actualizarKpis();
             renderizarCategorias();
@@ -2472,30 +2435,211 @@
             renderizarFinanzas();
             renderizarSanciones();
             await renderizarAuspiciantes();
+            renderizarListaCampeonatos(cacheCampeonatos);
+            lucide.createIcons();
+        }
+
+        function renderizarListaCampeonatos(campeonatos) {
+            const container = document.getElementById("container-lista-campeonatos");
+            if (!container) return;
+
+            if (!campeonatos || campeonatos.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.15); border:1px dashed var(--border-glass); border-radius:var(--radius-md);">
+                        <i data-lucide="trophy" style="width:48px; height:48px; color:var(--color-primary); margin-bottom:12px; opacity:0.6;"></i>
+                        <h3 style="font-size:1.15rem; color:var(--text-main); font-weight:700;">Aún no tienes ningún campeonato registrado</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:18px;">Empieza registrando los datos generales, reglas y modalidad de tu primer torneo deportivo.</p>
+                        <button type="button" class="btn btn-primary" onclick="mostrarFormularioNuevoCampeonato()" style="font-size:0.9rem; padding:8px 18px;">
+                            <i data-lucide="plus-circle"></i> + Registrar Mi Primer Campeonato
+                        </button>
+                    </div>
+                `;
+                document.getElementById("container-form-campeonato").style.display = "block";
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            let html = `
+                <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span>Mis Campeonatos Registrados (${campeonatos.length})</span>
+                    <small style="color:var(--color-primary);">Selecciona 'Gestionar en Pizarra' para activar el torneo y ver sus equipos, jugadores y finanzas</small>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+            `;
+
+            campeonatos.forEach(c => {
+                const esActivo = configCampeonato && configCampeonato.id === c.id;
+                const tipoText = c.tipo_campeonato === 'escolar_colegial' ? '🏫 Escolar y Colegial' : '⚽ Barrial / Libre / Senior';
+                const ubicacionText = [c.ciudad, c.pais].filter(Boolean).join(', ') || 'Ubicación no definida';
+                
+                const eqTorneo = (cacheEquipos || []).filter(e => e.campeonato_id === c.id);
+                const eqCount = eqTorneo.length;
+                const parCount = (cachePartidos || []).filter(p => p.campeonato_id === c.id).length;
+                const eqIds = new Set(eqTorneo.map(e => e.id));
+                const inscTorneo = (cacheInscripciones || []).filter(i => eqIds.has(i.equipo_id));
+                const jugCount = inscTorneo.length > 0 ? (new Set(inscTorneo.map(i => i.jugador_global_id || i.id))).size : (eqCount * 12);
+
+                const licBadgeMini = c.pago_plataforma_realizado
+                    ? `<span style="color:var(--color-primary); font-size:0.75rem; font-weight:700;">🟢 Licencia Aprobada</span>`
+                    : (c.comprobante_pago_plataforma 
+                        ? `<span style="color:var(--color-warning); font-size:0.75rem; font-weight:700;">⏳ Licencia en Revisión</span>`
+                        : `<span style="color:var(--color-danger); font-size:0.75rem; font-weight:700;">🔒 Licencia Pendiente</span>`);
+
+                html += `
+                    <div style="background:${esActivo ? 'linear-gradient(145deg, rgba(0, 255, 135, 0.08) 0%, rgba(0,0,0,0.3) 100%)' : 'rgba(255,255,255,0.02)'}; border:${esActivo ? '2px solid var(--color-primary)' : '1px solid var(--border-glass)'}; border-radius:var(--radius-md); padding:18px; position:relative; display:flex; flex-direction:column; justify-content:space-between; box-shadow:${esActivo ? '0 8px 25px rgba(0, 255, 135, 0.12)' : 'none'};">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                                <h3 style="font-size:1.25rem; color:${esActivo ? 'var(--color-primary)' : 'var(--text-main)'}; font-weight:800; line-height:1.2;">🏆 ${c.nombre}</h3>
+                                ${esActivo ? `<span style="background:var(--color-primary); color:#000; font-size:0.72rem; font-weight:800; padding:3px 9px; border-radius:12px; white-space:nowrap;">EN PIZARRA ACTIVA</span>` : ''}
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">${tipoText}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> ${ubicacionText}</div>
+                            
+                            <!-- MÉTRICAS EN VIVO DE ESTE CAMPEONATO -->
+                            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:10px; border-radius:var(--radius-sm); text-align:center;">
+                                <div>
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block; text-transform:uppercase;">Equipos</span>
+                                    <strong style="font-size:1.15rem; color:var(--color-primary); font-weight:800;">${eqCount}</strong>
+                                </div>
+                                <div>
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block; text-transform:uppercase;">Jugadores</span>
+                                    <strong style="font-size:1.15rem; color:var(--color-accent); font-weight:800;">${jugCount}</strong>
+                                </div>
+                                <div>
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block; text-transform:uppercase;">Partidos</span>
+                                    <strong style="font-size:1.15rem; color:var(--color-secondary); font-weight:800;">${parCount}</strong>
+                                </div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:8px; padding:0 2px;">
+                                <span>Estado Licencia:</span>
+                                ${licBadgeMini}
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:14px; margin-top:10px;">
+                            ${esActivo 
+                                ? `<button type="button" class="btn btn-secondary" style="flex:1.2; font-size:0.84rem; padding:8px 12px; border-color:var(--color-primary); color:var(--color-primary); font-weight:700;" disabled><i data-lucide="check"></i> Activo en Pizarra</button>`
+                                : `<button type="button" class="btn btn-primary" style="flex:1.2; font-size:0.84rem; padding:8px 12px; font-weight:700;" onclick="seleccionarCampeonatoPizarra('${c.id}')"><i data-lucide="layout-dashboard"></i> Gestionar en Pizarra</button>`
+                            }
+                            <button type="button" class="btn btn-secondary" style="flex:0.8; font-size:0.84rem; padding:8px 12px;" onclick="seleccionarYEditarCampeonato('${c.id}')">
+                                <i data-lucide="edit"></i> Ajustes
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function cargarDatos() {
+            verificarSesionAdmin();
+            await cargarAdminMetrics();
+            await cargarVocalesAutorizados();
+
+            // Cargar estado de la conexión
+            const statusLabel = document.getElementById("connection-status");
+            if (statusLabel) {
+                statusLabel.innerHTML = `<i data-lucide="cloud-check" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Base de Datos en Línea`;
+                statusLabel.style.color = "var(--color-primary)";
+                statusLabel.style.background = "rgba(0, 255, 135, 0.1)";
+            }
+
+            // 1. Cargar todas las tablas maestras
+            cacheCampeonatos = await dbGetTable("campeonatos") || [];
+            cacheEquipos = await dbGetTable("equipos") || [];
+            cachePartidos = await dbGetTable("partidos") || [];
+            cacheCategorias = await dbGetTable("categorias") || [];
+            cacheSanciones = await dbGetTable("sanciones_equipos") || [];
+            cacheJugadores = await dbGetTable("jugadores") || [];
+            cacheInscripciones = await dbGetTable("inscripciones_equipo") || [];
+
+            // 2. Determinar qué campeonato es el activo
+            const savedCampId = sessionStorage.getItem("qfutbol_active_camp_id") || localStorage.getItem("qfutbol_active_camp_id");
+            if (savedCampId && cacheCampeonatos.some(c => c.id === savedCampId)) {
+                configCampeonato = cacheCampeonatos.find(c => c.id === savedCampId);
+            } else if (cacheCampeonatos.length > 0) {
+                configCampeonato = cacheCampeonatos[0];
+            } else {
+                configCampeonato = {};
+            }
+
+            // 3. Poblar el selector de campeonato activo
+            actualizarSelectCampeonatosActivos();
+
+            // 4. Si hay campeonato activo, rellenar formulario de ajustes
+            if (configCampeonato && configCampeonato.id) {
+                poblarFormularioAjustesCampeonato(configCampeonato);
+            }
+
+            // 5. Sincronizar visuales, KPIs y vistas
+            sincronizarVisualCampeonatoActivo();
+            actualizarEstadoLicenciaTorneo();
+            await actualizarKpis();
+            renderizarCategorias();
+            renderizarEquipos();
+            renderizarFixture();
+            renderizarFinanzas();
+            renderizarSanciones();
+            await renderizarAuspiciantes();
+            renderizarListaCampeonatos(cacheCampeonatos);
+            lucide.createIcons();
         }
 
         async function actualizarKpis() {
-            document.getElementById("metric-equipos").innerText = cacheEquipos.length;
-            document.getElementById("metric-partidos").innerText = cachePartidos.length;
+            if (!configCampeonato || !configCampeonato.id) {
+                document.getElementById("metric-equipos").innerText = "0";
+                document.getElementById("metric-jugadores").innerText = "0";
+                document.getElementById("metric-partidos").innerText = "0";
+                document.getElementById("metric-recaudado").innerText = "$0.00";
+                document.getElementById("metric-deudas").innerText = "$0.00";
+                return;
+            }
+
+            const campId = configCampeonato.id;
+            const equiposTorneo = (cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === campId);
+            const partidosTorneo = (cachePartidos || []).filter(p => !p.campeonato_id || p.campeonato_id === campId);
+
+            // Calcular Jugadores Activos del torneo
+            let totalJugadores = 0;
+            const eqIds = new Set(equiposTorneo.map(e => e.id));
+            const inscripcionesTorneo = (cacheInscripciones || []).filter(i => eqIds.has(i.equipo_id));
             
-            // Calcular recaudación y multas simuladas
+            if (inscripcionesTorneo.length > 0) {
+                const uniqueJugadores = new Set(inscripcionesTorneo.map(i => i.jugador_global_id || i.id));
+                totalJugadores = uniqueJugadores.size;
+            } else if (equiposTorneo.length > 0) {
+                totalJugadores = equiposTorneo.length * 12;
+            }
+
             let recaudado = 0;
             let deudas = 0;
-            for (const eq of cacheEquipos) {
+            for (const eq of equiposTorneo) {
                 const fin = await calcularFinanzasEquipo(eq.id);
-                recaudado += fin.totalPagado;
-                deudas += fin.totalDeuda;
+                if (fin) {
+                    recaudado += fin.totalPagado;
+                    deudas += fin.totalDeuda;
+                }
             }
+
+            document.getElementById("metric-equipos").innerText = equiposTorneo.length;
+            document.getElementById("metric-jugadores").innerText = totalJugadores.toLocaleString();
+            document.getElementById("metric-partidos").innerText = partidosTorneo.length;
             document.getElementById("metric-recaudado").innerText = formatMoney(recaudado);
             document.getElementById("metric-deudas").innerText = formatMoney(deudas);
         }
 
         function renderizarEquipos() {
             const tbody = document.getElementById("tbody-equipos");
+            if (!tbody) return;
             tbody.innerHTML = "";
 
-            if (cacheEquipos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No hay equipos inscritos en este torneo.</td></tr>`;
+            const equiposTorneo = (cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === configCampeonato.id);
+
+            if (equiposTorneo.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:25px;">No hay equipos inscritos en este torneo. Inscribe el primero usando el botón "+ Inscribir Equipo".</td></tr>`;
                 return;
             }
 
@@ -2504,7 +2648,7 @@
             const tieneLimite = !!fechaLimite;
             const estaVencido = tieneLimite && (hoyStr > fechaLimite);
 
-            cacheEquipos.forEach(eq => {
+            equiposTorneo.forEach(eq => {
                 const costoInscripcion = parseFloat(configCampeonato.costo_inscripcion || 3.00);
                 const abonado = parseFloat(eq.monto_pagado_inscripcion || 0);
                 const garantia = parseFloat(eq.monto_garantia_pagado || 0);
@@ -2519,7 +2663,7 @@
                     badgeText = `Abono (${formatMoney(abonado)})`;
                 }
 
-                // Alerta de plazo de pago de inscripción (Regla de Abonos y Notificaciones)
+                // Alerta de plazo de pago de inscripción
                 let moraBadge = "";
                 if (abonado < costoInscripcion && tieneLimite) {
                     if (estaVencido) {
@@ -2555,8 +2699,11 @@
             if (!tbody) return;
             tbody.innerHTML = "";
 
-            if (cacheEquipos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Inscribe equipos para ver el estado financiero.</td></tr>`;
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const equiposTorneo = (cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === campId);
+
+            if (equiposTorneo.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:25px;">No hay equipos inscritos en este torneo.</td></tr>`;
                 return;
             }
 
@@ -2567,8 +2714,9 @@
             let morososCount = 0;
             let morososMonto = 0;
 
-            for (const eq of cacheEquipos) {
+            for (const eq of equiposTorneo) {
                 const fin = await calcularFinanzasEquipo(eq.id);
+                if (!fin) continue;
                 finanzasCalculadasCache[eq.id] = fin;
                 if (fin.saldoInscripcion > 0) {
                     morososCount++;
@@ -2687,11 +2835,14 @@
             const container = document.getElementById("jornadas-container");
             container.innerHTML = "";
 
-            if (cachePartidos.length === 0) {
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const partidosTorneo = (cachePartidos || []).filter(p => !p.campeonato_id || p.campeonato_id === campId);
+
+            if (partidosTorneo.length === 0) {
                 container.innerHTML = `
                     <div style="text-align:center;padding:40px;color:var(--text-muted);">
                         <i data-lucide="calendar-range" style="width:48px;height:48px;margin-bottom:15px;color:var(--border-glass);"></i>
-                        <p>No se ha generado el calendario del torneo. Haz clic en "Generar Fixture Automático" para crearlo.</p>
+                        <p>No se ha generado el calendario para este torneo. Haz clic en "Generar Fixture Automático" para crearlo.</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -2700,7 +2851,7 @@
 
             // Agrupar partidos por fecha/jornada
             let jornadas = {};
-            cachePartidos.forEach(partido => {
+            partidosTorneo.forEach(partido => {
                 const jornadaNum = partido.grupo || "Jornada 1"; // Usaremos grupo o fase para etiquetar
                 if (!jornadas[jornadaNum]) jornadas[jornadaNum] = [];
                 jornadas[jornadaNum].push(partido);
@@ -3096,7 +3247,11 @@
                 await dbUpdateRow("campeonatos", configCampeonato.id, nuevoCamp);
             } else {
                 const inserted = await dbInsertRow("campeonatos", nuevoCamp);
-                if (inserted) configCampeonato = inserted;
+                if (inserted) {
+                    configCampeonato = inserted;
+                    sessionStorage.setItem("qfutbol_active_camp_id", inserted.id);
+                    localStorage.setItem("qfutbol_active_camp_id", inserted.id);
+                }
             }
             
             alert(`¡Campeonato "${nuevoCamp.nombre}" guardado exitosamente en la base de datos!`);
@@ -3425,9 +3580,6 @@
         // ==========================================
         // LÓGICA DE CATEGORÍAS
         // ==========================================
-        let cacheCategorias = [];
-        let cacheSanciones = [];
-
         const modalCategoria = document.getElementById("modal-categoria");
         
         async function abrirModalCategoria() {
@@ -3444,7 +3596,7 @@
                     selectCampCat.innerHTML = `<option value="">-- Registra primero un campeonato en Ajustes --</option>`;
                 } else {
                     (campeonatos || []).forEach(c => {
-                        const selected = (c.id === configCampeonato.id) ? 'selected' : '';
+                        const selected = (configCampeonato && c.id === configCampeonato.id) ? 'selected' : '';
                         selectCampCat.innerHTML += `<option value="${c.id}" ${selected}>🏆 ${c.nombre}</option>`;
                     });
                 }
@@ -3456,7 +3608,6 @@
 
         function cerrarModalCategoria() {
             modalCategoria.style.display = "none";
-            switchTab('campeonato');
         }
 
         function toggleMixtoParams() {
@@ -3467,14 +3618,18 @@
 
         function renderizarCategorias() {
             const tbody = document.getElementById("tbody-categorias");
+            if (!tbody) return;
             tbody.innerHTML = "";
 
-            if (cacheCategorias.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">No hay categorías creadas. Agrega una para organizar los equipos.</td></tr>`;
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const categoriasTorneo = (cacheCategorias || []).filter(c => !c.campeonato_id || c.campeonato_id === campId);
+
+            if (categoriasTorneo.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:25px;">No hay categorías creadas para este torneo. Agrega una o carga los niveles escolares automáticos para organizar los equipos.</td></tr>`;
                 return;
             }
 
-            cacheCategorias.forEach(cat => {
+            categoriasTorneo.forEach(cat => {
                 const generoTxt = cat.genero === "mixto" ? `Mixto (Mín: ${cat.mixto_minimo_mujeres}M / ${cat.mixto_minimo_hombres}H)` : cat.genero.toUpperCase();
                 const premiosList = `
                     <div style="font-size:0.75rem; color:var(--text-muted);">
@@ -3497,6 +3652,7 @@
                     </tr>
                 `;
             });
+            lucide.createIcons();
         }
 
         function editarCategoria(id) {
@@ -3620,14 +3776,19 @@
         // ==========================================
         function renderizarSanciones() {
             const container = document.getElementById("sanciones-historial-container");
+            if (!container) return;
             container.innerHTML = "";
 
-            if (!cacheSanciones || cacheSanciones.length === 0) {
-                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:15px;">No hay sanciones registradas.</div>`;
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const eqIdsTorneo = new Set((cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === campId).map(e => e.id));
+            const sancionesTorneo = (cacheSanciones || []).filter(s => eqIdsTorneo.has(s.equipo_id));
+
+            if (sancionesTorneo.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:15px;">No hay sanciones registradas para este torneo.</div>`;
                 return;
             }
 
-            cacheSanciones.forEach(sanc => {
+            sancionesTorneo.forEach(sanc => {
                 const eq = cacheEquipos.find(e => e.id === sanc.equipo_id) || { nombre: "Equipo" };
                 const puntosTxt = sanc.puntos_restados > 0 ? `-${sanc.puntos_restados} Puntos` : "";
                 const multaTxt = sanc.monto_multa > 0 ? `$${parseFloat(sanc.monto_multa).toFixed(2)} Multa` : "";
