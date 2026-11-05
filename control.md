@@ -19,8 +19,9 @@
 ---
 
 ### ⏳ En Progreso / Revisión
+- [x] Corrección integral del panel del organizador (`dashboard.html`): resolución de error de sintaxis en el renderizado de finanzas y restauración de la interactividad completa de las pestañas (Configuración, Categorías, Equipos, Vocales, Auspiciantes, Fixture y Finanzas) y botón "+ Registrar Nuevo Campeonato".
+- [x] Persistencia y sincronización de inicio de sesión con Google / Gmail en `index.html`: registro automático en la tabla `perfiles` de Neon PostgreSQL, soporte para login directo con Google y acceso por formulario con detección de cuentas vinculadas y reseteo/asignación de contraseña.
 - [x] Recuperación de contraseña: flujo completo de reseteo de clave por correo o cédula en la portada (`index.html`).
-- [x] Corrección integral del panel del organizador (`dashboard.html`): resolución del anidamiento de `tab-admin`, restaurando la funcionalidad completa de las pestañas Configuración, Categorías, Equipos, Vocales, Auspiciantes, Fixture y Finanzas.
 - [x] Pizarra multitorneo para el Organizador: selector rápido de campeonato activo en cabecera con KPIs dinámicos (equipos, jugadores activos, partidos, recaudación y multas por torneo).
 - [x] Listado y gestión individual de campeonatos creados por el organizador con botón de activación directa en pizarra y edición de parámetros.
 - [x] Filtrado cruzado por campeonato en nóminas de equipos, categorías, jornadas de fixture y finanzas.

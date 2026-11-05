@@ -966,13 +966,49 @@
                 );
 
                 if (!match) {
-                    alert("❌ El correo o cédula ingresado no se encuentra registrado.\nPor favor crea tu cuenta en la pestaña 'Registrarse'.");
+                    alert("❌ El correo o cédula ingresado no se encuentra registrado.\n\nSi creaste tu cuenta anteriormente con Google, haz clic en el botón 'Continuar con Google' para iniciar sesión, o crea tu cuenta en la pestaña 'Registrarse'.");
                     cambiarAuthTab('register');
                     return;
                 }
 
-                if (match.password && match.password !== pass) {
-                    alert("❌ Contraseña incorrecta. Por favor verifica tus credenciales.");
+                // Caso: Cuenta vinculada por Google sin contraseña asignada
+                if (!match.password) {
+                    const accederDirecto = confirm(`ℹ️ Tu cuenta (${match.email}) fue registrada mediante Google y aún no tiene una contraseña manual configurada.\n\n¿Deseas iniciar sesión directamente ahora?\n\n(También puedes usar '¿Olvidaste tu contraseña?' para asignarle una clave personal).`);
+                    if (accederDirecto) {
+                        const userSession = {
+                            id: match.id,
+                            nombres: match.nombres,
+                            apellidos: match.apellidos,
+                            email: match.email || ident,
+                            cedula: match.cedula || null,
+                            rol: match.rol || "organizador"
+                        };
+
+                        sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+                        localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+                        alert(`¡Bienvenido de vuelta ${userSession.nombres}!\nSesión iniciada con éxito.`);
+                        cerrarModalAuth();
+                        sincronizarEstadoHeader();
+
+                        if (userSession.rol === "admin" || userSession.rol === "organizador") {
+                            window.location.href = "dashboard.html";
+                        } else if (userSession.rol === "vocal") {
+                            window.location.href = "vocal.html";
+                        } else {
+                            window.location.href = "portal_jugadores.html";
+                        }
+                        return;
+                    } else {
+                        cambiarAuthTab('forgot');
+                        const inputReset = document.getElementById("reset-identifier");
+                        if (inputReset) inputReset.value = match.email || ident;
+                        return;
+                    }
+                }
+
+                if (match.password !== pass) {
+                    alert("❌ Contraseña incorrecta. Por favor verifica tus credenciales o usa la opción '¿Olvidaste tu contraseña?'.");
                     return;
                 }
 
@@ -1088,32 +1124,63 @@
             let rol = "organizador";
             let nombres = "Usuario";
             let apellidos = providerName;
+            let userId = null;
+            let userCedula = null;
 
             if (email === "soloescribeme@gmail.com") {
                 rol = "admin";
                 nombres = "Luis Antonio";
                 apellidos = "Lozano Lozano";
+                userId = "admin_master_001";
             } else {
-                const namePrompt = prompt("Por favor ingresa tus Nombres y Apellidos completos:", "Carlos Andrade");
-                if (namePrompt) {
-                    const partes = namePrompt.trim().split(" ");
-                    nombres = partes[0] || "Usuario";
-                    apellidos = partes.slice(1).join(" ") || providerName;
+                try {
+                    const perfiles = await dbGetTable("perfiles") || [];
+                    const match = perfiles.find(p => p.email && p.email.toLowerCase() === email);
+
+                    if (match) {
+                        userId = match.id;
+                        nombres = match.nombres || nombres;
+                        apellidos = match.apellidos || apellidos;
+                        rol = match.rol || rol;
+                        userCedula = match.cedula || null;
+                    } else {
+                        const namePrompt = prompt("Por favor ingresa tus Nombres y Apellidos completos:", "Carlos Andrade");
+                        if (namePrompt && namePrompt.trim()) {
+                            const partes = namePrompt.trim().split(" ");
+                            nombres = partes[0] || "Usuario";
+                            apellidos = partes.slice(1).join(" ") || providerName;
+                        }
+
+                        const nuevoPerfil = {
+                            nombres,
+                            apellidos,
+                            email,
+                            rol,
+                            fecha_creacion: new Date().toISOString()
+                        };
+
+                        const res = await dbInsertRow("perfiles", nuevoPerfil);
+                        userId = res?.id || "soc_" + Math.random().toString(36).substring(2, 9);
+                    }
+                } catch(e) {
+                    console.warn("Fallo consultando o persistiendo perfil social en Neon DB:", e);
+                    userId = "soc_" + Math.random().toString(36).substring(2, 9);
                 }
             }
 
             const userSession = {
-                id: "soc_" + Math.random().toString(36).substring(2, 9),
+                id: userId,
                 nombres,
                 apellidos,
                 email,
+                cedula: userCedula,
                 rol
             };
 
             sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
             localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
 
-            alert(`¡Sesión iniciada mediante ${providerName}!\nBienvenido ${nombres}.`);
+            alert(`¡Sesión iniciada mediante ${providerName}!\nBienvenido ${nombres} ${apellidos}.`);
             cerrarModalAuth();
             sincronizarEstadoHeader();
 

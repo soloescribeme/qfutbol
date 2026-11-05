@@ -2273,8 +2273,10 @@
         }
 
         function mostrarFormularioNuevoCampeonato() {
+            switchTab('campeonato');
             configCampeonato = {};
-            document.getElementById("config-form").reset();
+            const form = document.getElementById("config-form");
+            if (form) form.reset();
 
             const inputNombre = document.getElementById("camp-nombre");
             const badgeBloqueado = document.getElementById("badge-nombre-bloqueado");
@@ -2286,18 +2288,33 @@
 
             const lblTitulo = document.getElementById("lbl-titulo-form-campeonato");
             if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="trophy" style="color:var(--color-primary);"></i> Registrar Nuevo Campeonato`;
-            document.getElementById("container-form-campeonato").style.display = "block";
-            document.getElementById("camp-nombre").focus();
+            
+            const containerForm = document.getElementById("container-form-campeonato");
+            if (containerForm) {
+                containerForm.style.display = "block";
+                setTimeout(() => {
+                    containerForm.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 100);
+            }
+            if (inputNombre) setTimeout(() => inputNombre.focus(), 200);
             if (window.lucide) lucide.createIcons();
         }
 
         function editarAjustesCampeonato() {
+            switchTab('campeonato');
             if (configCampeonato && configCampeonato.nombre) {
                 poblarFormularioAjustesCampeonato(configCampeonato);
             }
             const lblTitulo = document.getElementById("lbl-titulo-form-campeonato");
-            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit" style="color:var(--color-primary);"></i> Editando Ajustes: <strong style="color:var(--color-primary); font-size:1.15rem;">${configCampeonato.nombre}</strong>`;
-            document.getElementById("container-form-campeonato").style.display = "block";
+            if (lblTitulo) lblTitulo.innerHTML = `<i data-lucide="edit" style="color:var(--color-primary);"></i> Editando Ajustes: <strong style="color:var(--color-primary); font-size:1.15rem;">${configCampeonato.nombre || ''}</strong>`;
+            
+            const containerForm = document.getElementById("container-form-campeonato");
+            if (containerForm) {
+                containerForm.style.display = "block";
+                setTimeout(() => {
+                    containerForm.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 100);
+            }
             if (window.lucide) lucide.createIcons();
         }
 
@@ -2788,6 +2805,7 @@
                             </div>
                         </td>
                     </tr>
+                `;
             }
 
             const alertaLimiteEl = document.getElementById("alerta-limite-pago-container");
