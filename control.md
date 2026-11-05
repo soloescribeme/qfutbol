@@ -2,23 +2,28 @@
 
 > **Última actualización:** 4 de Noviembre, 2026  
 > **Tecnología:** HTML5 + Vanilla JS + CSS + Neon PostgreSQL / Supabase  
-> **Estado General:** 🟢 Prototipo avanzado funcional. Licencia de plataforma ajustada a $1.00 USD por equipo.
+> **Estado General:** 🟢 Nueva portada oficial implementada. Roles jerárquicos y reglas de registro y acceso configuradas.
 
 ---
 
 ### 🎯 Siguiente Paso Inmediato (Retomar aquí)
-- [ ] Subir cambios al repositorio de GitHub para sincronización y despliegue automático en Vercel.
 - [ ] Módulo de Vocalía: Registro de inscripción de jugadores en nómina de partido diferenciando Titulares y Suplentes, carnet digital con foto/cédula para verificación previa a cambios.
 - [ ] Restricción de sustituciones: solo jugadores registrados como suplentes en nómina pueden ingresar de cambio por un titular.
+- [ ] Control de tarjetas amarillas (acumulación de 5 tarjetas = 1 partido de suspensión, multa $1.00 USD) y rojas directas/indirectas.
 
 ---
 
 ### ⏳ En Progreso / Revisión
-- [x] Cobro de la plataforma ajustado a $1.00 USD por equipo participante y bloqueo absoluto de "Generar Fixture" y de vocalía hasta confirmación del administrador.
-- [x] Cálculo de cuotas dinámicas de apuestas en `apuestas.html` basado en la nómina activa registrada por el vocal antes del partido.
-- [x] Módulo de Vocalía de partido con soporte offline (`vocal.html`, `js/offline.js`) y sincronización al recuperar conexión.
-- [x] Generación automática de afiches compartibles de fixture con logotipos de auspiciantes.
-- [ ] Control de tarjetas amarillas (acumulación de 5 tarjetas = 1 partido de suspensión, multa $1.00 USD) y rojas directas/indirectas.
+- [x] Nueva portada interactiva (`index.html`) con logo oficial en cabecera y accesos directos: "Registrarse o Ingresar", "Buscar mis datos", "Buscar campeonato".
+- [x] Mensaje central y hero destacado: "Crea, gestiona y administra tu campeonato tan solo por 1 dolar por equipo".
+- [x] Estadísticas en vivo de campeonatos activos, equipos inscritos y jugadores registrados en la portada.
+- [x] Tarjetas de características esenciales de la app y contador persistente de visitas en letras pequeñas al pie.
+- [x] Regla universal: Obligatoriedad de registro para consultar información de torneos, buscar datos o crear campeonatos.
+- [x] Regla del Administrador Único: Solo `soloescribeme@gmail.com` es administrador de la app, con opción exclusiva en su perfil para designar nuevos administradores de forma directa.
+- [x] Regla de Organizador: Todo usuario que crea un campeonato adquiere automáticamente el perfil de Organizador.
+- [x] Habilitación de perfiles por parte del Organizador: DT y Responsable de Equipo / Delegado con datos de contacto.
+- [x] Habilitación de roles en plantilla: Jugador (default), Delegado, DT y Capitán al inscribir la nómina de jugadores.
+- [x] Soporte de documentos para jugadores: Cédula de Identidad, DNI/Pasaporte para extranjeros, y "No dispone" para menores de edad en torneos escolares.
 
 ---
 
@@ -36,6 +41,7 @@
 ---
 
 ### ✅ Completado
+- [x] Nueva portada moderna de QFutbol (`index.html`) adaptada a los requerimientos del usuario.
 - [x] Tarifa oficial de plataforma QFutbol establecida en $1.00 USD por equipo participante.
 - [x] Panel de control del organizador (`dashboard.html`) con gestión de torneos y equipos.
 - [x] Modal de reporte de pago de licencia y panel administrativo de verificación y desbloqueo de fixture.
@@ -50,7 +56,7 @@
 ---
 
 ### ⚠️ Notas Técnicas & Reglas del Negocio
-- Toda identificación de jugadores se maneja estrictamente con número de cédula.
+- Toda identificación de jugadores se maneja con Cédula, DNI extranjero o registro escolar especial para menores de edad.
 - Un jugador puede participar en diferentes campeonatos, pero nunca en dos equipos del mismo campeonato.
 - Las cuotas de apuestas por equipo se ajustan dinámicamente según los jugadores presentes en la nómina oficial del partido.
 - Jugadores extranjeros: será necesario incluir foto de pasaporte y fecha de expiración del mismo.

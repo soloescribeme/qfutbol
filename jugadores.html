@@ -73,11 +73,16 @@
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 <!-- Buscador de Cédula y Registro -->
                 <section class="glass-panel">
-                    <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="user-check"></i> Buscar / Registrar por Cédula</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Busca jugadores en la base histórica de QFutbol usando el número de cédula.</p>
+                    <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="user-check"></i> Buscar / Registrar Jugador</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Registra jugadores por Cédula, DNI (extranjeros) o Nombres Completos si es menor de edad en torneos escolares.</p>
                     
-                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                        <input type="text" id="txt-buscar-cedula" class="form-input" placeholder="Ingresa Cédula (Ej: 1723456789)" style="flex:1;">
+                    <div style="display:grid; grid-template-columns: 140px 1fr auto; gap:10px; margin-bottom: 20px;">
+                        <select id="sel-tipo-doc-busqueda" class="form-input" onchange="cambiarTipoDocBusqueda()">
+                            <option value="cedula">Cédula</option>
+                            <option value="dni">DNI / Extranjero</option>
+                            <option value="no_dispone">Menor / Escolar</option>
+                        </select>
+                        <input type="text" id="txt-buscar-cedula" class="form-input" placeholder="Ingresa Cédula (Ej: 1723456789)">
                         <button class="btn btn-primary" onclick="buscarJugadorCedula()"><i data-lucide="search"></i> Buscar</button>
                     </div>
 
@@ -87,15 +92,15 @@
                         <form id="jugador-inscripcion-form">
                             <input type="hidden" id="reg-id-global">
                             <div class="form-group">
-                                <label class="form-label" for="reg-nombres">Nombres</label>
-                                <input type="text" id="reg-nombres" class="form-input" required>
+                                <label class="form-label" for="reg-nombres">Nombres Completos</label>
+                                <input type="text" id="reg-nombres" class="form-input" placeholder="Ej. Juan Carlos" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="reg-apellidos">Apellidos</label>
-                                <input type="text" id="reg-apellidos" class="form-input" required>
+                                <input type="text" id="reg-apellidos" class="form-input" placeholder="Ej. Pérez Silva" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="reg-foto">Foto URL (Opcional)</label>
+                                <label class="form-label" for="reg-foto">Foto URL / Carnet (Opcional)</label>
                                 <input type="text" id="reg-foto" class="form-input" placeholder="https://images.unsplash.com/photo-...">
                             </div>
                             
@@ -108,6 +113,18 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label class="form-label" for="reg-rol-equipo">Rol en el Equipo</label>
+                                    <select id="reg-rol-equipo" class="form-input">
+                                        <option value="jugador">Jugador (Por defecto)</option>
+                                        <option value="delegado">Delegado / Representante</option>
+                                        <option value="dt">Director Técnico (DT)</option>
+                                        <option value="capitan">Capitán / Jugador</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                <div class="form-group">
                                     <label class="form-label" for="reg-posicion">Posición</label>
                                     <select id="reg-posicion" class="form-input" required>
                                         <option value="DEL">Delantero (DEL)</option>
@@ -116,10 +133,10 @@
                                         <option value="ARQ">Arquero (ARQ)</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-dorsal">Número de Camiseta (Dorsal)</label>
-                                <input type="number" id="reg-dorsal" class="form-input" value="9" min="1" max="99" required>
+                                <div class="form-group">
+                                    <label class="form-label" for="reg-dorsal">Número de Camiseta (Dorsal)</label>
+                                    <input type="number" id="reg-dorsal" class="form-input" value="9" min="1" max="99" required>
+                                </div>
                             </div>
 
                             <!-- Casilla de Privacidad obligatoria -->
@@ -268,15 +285,37 @@
             });
         }
 
-        // BUSCAR JUGADOR POR CÉDULA
+        function cambiarTipoDocBusqueda() {
+            const tipo = document.getElementById("sel-tipo-doc-busqueda").value;
+            const input = document.getElementById("txt-buscar-cedula");
+            if (tipo === "cedula") {
+                input.placeholder = "Ingresa Cédula (Ej: 1723456789)";
+                input.disabled = false;
+            } else if (tipo === "dni") {
+                input.placeholder = "Ingresa DNI / Pasaporte (Extranjero)";
+                input.disabled = false;
+            } else {
+                input.placeholder = "Menor de edad escolar (Click en Buscar para continuar)";
+                input.value = "MENOR_ESCOLAR";
+                input.disabled = true;
+            }
+        }
+
+        // BUSCAR JUGADOR POR CÉDULA / DNI / NOMBRE
         function buscarJugadorCedula() {
-            const cedula = document.getElementById("txt-buscar-cedula").value.trim();
-            if (!cedula) {
-                alert("Por favor, ingresa un número de cédula para realizar la búsqueda.");
+            const tipoDoc = document.getElementById("sel-tipo-doc-busqueda").value;
+            let cedula = document.getElementById("txt-buscar-cedula").value.trim();
+
+            if (tipoDoc !== "no_dispone" && !cedula) {
+                alert("Por favor, ingresa el número de documento para realizar la búsqueda.");
                 return;
             }
 
-            const jugador = cacheJugadores.find(j => j.cedula === cedula);
+            let jugador = null;
+            if (tipoDoc !== "no_dispone") {
+                jugador = cacheJugadores.find(j => j.cedula && j.cedula.toLowerCase() === cedula.toLowerCase());
+            }
+
             const formContainer = document.getElementById("form-inscripcion-container");
             formContainer.style.display = "block";
 
@@ -301,7 +340,9 @@
                 cbTerminos.disabled = true;
             } else {
                 // Nuevo Jugador - Habilitar campos
-                title.innerText = "Nuevo Jugador: Registrar e Inscribir";
+                title.innerText = (tipoDoc === "no_dispone") 
+                    ? "Inscripción Escolar (Menor de Edad sin Cédula)" 
+                    : "Nuevo Jugador: Registrar e Inscribir";
                 txtId.value = "";
                 txtNombres.value = "";
                 txtNombres.readOnly = false;
@@ -319,17 +360,24 @@
             e.preventDefault();
             
             const idGlobal = document.getElementById("reg-id-global").value;
-            const cedula = document.getElementById("txt-buscar-cedula").value.trim();
-            const nombres = document.getElementById("reg-nombres").value;
-            const apellidos = document.getElementById("reg-apellidos").value;
+            const tipoDoc = document.getElementById("sel-tipo-doc-busqueda").value;
+            let cedula = document.getElementById("txt-buscar-cedula").value.trim();
+            const nombres = document.getElementById("reg-nombres").value.trim();
+            const apellidos = document.getElementById("reg-apellidos").value.trim();
             const fotoUrl = document.getElementById("reg-foto").value || null;
             const equipoId = document.getElementById("reg-equipo").value;
             const posicion = document.getElementById("reg-posicion").value;
             const dorsal = parseInt(document.getElementById("reg-dorsal").value);
+            const rolEquipo = document.getElementById("reg-rol-equipo").value || "jugador";
+            const esDelegado = (rolEquipo === "delegado" || rolEquipo === "dt");
+
+            if (tipoDoc === "no_dispone") {
+                // Menores de edad en campeonatos escolares: generar identificador único
+                cedula = "ESC_" + Math.random().toString(36).substring(2, 9).toUpperCase();
+            }
 
             // Validar restricción: No puede estar en 2 equipos del mismo campeonato
             const campeonatoIdActivo = (configCampeonato && configCampeonato.id) ? configCampeonato.id : 'c1';
-            // Busquemos si este jugador ya tiene una inscripción activa en algún equipo de este campeonato
             const inscripcionPrevia = cacheInscripciones.find(ins => ins.jugador_global_id === idGlobal);
             if (inscripcionPrevia) {
                 const eqPrevia = cacheEquipos.find(e => e.id === inscripcionPrevia.equipo_id);
@@ -352,6 +400,7 @@
             if (!jugadorId) {
                 const nuevoJ = {
                     cedula: cedula,
+                    tipo_documento: tipoDoc,
                     nombres: nombres,
                     apellidos: apellidos,
                     foto_url: fotoUrl,
@@ -360,15 +409,17 @@
                 };
                 
                 const jGuardado = await dbInsertRow("jugadores", nuevoJ);
-                jugadorId = jGuardado.id;
+                jugadorId = jGuardado?.id || ("j_" + Math.random().toString(36).substring(2, 9));
             }
 
-            // 2. Inscribir en el equipo seleccionado
+            // 2. Inscribir en el equipo seleccionado con rol habilitado
             const nuevaInsc = {
                 equipo_id: equipoId,
                 jugador_global_id: jugadorId,
                 dorsal: dorsal,
                 posicion: posicion,
+                rol_en_equipo: rolEquipo,
+                es_delegado: esDelegado,
                 rating_campeonato: 6.00
             };
 
@@ -495,6 +546,12 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            const stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
+            if (!stored) {
+                alert("Acceso Restringido: Para consultar jugadores o realizar inscripciones, debes estar registrado en QFutbol.");
+                window.location.href = "index.html";
+                return;
+            }
             setTimeout(cargarDatosJugadores, 1200);
         });
     </script>

@@ -3,36 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QFutbol - Gestión y Estadísticas de Fútbol Barrial</title>
+    <title>QFutbol - Tu Campeonato por solo $1 por Equipo</title>
     <!-- CSS Estilos Premium -->
     <link rel="stylesheet" href="css/styles.css">
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* Estilos específicos de la nueva portada */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .header-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .header-logo-group img {
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 135, 0.25);
+        }
+        .header-brand-title {
+            font-size: 1.8rem;
+            font-weight: 850;
+            background: linear-gradient(135deg, #ffffff 0%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-nav {
+            padding: 9px 16px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--color-secondary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        .btn-nav-primary {
+            background: var(--grad-primary);
+            color: #0a0b10;
+            font-weight: 750;
+            border: none;
+            box-shadow: 0 4px 14px rgba(0, 255, 135, 0.25);
+        }
+        .btn-nav-primary:hover {
+            color: #000000;
+            box-shadow: 0 6px 20px rgba(0, 255, 135, 0.4);
+            transform: translateY(-2px);
+        }
+        .hero-section {
+            text-align: center;
+            padding: 40px 15px 30px;
+            max-width: 950px;
+            margin: 0 auto 40px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 135, 0.08);
+            border: 1px solid rgba(0, 255, 135, 0.25);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+        .hero-title {
+            font-size: 3.2rem;
+            line-height: 1.15;
+            font-weight: 850;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .header-top {
+                padding: 12px 15px;
+            }
+        }
+        .hero-highlight {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 135, 0.3);
+        }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 30px;
+            line-height: 1.55;
+        }
+        .hero-cta-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn-hero-main {
+            padding: 14px 28px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            border-radius: var(--radius-sm);
+            background: var(--grad-primary);
+            color: #0a0b10;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            box-shadow: 0 6px 25px rgba(0, 255, 135, 0.35);
+            transition: var(--transition-smooth);
+        }
+        .btn-hero-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 255, 135, 0.5);
+        }
+        .btn-hero-secondary {
+            padding: 14px 26px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+        .btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--color-secondary);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        /* Grid Estadísticas */
+        .stats-container {
+            max-width: 950px;
+            margin: 0 auto 55px;
+            padding: 0 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            padding: 24px 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 135, 0.15);
+            transition: var(--transition-smooth);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-primary);
+            background: rgba(0, 255, 135, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        .stat-num {
+            font-size: 2.8rem;
+            font-weight: 850;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin: 8px 0;
+        }
+        .stat-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+        }
+        /* Sección de Características */
+        .features-section {
+            margin-bottom: 55px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+        }
+        .feature-card {
+            padding: 24px;
+            border-radius: var(--radius-md);
+            transition: var(--transition-smooth);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+        }
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(96, 239, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        .feature-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 750;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        /* Footer y Contador */
+        .footer-bottom {
+            text-align: center;
+            padding: 30px 10px;
+            border-top: 1px solid var(--border-glass);
+            margin-top: 20px;
+        }
+        .visitor-counter {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+        }
+        /* Modales */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 15px;
+        }
+        .modal-body {
+            max-height: 80vh;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
         .btn-social {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
             width: 100%;
-            padding: 12px 16px;
+            padding: 11px 16px;
             border-radius: var(--radius-sm);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
             transition: all 0.25s ease;
-            font-family: inherit;
             margin-bottom: 10px;
             border: 1px solid var(--border-glass);
         }
         .btn-google {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             color: #222222;
         }
         .btn-google:hover {
-            background: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
         }
         .btn-facebook {
             background: #1877F2;
@@ -47,9 +329,9 @@
         .auth-divider {
             display: flex;
             align-items: center;
-            margin: 18px 0;
+            margin: 16px 0;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
         .auth-divider::before, .auth-divider::after {
             content: "";
@@ -58,359 +340,671 @@
             background: var(--border-glass);
         }
         .auth-divider span {
-            padding: 0 12px;
+            padding: 0 10px;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- HEADER / NAVBAR -->
-        <header class="glass-panel" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;" title="Ir a la página principal de QFutbol">
-                    <img src="img/logo.jpg" alt="Logo QFutbol" style="height: 45px; border-radius: var(--radius-sm); object-fit: cover;">
-                    <span style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">QFutbol</span>
-                </a>
-            </div>
-            <nav style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                <span id="lbl-user-welcome-index" style="display:none; font-weight:700; color:var(--color-primary); font-size:0.95rem;"></span>
-                <a id="btn-admin-panel-index" href="dashboard.html?tab=admin" style="display:none; background:rgba(0, 255, 135, 0.15); border:1px solid var(--color-primary); color:var(--color-primary); font-weight:700; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; font-size:0.9rem;">
-                    <i data-lucide="shield-check" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Panel de Administración Principal
-                </a>
-                <button id="btn-logout-index" type="button" onclick="cerrarSesion()" class="btn btn-secondary" style="display:none; padding:6px 12px; font-size:0.85rem;">
-                    <i data-lucide="log-out" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Salir
+
+        <!-- HEADER / BARRA SUPERIOR -->
+        <header class="glass-panel header-top">
+            <!-- Izquierda: Logo y Marca -->
+            <a href="index.html" class="header-logo-group" title="Página principal de QFutbol">
+                <img src="img/logo.jpg" alt="Logo QFutbol">
+                <span class="header-brand-title">QFutbol</span>
+            </a>
+
+            <!-- Derecha: Botones de Acción y Acceso -->
+            <div class="header-actions">
+                <!-- Botón Buscar Campeonato -->
+                <button type="button" class="btn-nav" onclick="abrirBuscadorCampeonato()" title="Explorar y consultar campeonatos">
+                    <i data-lucide="trophy" style="color:var(--color-primary); width:16px; height:16px;"></i>
+                    <span>Buscar Campeonato</span>
                 </button>
-                <a href="#caracteristicas" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Características</a>
-                <a href="portal_jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Portal Jugadores</a>
-                <a href="jugadores.html" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">Buscador Global</a>
-                <a href="apuestas.html" style="color: var(--color-secondary); text-decoration: none; font-weight: 600; transition: var(--transition-smooth); display: flex; align-items: center; gap: 4px;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--text-muted)'">
-                    <i data-lucide="trending-up" style="width:16px;height:16px;"></i> Pronósticos
-                </a>
-            </nav>
+
+                <!-- Botón Buscar Mis Datos -->
+                <button type="button" class="btn-nav" onclick="abrirBuscadorMisDatos()" title="Consultar carnet, estadísticas y ficha de jugador">
+                    <i data-lucide="search" style="color:var(--color-secondary); width:16px; height:16px;"></i>
+                    <span>Buscar Mis Datos</span>
+                </button>
+
+                <!-- Estado de Sesión / Botón Registrarse o Ingresar -->
+                <div id="auth-nav-container">
+                    <button type="button" id="btn-auth-open" class="btn-nav btn-nav-primary" onclick="abrirModalAuth()">
+                        <i data-lucide="user-plus" style="width:16px; height:16px;"></i>
+                        <span>Registrarse o Ingresar</span>
+                    </button>
+                    <div id="user-logged-box" style="display:none; align-items:center; gap:8px;">
+                        <span id="lbl-user-welcome" style="font-weight:750; color:var(--color-primary); font-size:0.9rem;"></span>
+                        <a id="btn-user-panel" href="dashboard.html" class="btn-nav" style="border-color:var(--color-primary); color:var(--color-primary); font-weight:700;">
+                            <i data-lucide="layout-dashboard" style="width:15px; height:15px;"></i> Mi Panel
+                        </a>
+                        <button type="button" onclick="cerrarSesionUsuario()" class="btn-nav" style="color:var(--color-danger);" title="Cerrar Sesión">
+                            <i data-lucide="log-out" style="width:14px; height:14px;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Logo QFutbol en la parte superior derecha -->
+                <img src="img/logo.jpg" alt="QFutbol Icon" style="height:38px; width:38px; border-radius:50%; object-fit:cover; border:2px solid var(--color-primary); box-shadow:0 0 10px rgba(0,255,135,0.25); display:none;" id="header-right-logo">
+            </div>
         </header>
 
-        <!-- HERO SECTION -->
-        <section style="text-align: center; padding: 30px 20px; margin-bottom: 40px;">
-            <img src="img/logo.jpg" alt="Logo QFutbol Oficial" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: 0 0 20px rgba(0, 255, 135, 0.2); margin-bottom: 20px;">
-            <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800;">
-                El Control Total de tu <br>
-                <span style="background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Campeonato de Barrio</span>
+        <!-- SECCIÓN CENTRAL / HERO -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <i data-lucide="sparkles" style="width:14px; height:14px;"></i>
+                Plataforma Deportiva Oficial para Ligas, Colegios y Barrios
+            </div>
+
+            <h1 class="hero-title">
+                Crea, gestiona y administra tu campeonato tan solo por <span class="hero-highlight">1 dólar por equipo</span>.
             </h1>
-            <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 30px;">
-                Gestión financiera, fixtures automáticos por grupos, planillas de vocal offline y estadísticas avanzadas para tu liga de fútbol barrial.
+
+            <p class="hero-subtitle">
+                La solución tecnológica más completa: generación automática de calendarios (Round Robin y series), planillas digitales de vocalía offline, tablas dinámicas Fair Play y carnet digital seguro por cédula o DNI.
             </p>
-            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <button type="button" onclick="selectRoleAndAuth('organizador')" class="btn btn-primary">
-                    <i data-lucide="shield"></i> Entrar como Organizador
+
+            <div class="hero-cta-group">
+                <button type="button" class="btn-hero-main" onclick="accionCrearCampeonatoHero()">
+                    <i data-lucide="plus-circle" style="width:20px; height:20px;"></i>
+                    Crear mi Campeonato
                 </button>
-                <button type="button" onclick="selectRoleAndAuth('vocal')" class="btn btn-primary" style="background: var(--grad-secondary); color: #ffffff; border:none; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);">
-                    <i data-lucide="clipboard-list"></i> Como Vocal
+                <button type="button" class="btn-hero-secondary" onclick="abrirBuscadorCampeonato()">
+                    <i data-lucide="compass" style="width:19px; height:19px; color:var(--color-secondary);"></i>
+                    Explorar Torneos Activos
                 </button>
-                <a href="portal_jugadores.html" class="btn btn-primary" style="background: var(--grad-accent); color: var(--text-main); box-shadow: 0 4px 15px rgba(125, 95, 255, 0.3);">
-                    <i data-lucide="user"></i> Como Jugador
-                </a>
             </div>
         </section>
 
-        <!-- SECCIÓN DE ESTADÍSTICAS GLOBALES (TIEMPO REAL) -->
-        <section style="max-width: 900px; margin: 0 auto 50px; padding: 0 15px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; text-align: center;">
-                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div id="stat-campeonatos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">0</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Campeonatos</div>
+        <!-- SECCIÓN DE ESTADÍSTICAS EN VIVO -->
+        <section class="stats-container">
+            <div class="stats-grid">
+                <!-- 1. Campeonatos Activos -->
+                <div class="stat-card glass-panel">
+                    <i data-lucide="trophy" style="width:32px; height:32px; color:var(--color-primary);"></i>
+                    <div id="stat-campeonatos-activos" class="stat-num">0</div>
+                    <div class="stat-label">Campeonatos Activos</div>
                 </div>
-                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div id="stat-activos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">0</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Torneos Activos</div>
-                </div>
-                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div id="stat-equipos" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">0</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Equipos Inscritos</div>
-                </div>
-                <div class="glass-panel" style="padding: 20px; transition: transform 0.3s; cursor: default; border: 1px solid rgba(0, 255, 135, 0.15);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div id="stat-jugadores" style="font-size: 2.2rem; font-weight: 850; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 255, 135, 0.3));">0</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Jugadores Activos</div>
-                </div>
-            </div>
-        </section>
 
-        <!-- PANEL DE ACCESO / LOGIN & REGISTRO -->
-        <section id="login" class="glass-panel" style="max-width: 480px; margin: 0 auto 60px; padding: 25px;">
-            <!-- Tabs -->
-            <div style="display:flex; border-bottom:1px solid var(--border-glass); margin-bottom:25px;">
-                <button type="button" id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1; padding:12px; background:none; border:none; color:var(--color-primary); border-bottom:2px solid var(--color-primary); font-weight:700; cursor:pointer; font-family:inherit; transition:var(--transition-smooth);">Acceder</button>
-                <button type="button" id="auth-tab-register" onclick="switchAuthTab('register')" style="flex:1; padding:12px; background:none; border:none; color:var(--text-muted); border-bottom:2px solid transparent; font-weight:600; cursor:pointer; font-family:inherit; transition:var(--transition-smooth);">Registrarse</button>
-            </div>
+                <!-- 2. Total de Equipos Inscritos -->
+                <div class="stat-card glass-panel">
+                    <i data-lucide="shield" style="width:32px; height:32px; color:var(--color-secondary);"></i>
+                    <div id="stat-equipos-total" class="stat-num">0</div>
+                    <div class="stat-label">Equipos Inscritos</div>
+                </div>
 
-            <!-- REGISTRO / INICIO SOCIAL CON GOOGLE Y FACEBOOK -->
-            <div style="margin-bottom: 20px;">
-                <button type="button" class="btn-social btn-google" onclick="handleSocialAuth('google')">
-                    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.41-1.57-5.13-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.87 10.78c-.19-.53-.3-1.1-.3-1.78s.11-1.25.3-1.78L.97 4.96C.35 6.18 0 7.55 0 9s.35 2.82.97 4.04l2.9-2.26z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.97 4.96l2.9 2.26C4.59 5.05 6.62 3.58 9 3.58z"/></svg>
-                    Continuar con Google
-                </button>
-                <button type="button" class="btn-social btn-facebook" onclick="handleSocialAuth('facebook')">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    Continuar con Facebook
-                </button>
-            </div>
-
-            <div class="auth-divider">
-                <span>o con tu correo electrónico</span>
-            </div>
-
-            <!-- LOGIN CONTENT -->
-            <div id="auth-login-container">
-                <form id="login-email-form">
-                    <div class="form-group">
-                        <label class="form-label" for="login-email">Correo Electrónico</label>
-                        <input class="form-input" type="email" id="login-email" placeholder="correo@ejemplo.com" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label class="form-label" for="login-password">Contraseña</label>
-                        <input class="form-input" type="password" id="login-password" placeholder="Tu contraseña" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i data-lucide="log-in"></i> Iniciar Sesión
-                    </button>
-                </form>
-            </div>
-
-            <!-- REGISTER CONTENT -->
-            <div id="auth-register-container" style="display: none;">
-                <form id="register-form">
-                    <div class="form-group">
-                        <label class="form-label" for="reg-nombres">Nombres</label>
-                        <input class="form-input" type="text" id="reg-nombres" placeholder="Ej. Juan" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="reg-apellidos">Apellidos</label>
-                        <input class="form-input" type="text" id="reg-apellidos" placeholder="Ej. Pérez" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="reg-cedula">Número de Cédula</label>
-                        <input class="form-input" type="text" id="reg-cedula" placeholder="Ej. 1104567890" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="reg-email">Correo Electrónico</label>
-                        <input class="form-input" type="email" id="reg-email" placeholder="correo@ejemplo.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="reg-password">Contraseña</label>
-                        <input class="form-input" type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label class="form-label" for="reg-rol">Rol en la Plataforma</label>
-                        <select class="form-input" id="reg-rol" style="cursor: pointer;">
-                            <option value="organizador">Organizador (Organiza tu Campeonato)</option>
-                            <option value="vocal">Vocal de Mesa / Partido</option>
-                            <option value="jugador">Jugador (Consultar Torneos y Estadísticas)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i data-lucide="user-plus"></i> Crear Cuenta
-                    </button>
-                </form>
-            </div>
-            
-
-        </section>
-
-        <!-- CARACTERÍSTICAS DE LA PLATAFORMA -->
-        <section id="caracteristicas" style="margin-bottom: 60px;">
-            <h2 style="font-size: 2rem; margin-bottom: 30px; text-align: center;">Todo lo que ofrece QFutbol</h2>
-            <div class="card-grid">
-                <!-- Tarjeta 1: Fixtures -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="calendar" style="color: var(--color-primary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Fixture Automático</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Generación de calendarios en un clic mediante algoritmo circular Round Robin (ida, o ida y vuelta) o por grupos, reduciendo errores manuales.</p>
-                </div>
-                <!-- Tarjeta 2: Grupos y Series -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="layers" style="color: var(--color-secondary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Series y Grupos</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Organización en Series (A, B) y distribución balanceada de equipos en grupos con llaves de Playoff (octavos, cuartos, semis y final).</p>
-                </div>
-                <!-- Tarjeta 3: Posiciones -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="list-ordered" style="color: var(--color-accent); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Tablas Dinámicas</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Cálculo en vivo de puntos, gol diferencia, goles a favor, enfrentamientos particulares y tabla de juego limpio (Fair Play).</p>
-                </div>
-                <!-- Tarjeta 4: Registro Único -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="user-check" style="color: var(--color-warning); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Inscripción Única</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Control estricto por Cédula de Identidad en la base de datos que bloquea de manera absoluta que un jugador sea inscrito en 2 equipos del mismo torneo.</p>
-                </div>
-                <!-- Tarjeta 5: Tarjetas y Multas -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="alert-triangle" style="color: var(--color-primary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Disciplina y Sanciones</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Control automático de suspensiones al acumular tarjetas amarillas (configurable) o rojas, y cálculo de multas de cobro obligatorio.</p>
-                </div>
-                <!-- Tarjeta 6: Modalidades -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="sliders" style="color: var(--color-secondary); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Modalidades de Juego</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Soporte configurable para torneos de Fútbol 7, Fútbol 9 y Fútbol 11, con tiempos de juego y límites de cambios totalmente adaptables.</p>
-                </div>
-                <!-- Tarjeta 7: Finanzas -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="wallet" style="color: var(--color-accent); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Control Financiero</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Gestión detallada de cobros de inscripciones por abonos, depósitos de garantía, pago de arbitrajes, vocalías y multas acumuladas.</p>
-                </div>
-                <!-- Tarjeta 8: Firma Digital y Offline -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <i data-lucide="shield-check" style="color: var(--color-warning); width: 36px; height: 36px; margin-bottom: 12px;"></i>
-                    <h3 style="margin-bottom: 8px; font-size: 1.25rem;">Firma Digital y Offline</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Planilla móvil offline para registrar estadísticas en cancha sin señal, firmada digitalmente por los delegados de cada equipo.</p>
+                <!-- 3. Total de Jugadores Activos -->
+                <div class="stat-card glass-panel">
+                    <i data-lucide="users" style="width:32px; height:32px; color:var(--color-accent);"></i>
+                    <div id="stat-jugadores-total" class="stat-num">0</div>
+                    <div class="stat-label">Jugadores Activos</div>
                 </div>
             </div>
         </section>
 
-        <!-- FOOTER -->
-        <footer style="text-align: center; padding: 30px 10px; border-top: 1px solid var(--border-glass); font-size: 0.9rem; color: var(--text-muted);">
-            <p>© 2026 QFutbol Platform. Desarrollado con tecnología premium ultrarrápida.</p>
+        <!-- SECCIÓN DE CARACTERÍSTICAS DE LA APP -->
+        <section id="caracteristicas" class="features-section">
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 8px;">Características de la Plataforma QFutbol</h2>
+                <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px; margin: 0 auto;">Todo lo que tu liga necesita para operar con orden, transparencia y cero errores manuales.</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- 1. Fixture Automático -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(0, 255, 135, 0.1); border:1px solid rgba(0,255,135,0.25);">
+                        <i data-lucide="calendar" style="color:var(--color-primary); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Fixture Automático</h3>
+                    <p class="feature-desc">
+                        Generación de calendarios Round Robin (todos contra todos) o por grupos y series en un solo clic, con llaves de Playoff calculadas de forma matemática y justa.
+                    </p>
+                </div>
+
+                <!-- 2. Carnet Digital y Cédula/DNI -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(96, 239, 255, 0.1); border:1px solid rgba(96,239,255,0.25);">
+                        <i data-lucide="badge-check" style="color:var(--color-secondary); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Carnet Digital Oficial</h3>
+                    <p class="feature-desc">
+                        Identificación rigurosa por número de cédula o DNI/Pasaporte para extranjeros. Bloqueo estricto para impedir que un jugador actúe en dos equipos del mismo torneo.
+                    </p>
+                </div>
+
+                <!-- 3. Vocalía Offline con Firma -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(125, 95, 255, 0.1); border:1px solid rgba(125,95,255,0.25);">
+                        <i data-lucide="clipboard-signature" style="color:var(--color-accent); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Vocalía Móvil Offline</h3>
+                    <p class="feature-desc">
+                        Registra goles, tarjetas, cambios y tiempos de juego directamente en la cancha sin conexión a internet. Firma digital de capitanes y sincronización en la nube.
+                    </p>
+                </div>
+
+                <!-- 4. Tablas en Vivo y Fair Play -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(255, 211, 42, 0.1); border:1px solid rgba(255,211,42,0.25);">
+                        <i data-lucide="list-ordered" style="color:var(--color-warning); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Tablas Dinámicas & Fair Play</h3>
+                    <p class="feature-desc">
+                        Posiciones calculadas en tiempo real por puntos, gol diferencia, goles a favor y sistema de desempate por juego limpio según sanciones acumuladas.
+                    </p>
+                </div>
+
+                <!-- 5. Tarifa Única de $1 / Equipo -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(0, 255, 135, 0.1); border:1px solid rgba(0,255,135,0.25);">
+                        <i data-lucide="dollar-sign" style="color:var(--color-primary); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Tarifa Plana de $1 por Equipo</h3>
+                    <p class="feature-desc">
+                        Sin suscripciones costosas ni mensualidades. Paga únicamente $1.00 USD por cada equipo participante y disfruta del sistema completo para todo el torneo.
+                    </p>
+                </div>
+
+                <!-- 6. Auspiciantes y Afiches de Redes -->
+                <div class="feature-card glass-panel">
+                    <div class="feature-icon-wrap" style="background:rgba(255, 77, 77, 0.1); border:1px solid rgba(255,77,77,0.25);">
+                        <i data-lucide="share-2" style="color:var(--color-danger); width:26px; height:26px;"></i>
+                    </div>
+                    <h3 class="feature-title">Afiches & Auspiciantes</h3>
+                    <p class="feature-desc">
+                        Exporta imágenes en alta definición con el calendario de partidos y tablas de posiciones integrando automáticamente los logotipos de los patrocinadores de tu liga.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER Y CONTADOR DE VISITANTES -->
+        <footer class="footer-bottom">
+            <p style="font-size:0.92rem; color:var(--text-main); font-weight:600; margin-bottom:6px;">
+                © 2026 QFutbol Platform — El Control Total de tu Campeonato de Fútbol
+            </p>
+            <p style="font-size:0.82rem; color:var(--text-muted);">
+                Desarrollado para ligas barriales, instituciones educativas, colegios y torneos comunales.
+            </p>
+            <br>
+            <!-- Contador de visitantes en letras pequeñas -->
+            <div class="visitor-counter">
+                <i data-lucide="eye" style="color:var(--color-primary); width:14px; height:14px;"></i>
+                <span>Nro total de visitantes a la app: <strong id="lbl-visitantes-count" style="color:var(--color-secondary); font-weight:750;">14,280</strong></span>
+            </div>
         </footer>
+
     </div>
 
-    <!-- Configuración e Inicialización -->
+    <!-- ======================================================== -->
+    <!-- MODAL 1: AUTENTICACIÓN (LOGIN & REGISTRO)                  -->
+    <!-- ======================================================== -->
+    <div id="modal-auth" class="modal" style="display:none;">
+        <div class="glass-panel" style="width: 100%; max-width: 480px; padding: 25px; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="shield-check" style="color:var(--color-primary);"></i>
+                    <span id="modal-auth-title">Acceder a QFutbol</span>
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalAuth()" style="padding:4px 10px; font-size:0.8rem;">✕</button>
+            </div>
+
+            <!-- Aviso de requerimiento de registro -->
+            <div id="auth-alert-mensaje" style="display:none; background:rgba(0, 210, 255, 0.08); border-left:4px solid var(--color-secondary); padding:10px 14px; font-size:0.84rem; border-radius:var(--radius-sm); margin-bottom:15px; color:var(--text-main);">
+                <i data-lucide="info" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:5px; color:var(--color-secondary);"></i>
+                <span id="auth-alert-texto">Todo usuario que desee revisar información o crear un campeonato debe estar registrado.</span>
+            </div>
+
+            <!-- Selector de Tabs Login / Registro -->
+            <div style="display:flex; border-bottom:1px solid var(--border-glass); margin-bottom:20px;">
+                <button type="button" id="tab-btn-login" onclick="cambiarAuthTab('login')" style="flex:1; padding:10px; background:none; border:none; color:var(--color-primary); border-bottom:2px solid var(--color-primary); font-weight:700; cursor:pointer; font-family:inherit;">Iniciar Sesión</button>
+                <button type="button" id="tab-btn-register" onclick="cambiarAuthTab('register')" style="flex:1; padding:10px; background:none; border:none; color:var(--text-muted); border-bottom:2px solid transparent; font-weight:600; cursor:pointer; font-family:inherit;">Registrarse</button>
+            </div>
+
+            <!-- Accesos Sociales Rápidos -->
+            <button type="button" class="btn-social btn-google" onclick="iniciarAuthSocial('google')">
+                <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.41-1.57-5.13-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.87 10.78c-.19-.53-.3-1.1-.3-1.78s.11-1.25.3-1.78L.97 4.96C.35 6.18 0 7.55 0 9s.35 2.82.97 4.04l2.9-2.26z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.97 4.96l2.9 2.26C4.59 5.05 6.62 3.58 9 3.58z"/></svg>
+                Continuar con Google
+            </button>
+            <button type="button" class="btn-social btn-facebook" onclick="iniciarAuthSocial('facebook')">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Continuar con Facebook
+            </button>
+
+            <div class="auth-divider"><span>o con tus credenciales</span></div>
+
+            <!-- FORMULARIO LOGIN -->
+            <form id="form-login-email" onsubmit="procesarLogin(event)">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label">Correo Electrónico o Número de Cédula</label>
+                    <input class="form-input" type="text" id="login-identifier" placeholder="correo@ejemplo.com o 1104567890" required>
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label">Contraseña</label>
+                    <input class="form-input" type="password" id="login-pass" placeholder="Tu contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:11px; font-weight:750;">
+                    <i data-lucide="log-in"></i> Iniciar Sesión
+                </button>
+            </form>
+
+            <!-- FORMULARIO REGISTRO -->
+            <form id="form-register-user" onsubmit="procesarRegistro(event)" style="display:none; max-height:55vh; overflow-y:auto; padding-right:5px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="form-group">
+                        <label class="form-label">Nombres</label>
+                        <input class="form-input" type="text" id="reg-user-nombres" placeholder="Ej. Carlos" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Apellidos</label>
+                        <input class="form-input" type="text" id="reg-user-apellidos" placeholder="Ej. Andrade" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1.2fr 1.8fr; gap:10px; margin-bottom:10px;">
+                    <div class="form-group">
+                        <label class="form-label">Tipo Doc.</label>
+                        <select class="form-input" id="reg-user-tipodoc" onchange="actualizarPlaceholderDoc()">
+                            <option value="cedula">Cédula</option>
+                            <option value="dni">DNI / Extranjero</option>
+                            <option value="no_dispone">Menor / Escolar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Número de Doc.</label>
+                        <input class="form-input" type="text" id="reg-user-numdoc" placeholder="10 dígitos" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input class="form-input" type="email" id="reg-user-email" placeholder="correo@ejemplo.com" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label">Contraseña</label>
+                    <input class="form-input" type="password" id="reg-user-password" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label">Perfil de Inicio</label>
+                    <!-- Regla: Administrador NUNCA es seleccionable por el público general -->
+                    <select class="form-input" id="reg-user-rol" style="font-weight:600;">
+                        <option value="organizador">Organizador (Quiero crear o administrar campeonatos)</option>
+                        <option value="jugador">Jugador / Representante de Equipo (Consultar o inscribir)</option>
+                        <option value="vocal">Vocal de Mesa / Arbitraje (Llevar actas de partido)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:11px; font-weight:750;">
+                    <i data-lucide="user-check"></i> Registrar Mi Cuenta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 2: BUSCADOR DE CAMPEONATOS                          -->
+    <!-- ======================================================== -->
+    <div id="modal-buscar-campeonato" class="modal" style="display:none;">
+        <div class="glass-panel" style="width:100%; max-width:620px; padding:25px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                <h3 style="font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="trophy" style="color:var(--color-primary);"></i>
+                    Buscar y Explorar Campeonatos
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarBuscadorCampeonato()" style="padding:4px 10px; font-size:0.8rem;">✕</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="input-filtro-campeonato" class="form-input" placeholder="Ingresa nombre del torneo, sector o ciudad..." onkeyup="filtrarListaCampeonatos()" style="flex:1;">
+                    <button type="button" class="btn btn-primary" onclick="filtrarListaCampeonatos()"><i data-lucide="search"></i></button>
+                </div>
+            </div>
+
+            <div class="modal-body" id="lista-campeonatos-resultados" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="text-align:center; padding:25px; color:var(--text-muted);">
+                    Cargando torneos activos...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 3: BUSCADOR DE MIS DATOS / CARNET JUGADOR          -->
+    <!-- ======================================================== -->
+    <div id="modal-buscar-mis-datos" class="modal" style="display:none;">
+        <div class="glass-panel" style="width:100%; max-width:580px; padding:25px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                <h3 style="font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="search" style="color:var(--color-secondary);"></i>
+                    Buscar Mis Datos y Carnet Oficial
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarBuscadorMisDatos()" style="padding:4px 10px; font-size:0.8rem;">✕</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label class="form-label">Número de Cédula, DNI o Nombres:</label>
+                <div style="display:flex; gap:8px; margin-top:5px;">
+                    <input type="text" id="input-filtro-jugador" class="form-input" placeholder="Ej. 1720000002 o Carlos Mena" style="flex:1;">
+                    <button type="button" class="btn btn-primary" onclick="ejecutarBusquedaMisDatos()"><i data-lucide="search"></i> Buscar</button>
+                </div>
+            </div>
+
+            <div class="modal-body" id="resultado-mis-datos" style="min-height:120px;">
+                <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.9rem;">
+                    Ingresa tu número de documento para visualizar tu ficha oficial, carnet digital y torneos activos.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuración y Capa de Datos -->
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
-    
+
     <script>
-        // Inicializar iconos de Lucide
+        // Inicializar Iconos de Lucide
         lucide.createIcons();
 
-        let activeAuthTab = 'login';
+        // ========================================================
+        // GESTIÓN DE SESIÓN Y VERIFICACIÓN
+        // ========================================================
+        function obtenerUsuarioActivo() {
+            try {
+                const s = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
+                if (s) return JSON.parse(s);
+            } catch(e) {}
+            return null;
+        }
 
-        function switchAuthTab(tab) {
-            activeAuthTab = tab;
-            const btnLogin = document.getElementById("auth-tab-login");
-            const btnRegister = document.getElementById("auth-tab-register");
-            const containerLogin = document.getElementById("auth-login-container");
-            const containerRegister = document.getElementById("auth-register-container");
+        function sincronizarEstadoHeader() {
+            const user = obtenerUsuarioActivo();
+            const btnAuth = document.getElementById("btn-auth-open");
+            const boxLogged = document.getElementById("user-logged-box");
+            const lblWelcome = document.getElementById("lbl-user-welcome");
+            const btnPanel = document.getElementById("btn-user-panel");
+
+            if (user && user.nombres) {
+                if (btnAuth) btnAuth.style.display = "none";
+                if (boxLogged) boxLogged.style.display = "inline-flex";
+                if (lblWelcome) lblWelcome.innerText = `Hola, ${user.nombres} 👋`;
+
+                // Configurar enlace según el rol
+                if (btnPanel) {
+                    if (user.rol === "admin" || user.rol === "organizador") {
+                        btnPanel.href = "dashboard.html";
+                        btnPanel.innerHTML = '<i data-lucide="layout-dashboard" style="width:15px;height:15px;"></i> Panel Organizador';
+                    } else if (user.rol === "vocal") {
+                        btnPanel.href = "vocal.html";
+                        btnPanel.innerHTML = '<i data-lucide="clipboard-list" style="width:15px;height:15px;"></i> Panel Vocal';
+                    } else {
+                        btnPanel.href = "portal_jugadores.html";
+                        btnPanel.innerHTML = '<i data-lucide="user" style="width:15px;height:15px;"></i> Mi Ficha Deportiva';
+                    }
+                }
+            } else {
+                if (btnAuth) btnAuth.style.display = "inline-flex";
+                if (boxLogged) boxLogged.style.display = "none";
+            }
+            lucide.createIcons();
+        }
+
+        function cerrarSesionUsuario() {
+            sessionStorage.removeItem("qfutbol_user_session");
+            localStorage.removeItem("qfutbol_user_session");
+            sincronizarEstadoHeader();
+            alert("Has cerrado tu sesión de manera segura.");
+        }
+
+        // ========================================================
+        // MODAL DE AUTENTICACIÓN (LOGIN & REGISTRO)
+        // ========================================================
+        function abrirModalAuth(mensajeAlerta = null, tabPorDefecto = 'login') {
+            const modal = document.getElementById("modal-auth");
+            if (!modal) return;
+            modal.style.display = "flex";
+
+            const elAlerta = document.getElementById("auth-alert-mensaje");
+            const elTexto = document.getElementById("auth-alert-texto");
+            if (mensajeAlerta && elAlerta && elTexto) {
+                elTexto.innerText = mensajeAlerta;
+                elAlerta.style.display = "block";
+            } else if (elAlerta) {
+                elAlerta.style.display = "none";
+            }
+
+            cambiarAuthTab(tabPorDefecto);
+            lucide.createIcons();
+        }
+
+        function cerrarModalAuth() {
+            const modal = document.getElementById("modal-auth");
+            if (modal) modal.style.display = "none";
+        }
+
+        function cambiarAuthTab(tab) {
+            const btnL = document.getElementById("tab-btn-login");
+            const btnR = document.getElementById("tab-btn-register");
+            const formL = document.getElementById("form-login-email");
+            const formR = document.getElementById("form-register-user");
+            const title = document.getElementById("modal-auth-title");
 
             if (tab === 'login') {
-                btnLogin.style.color = "var(--color-primary)";
-                btnLogin.style.borderBottom = "2px solid var(--color-primary)";
-                btnRegister.style.color = "var(--text-muted)";
-                btnRegister.style.borderBottom = "2px solid transparent";
-                containerLogin.style.display = "block";
-                containerRegister.style.display = "none";
+                btnL.style.color = "var(--color-primary)";
+                btnL.style.borderBottom = "2px solid var(--color-primary)";
+                btnR.style.color = "var(--text-muted)";
+                btnR.style.borderBottom = "2px solid transparent";
+                formL.style.display = "block";
+                formR.style.display = "none";
+                if (title) title.innerText = "Acceder a QFutbol";
             } else {
-                btnRegister.style.color = "var(--color-primary)";
-                btnRegister.style.borderBottom = "2px solid var(--color-primary)";
-                btnLogin.style.color = "var(--text-muted)";
-                btnLogin.style.borderBottom = "2px solid transparent";
-                containerLogin.style.display = "none";
-                containerRegister.style.display = "block";
+                btnR.style.color = "var(--color-primary)";
+                btnR.style.borderBottom = "2px solid var(--color-primary)";
+                btnL.style.color = "var(--text-muted)";
+                btnL.style.borderBottom = "2px solid transparent";
+                formL.style.display = "none";
+                formR.style.display = "block";
+                if (title) title.innerText = "Crear Cuenta en QFutbol";
+            }
+            lucide.createIcons();
+        }
+
+        function actualizarPlaceholderDoc() {
+            const tipo = document.getElementById("reg-user-tipodoc").value;
+            const input = document.getElementById("reg-user-numdoc");
+            if (tipo === "cedula") {
+                input.placeholder = "Cédula (10 dígitos)";
+                input.required = true;
+                input.disabled = false;
+            } else if (tipo === "dni") {
+                input.placeholder = "DNI / Pasaporte";
+                input.required = true;
+                input.disabled = false;
+            } else {
+                input.placeholder = "Menor de edad (Sin cédula)";
+                input.required = false;
+                input.disabled = true;
+                input.value = "MENOR_ESCOLAR";
             }
         }
 
-        // Cargar estadísticas globales en tiempo real desde la base de datos Neon
-        async function cargarEstadisticasLanding() {
+        // ========================================================
+        // PROCESAMIENTO DE LOGIN Y REGISTRO CON REGLAS DE NEGOCIO
+        // ========================================================
+        async function procesarLogin(e) {
+            e.preventDefault();
+            const ident = document.getElementById("login-identifier").value.trim().toLowerCase();
+            const pass = document.getElementById("login-pass").value;
+
+            // 1. Acceso del Administrador Máster Propietario
+            if (ident === "soloescribeme@gmail.com") {
+                const adminUser = {
+                    id: "admin_master_001",
+                    nombres: "Luis Antonio",
+                    apellidos: "Lozano Lozano",
+                    email: "soloescribeme@gmail.com",
+                    rol: "admin"
+                };
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(adminUser));
+                localStorage.setItem("qfutbol_user_session", JSON.stringify(adminUser));
+                alert("¡Bienvenido Administrador Máster!\nSesión iniciada como Luis Antonio Lozano Lozano.");
+                cerrarModalAuth();
+                sincronizarEstadoHeader();
+                window.location.href = "dashboard.html";
+                return;
+            }
+
+            // 2. Consulta en base de datos perfiles
             try {
-                const campeonatos = await dbGetTable("campeonatos");
-                const equipos = await dbGetTable("equipos");
-                const jugadores = await dbGetTable("jugadores");
+                const perfiles = await dbGetTable("perfiles");
+                const match = (perfiles || []).find(p => 
+                    (p.email && p.email.toLowerCase() === ident) || 
+                    (p.cedula && p.cedula.trim() === ident)
+                );
 
-                const totalCampeonatos = campeonatos ? campeonatos.length : 0;
-                const torneosActivos = campeonatos ? campeonatos.filter(c => c.estado !== 'finalizado').length : 0;
-                const totalEquipos = equipos ? equipos.length : 0;
-                const totalJugadores = jugadores ? jugadores.length : 0;
+                if (!match) {
+                    alert("❌ El correo o cédula ingresado no se encuentra registrado.\nPor favor crea tu cuenta en la pestaña 'Registrarse'.");
+                    cambiarAuthTab('register');
+                    return;
+                }
 
-                const elCamp = document.getElementById("stat-campeonatos");
-                const elAct = document.getElementById("stat-activos");
-                const elEq = document.getElementById("stat-equipos");
-                const elJug = document.getElementById("stat-jugadores");
+                if (match.password && match.password !== pass) {
+                    alert("❌ Contraseña incorrecta. Por favor verifica tus credenciales.");
+                    return;
+                }
 
-                if (elCamp) elCamp.innerText = totalCampeonatos;
-                if (elAct) elAct.innerText = torneosActivos;
-                if (elEq) elEq.innerText = totalEquipos.toLocaleString();
-                if (elJug) elJug.innerText = totalJugadores.toLocaleString();
-            } catch (err) {
-                console.warn("Error al cargar estadísticas en tiempo real:", err);
+                const userSession = {
+                    id: match.id,
+                    nombres: match.nombres,
+                    apellidos: match.apellidos,
+                    email: match.email || ident,
+                    cedula: match.cedula || null,
+                    rol: match.rol || "organizador"
+                };
+
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+                localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+                alert(`¡Bienvenido de vuelta ${userSession.nombres}!\nSesión iniciada con éxito.`);
+                cerrarModalAuth();
+                sincronizarEstadoHeader();
+
+                // Redirección por rol
+                if (userSession.rol === "admin" || userSession.rol === "organizador") {
+                    window.location.href = "dashboard.html";
+                } else if (userSession.rol === "vocal") {
+                    window.location.href = "vocal.html";
+                } else {
+                    window.location.href = "portal_jugadores.html";
+                }
+            } catch(err) {
+                console.error("Error en login:", err);
+                alert("Error al verificar credenciales: " + err.message);
             }
         }
 
-        // Manejador de Autenticación con Google y Facebook
-        // Manejador de Autenticación con Google y Facebook con almacenamiento permanente
-        async function handleSocialAuth(provider) {
+        async function procesarRegistro(e) {
+            e.preventDefault();
+            const nombres = document.getElementById("reg-user-nombres").value.trim();
+            const apellidos = document.getElementById("reg-user-apellidos").value.trim();
+            const tipoDoc = document.getElementById("reg-user-tipodoc").value;
+            let numDoc = document.getElementById("reg-user-numdoc").value.trim();
+            const email = document.getElementById("reg-user-email").value.trim().toLowerCase();
+            const password = document.getElementById("reg-user-password").value;
+            let rol = document.getElementById("reg-user-rol").value;
+
+            // Regla: Administrador Único (Nadie puede registrarse como admin salvo que sea el correo oficial)
+            if (email === "soloescribeme@gmail.com") {
+                rol = "admin";
+            } else if (rol === "admin") {
+                rol = "organizador"; // Protección estricta
+            }
+
+            if (tipoDoc === "no_dispone") {
+                numDoc = "ESC_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            }
+
+            try {
+                const perfiles = await dbGetTable("perfiles");
+                const existe = (perfiles || []).find(p => 
+                    (p.email && p.email.toLowerCase() === email) || 
+                    (numDoc && numDoc !== "MENOR_ESCOLAR" && p.cedula === numDoc)
+                );
+
+                if (existe) {
+                    alert("⚠️ Ya existe una cuenta registrada con este correo o número de identificación. Por favor inicia sesión.");
+                    cambiarAuthTab('login');
+                    return;
+                }
+
+                const nuevoPerfil = {
+                    nombres,
+                    apellidos,
+                    cedula: numDoc,
+                    email,
+                    password,
+                    rol
+                };
+
+                const res = await dbInsertRow("perfiles", nuevoPerfil);
+                const userSession = {
+                    id: res?.id || "usr_" + Math.random().toString(36).substring(2, 9),
+                    nombres,
+                    apellidos,
+                    cedula: numDoc,
+                    email,
+                    rol
+                };
+
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+                localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
+
+                alert(`🎉 ¡Cuenta creada con éxito!\nBienvenido a QFutbol, ${nombres} ${apellidos}.`);
+                cerrarModalAuth();
+                sincronizarEstadoHeader();
+
+                if (rol === "admin" || rol === "organizador") {
+                    window.location.href = "dashboard.html";
+                } else if (rol === "vocal") {
+                    window.location.href = "vocal.html";
+                } else {
+                    window.location.href = "portal_jugadores.html";
+                }
+            } catch(err) {
+                console.error("Error en registro:", err);
+                alert("Error al registrar cuenta: " + err.message);
+            }
+        }
+
+        async function iniciarAuthSocial(provider) {
             const providerName = provider === 'google' ? 'Google' : 'Facebook';
-            const emailPrompt = prompt(`Ingresa tu correo registrado en ${providerName}:`, "soloescribeme@gmail.com");
+            const emailPrompt = prompt(`Ingresa tu correo de ${providerName}:`, "usuario@gmail.com");
             if (!emailPrompt) return;
 
             const email = emailPrompt.trim().toLowerCase();
             let rol = "organizador";
-            let nombres = "";
-            let apellidos = "";
+            let nombres = "Usuario";
+            let apellidos = providerName;
 
-            // 1. Caso especial: Administrador Máster
             if (email === "soloescribeme@gmail.com") {
                 rol = "admin";
                 nombres = "Luis Antonio";
                 apellidos = "Lozano Lozano";
             } else {
-                // 2. Buscar si la cuenta ya está guardada en la caché local de cuentas sociales
-                let localSocial = {};
-                try {
-                    localSocial = JSON.parse(localStorage.getItem("qfutbol_social_accounts")) || {};
-                } catch(e){}
-
-                if (localSocial[email]) {
-                    nombres = localSocial[email].nombres;
-                    apellidos = localSocial[email].apellidos;
-                    rol = localSocial[email].rol || "organizador";
-                } else {
-                    // 3. Buscar en la tabla perfiles de la base de datos (Neon)
-                    try {
-                        const perfiles = await dbGetTable("perfiles");
-                        const match = (perfiles || []).find(p => p.email && p.email.toLowerCase() === email);
-                        if (match) {
-                            rol = match.rol || "organizador";
-                            nombres = match.nombres;
-                            apellidos = match.apellidos;
-                        }
-                    } catch(e){}
-                }
-
-                // 4. Si es la PRIMERA vez que ingresa con ese correo, solicitar nombres y rol UNA SOLA VEZ
-                if (!nombres) {
-                    const nombreInput = prompt(`Primera vez ingresando con ${providerName} (${email}). Por favor ingresa tus Nombres y Apellidos completos:`, "Carlos Andrade");
-                    if (!nombreInput) return;
-                    const partes = nombreInput.trim().split(" ");
+                const namePrompt = prompt("Por favor ingresa tus Nombres y Apellidos completos:", "Carlos Andrade");
+                if (namePrompt) {
+                    const partes = namePrompt.trim().split(" ");
                     nombres = partes[0] || "Usuario";
                     apellidos = partes.slice(1).join(" ") || providerName;
-
-                    const rolInput = prompt(`Selecciona tu rol de usuario en QFutbol:\n1 - Organizador (Crear/Gestionar Campeonatos)\n2 - Vocal de Mesa\n3 - Jugador`, "1");
-                    if (rolInput === "2") rol = "vocal";
-                    else if (rolInput === "3") rol = "jugador";
-                    else rol = "organizador";
-
-                    // Registrar en la base de datos Neon DB
-                    try {
-                        await dbInsertRow("perfiles", {
-                            nombres,
-                            apellidos,
-                            email,
-                            rol
-                        });
-                    } catch(e){}
                 }
-
-                // Guardar la cuenta social permanentemente en localStorage para que NUNCA vuelva a pedir el nombre
-                try {
-                    let localSocial = JSON.parse(localStorage.getItem("qfutbol_social_accounts")) || {};
-                    localSocial[email] = { nombres, apellidos, rol };
-                    localStorage.setItem("qfutbol_social_accounts", JSON.stringify(localSocial));
-                } catch(e){}
             }
 
             const userSession = {
-                id: "usr_" + Math.random().toString(36).substring(2, 9),
+                id: "soc_" + Math.random().toString(36).substring(2, 9),
                 nombres,
                 apellidos,
                 email,
@@ -420,207 +1014,276 @@
             sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
             localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
 
-            alert(`¡Sesión iniciada con éxito mediante ${providerName}!\nBienvenido ${nombres} ${apellidos}.`);
-            verificarSesionPaginaPrincipal();
+            alert(`¡Sesión iniciada mediante ${providerName}!\nBienvenido ${nombres}.`);
+            cerrarModalAuth();
+            sincronizarEstadoHeader();
 
-            // Redirección según el rol de acceso asignado
             if (rol === "admin" || rol === "organizador") {
                 window.location.href = "dashboard.html";
-            } else if (rol === "vocal") {
-                window.location.href = "vocal.html";
-            } else if (rol === "jugador") {
+            } else {
                 window.location.href = "portal_jugadores.html";
             }
         }
 
-        function selectRoleAndAuth(role) {
-            switchAuthTab('register');
-            const select = document.getElementById("reg-rol");
-            if (select) select.value = role;
-            const loginSec = document.getElementById("login");
-            if (loginSec) loginSec.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function verificarSesionPaginaPrincipal() {
-            const welcomeLbl = document.getElementById("lbl-user-welcome-index");
-            const btnAdminNav = document.getElementById("btn-admin-panel-index");
-            const btnLogout = document.getElementById("btn-logout-index");
-
-            let stored = null;
-            try {
-                stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
-            } catch(e){}
-
-            if (stored) {
-                try {
-                    const sessionUser = JSON.parse(stored);
-                    if (sessionUser && sessionUser.nombres) {
-                        if (welcomeLbl) {
-                            welcomeLbl.style.display = "inline-block";
-                            welcomeLbl.innerText = `Hola, ${sessionUser.nombres} ${sessionUser.apellidos || ''} 👋`;
-                        }
-                        if (btnLogout) btnLogout.style.display = "inline-flex";
-
-                        if (btnAdminNav && (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin")) {
-                            btnAdminNav.style.display = "inline-flex";
-                        } else if (btnAdminNav) {
-                            btnAdminNav.style.display = "none";
-                        }
-                        return;
-                    }
-                } catch(e){}
+        // ========================================================
+        // ACCIÓN HERO: CREAR CAMPEONATO (REGLA DE REGISTRO PREVIO)
+        // ========================================================
+        function accionCrearCampeonatoHero() {
+            const user = obtenerUsuarioActivo();
+            if (!user) {
+                // Todo usuario debe estar registrado
+                abrirModalAuth("Para crear y administrar tu campeonato por $1 por equipo, primero debes registrarte o iniciar sesión.", "register");
+                return;
             }
 
-            // Si NO hay sesión activa limpia explícitamente todo el texto y botones
-            if (welcomeLbl) { welcomeLbl.innerText = ""; welcomeLbl.style.display = "none"; }
-            if (btnAdminNav) { btnAdminNav.style.display = "none"; }
-            if (btnLogout) { btnLogout.style.display = "none"; }
+            // Si ya está registrado, adquiere automáticamente el perfil de Organizador
+            if (user.rol !== "admin" && user.rol !== "organizador") {
+                user.rol = "organizador";
+                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(user));
+                localStorage.setItem("qfutbol_user_session", JSON.stringify(user));
+                if (typeof dbUpdateRow === 'function' && user.id) {
+                    dbUpdateRow("perfiles", user.id, { rol: "organizador" }).catch(()=>{});
+                }
+            }
+
+            window.location.href = "dashboard.html?action=crear_torneo";
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            verificarSesionPaginaPrincipal();
-            await cargarEstadisticasLanding();
+        // ========================================================
+        // BUSCADOR DE CAMPEONATOS (REGLA DE REGISTRO PREVIO)
+        // ========================================================
+        let cacheCampeonatosPublicos = [];
+        let cacheEquiposPublicos = [];
+
+        async function abrirBuscadorCampeonato() {
+            const user = obtenerUsuarioActivo();
+            if (!user) {
+                abrirModalAuth("Para revisar la información de los campeonatos, calendarios y estadísticas, debes estar registrado en QFutbol.", "register");
+                return;
+            }
+
+            const modal = document.getElementById("modal-buscar-campeonato");
+            if (modal) modal.style.display = "flex";
+
+            await cargarListaCampeonatos();
             lucide.createIcons();
+        }
 
-            // Manejo de Formulario de Inicio de Sesión con Email o Cédula
-            document.getElementById("login-email-form").addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const emailOrCedula = document.getElementById("login-email").value.trim().toLowerCase();
-                const password = document.getElementById("login-password").value;
+        function cerrarBuscadorCampeonato() {
+            const modal = document.getElementById("modal-buscar-campeonato");
+            if (modal) modal.style.display = "none";
+        }
 
-                if (!emailOrCedula || !password) {
-                    alert("Por favor ingresa tu correo electrónico / cédula y contraseña.");
+        async function cargarListaCampeonatos() {
+            const container = document.getElementById("lista-campeonatos-resultados");
+            try {
+                cacheCampeonatosPublicos = await dbGetTable("campeonatos") || [];
+                cacheEquiposPublicos = await dbGetTable("equipos") || [];
+                renderizarCampeonatosEnModal(cacheCampeonatosPublicos);
+            } catch(e) {
+                container.innerHTML = `<div style="text-align:center; color:var(--color-danger);">Error al cargar los campeonatos. Intenta de nuevo.</div>`;
+            }
+        }
+
+        function renderizarCampeonatosEnModal(lista) {
+            const container = document.getElementById("lista-campeonatos-resultados");
+            if (!lista || lista.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">No se encontraron campeonatos con ese criterio.</div>`;
+                return;
+            }
+
+            let html = "";
+            lista.forEach(c => {
+                const eqCount = cacheEquiposPublicos.filter(e => e.campeonato_id === c.id).length;
+                const estadoBadge = c.estado === 'finalizado' 
+                    ? `<span style="color:var(--text-muted); font-size:0.75rem; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:4px;">Finalizado</span>`
+                    : `<span style="color:var(--color-primary); font-size:0.75rem; background:rgba(0,255,135,0.1); padding:3px 8px; border-radius:4px; font-weight:700;">🟢 En Curso / Activo</span>`;
+
+                html += `
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:14px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:750; font-size:1.05rem; color:var(--text-main);">${c.nombre}</div>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:3px;">
+                                📍 ${c.barrio_sector || 'Sector'}, ${c.ciudad || 'Quito'} | 🛡️ ${eqCount} Equipos Inscritos
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${estadoBadge}
+                            <a href="portal_jugadores.html" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">
+                                Ver Torneo →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function filtrarListaCampeonatos() {
+            const term = document.getElementById("input-filtro-campeonato").value.toLowerCase();
+            const filtrados = cacheCampeonatosPublicos.filter(c => 
+                (c.nombre && c.nombre.toLowerCase().includes(term)) ||
+                (c.barrio_sector && c.barrio_sector.toLowerCase().includes(term)) ||
+                (c.ciudad && c.ciudad.toLowerCase().includes(term))
+            );
+            renderizarCampeonatosEnModal(filtrados);
+        }
+
+        // ========================================================
+        // BUSCADOR DE MIS DATOS / CARNET JUGADOR (REGLA DE REGISTRO)
+        // ========================================================
+        async function abrirBuscadorMisDatos() {
+            const user = obtenerUsuarioActivo();
+            if (!user) {
+                abrirModalAuth("Para consultar tu ficha deportiva, carnet oficial o historial de partidos, debes registrarte en QFutbol.", "register");
+                return;
+            }
+
+            const modal = document.getElementById("modal-buscar-mis-datos");
+            if (modal) modal.style.display = "flex";
+
+            // Si el usuario ya tiene cédula registrada en su perfil, jalarla por defecto
+            const input = document.getElementById("input-filtro-jugador");
+            if (input && user.cedula && user.cedula !== "MENOR_ESCOLAR") {
+                input.value = user.cedula;
+                ejecutarBusquedaMisDatos();
+            }
+            lucide.createIcons();
+        }
+
+        function cerrarBuscadorMisDatos() {
+            const modal = document.getElementById("modal-buscar-mis-datos");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function ejecutarBusquedaMisDatos() {
+            const query = document.getElementById("input-filtro-jugador").value.trim().toLowerCase();
+            const container = document.getElementById("resultado-mis-datos");
+
+            if (!query) {
+                container.innerHTML = `<div style="text-align:center; color:var(--color-warning);">Ingresa tu número de documento o nombre para buscar.</div>`;
+                return;
+            }
+
+            container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Buscando carnet oficial en la base de datos...</div>`;
+
+            try {
+                const jugadores = await dbGetTable("jugadores") || [];
+                const equipos = await dbGetTable("equipos") || [];
+                const inscripciones = await dbGetTable("inscripciones_equipo") || [];
+
+                const jugador = jugadores.find(j => 
+                    (j.cedula && j.cedula.toLowerCase() === query) ||
+                    ((j.nombres + " " + j.apellidos).toLowerCase().includes(query))
+                );
+
+                if (!jugador) {
+                    container.innerHTML = `
+                        <div style="background:rgba(255, 77, 77, 0.08); border-left:4px solid var(--color-danger); padding:12px; border-radius:var(--radius-sm); text-align:center;">
+                            <div style="font-weight:700; color:var(--color-danger); margin-bottom:4px;">No se encontró registro para "${query}"</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">Verifica que el número de cédula o DNI esté bien escrito, o consulta a tu delegado de equipo si ya formalizó tu inscripción.</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                let sessionUser = null;
+                // Buscar equipos en los que está inscrito
+                const inscs = inscripciones.filter(i => i.jugador_global_id === jugador.id);
+                let equiposInfoHtml = "";
 
-                // 1. Acceso Máster para el Administrador del Sistema
-                if (emailOrCedula === "soloescribeme@gmail.com") {
-                    sessionUser = {
-                        id: "admin_master",
-                        nombres: "Luis Antonio",
-                        apellidos: "Lozano Lozano",
-                        email: "soloescribeme@gmail.com",
-                        rol: "admin"
-                    };
+                if (inscs.length > 0) {
+                    inscs.forEach(ins => {
+                        const eq = equipos.find(e => e.id === ins.equipo_id) || { nombre: "Equipo QFutbol" };
+                        const rolBadge = ins.es_delegado 
+                            ? `<span style="background:rgba(125,95,255,0.2); color:var(--color-accent); padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">Delegado / DT</span>`
+                            : `<span style="background:rgba(0,255,135,0.15); color:var(--color-primary); padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">Jugador Activo</span>`;
+
+                        equiposInfoHtml += `
+                            <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <strong>${eq.nombre}</strong> (Dorsal #${ins.dorsal || 'S/N'} - Pos: ${ins.posicion || 'MED'})
+                                </div>
+                                <div>${rolBadge}</div>
+                            </div>
+                        `;
+                    });
                 } else {
-                    // 2. Verificación estricta en la tabla de perfiles en la base de datos
-                    try {
-                        const perfiles = await dbGetTable("perfiles");
-                        const match = (perfiles || []).find(p => 
-                            (p.email && p.email.toLowerCase() === emailOrCedula) || 
-                            (p.cedula && p.cedula.trim() === emailOrCedula)
-                        );
-
-                        if (!match) {
-                            alert("❌ El correo o cédula ingresado no se encuentra registrado en el sistema.\nPor favor crea tu cuenta en la pestaña 'Registrarse'.");
-                            return;
-                        }
-
-                        // Verificar contraseña si está configurada en la cuenta
-                        if (match.password && match.password !== password) {
-                            alert("❌ Contraseña incorrecta. Por favor verifica tus credenciales.");
-                            return;
-                        }
-
-                        sessionUser = {
-                            id: match.id,
-                            nombres: match.nombres,
-                            apellidos: match.apellidos,
-                            email: match.email || emailOrCedula,
-                            cedula: match.cedula || null,
-                            rol: match.rol || "organizador"
-                        };
-                    } catch (err) {
-                        console.error("Error en validación de usuario:", err);
-                        alert("Error al verificar credenciales: " + err.message);
-                        return;
-                    }
+                    equiposInfoHtml = `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Jugador registrado pero sin equipo asignado en torneos activos.</div>`;
                 }
 
-                sessionStorage.setItem("qfutbol_user_session", JSON.stringify(sessionUser));
-                localStorage.setItem("qfutbol_user_session", JSON.stringify(sessionUser));
+                container.innerHTML = `
+                    <div style="background:rgba(0, 255, 135, 0.04); border:1px solid rgba(0, 255, 135, 0.25); border-radius:var(--radius-md); padding:18px;">
+                        <div style="display:flex; align-items:center; gap:16px; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                            <img src="${jugador.foto_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120'}" style="width:65px; height:65px; border-radius:50%; object-fit:cover; border:2px solid var(--color-primary);">
+                            <div>
+                                <h4 style="font-size:1.2rem; color:var(--color-primary); margin-bottom:2px;">${jugador.nombres} ${jugador.apellidos}</h4>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">Cédula / Doc: <strong style="color:var(--text-main);">${jugador.cedula}</strong></div>
+                                <div style="font-size:0.82rem; color:var(--color-secondary);">Rating de Juego: ★ ${jugador.rating_general || '6.00'} / 10</div>
+                            </div>
+                        </div>
 
-                alert(`¡Sesión iniciada con éxito!\nBienvenido ${sessionUser.nombres} ${sessionUser.apellidos}.`);
-                verificarSesionPaginaPrincipal();
+                        <div style="font-size:0.9rem; font-weight:700; color:var(--text-main); margin-bottom:4px;">Equipos y Participación:</div>
+                        ${equiposInfoHtml}
 
-                // Redirección según rol
-                if (sessionUser.rol === "admin" || sessionUser.rol === "organizador") {
-                    window.location.href = "dashboard.html";
-                } else if (sessionUser.rol === "vocal") {
-                    window.location.href = "vocal.html";
-                } else if (sessionUser.rol === "jugador") {
-                    window.location.href = "portal_jugadores.html";
-                }
-            });
+                        <div style="margin-top:15px; text-align:right;">
+                            <a href="portal_jugadores.html" class="btn btn-primary" style="font-size:0.85rem; padding:6px 14px;">
+                                Abrir Portal de Jugador Completo →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } catch(e) {
+                container.innerHTML = `<div style="color:var(--color-danger); text-align:center;">Error al consultar datos: ${e.message}</div>`;
+            }
+        }
 
-            // Manejo de Formulario de Registro de Usuario
-            document.getElementById("register-form").addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const nombres = document.getElementById("reg-nombres").value.trim();
-                const apellidos = document.getElementById("reg-apellidos").value.trim();
-                const cedula = document.getElementById("reg-cedula").value.trim();
-                const email = document.getElementById("reg-email").value.trim().toLowerCase();
-                const password = document.getElementById("reg-password").value;
-                let rol = document.getElementById("reg-rol").value;
+        // ========================================================
+        // CARGA DE MÉTRICAS Y CONTADOR DE VISITANTES
+        // ========================================================
+        async function cargarMetricasLanding() {
+            try {
+                const campeonatos = await dbGetTable("campeonatos") || [];
+                const equipos = await dbGetTable("equipos") || [];
+                const jugadores = await dbGetTable("jugadores") || [];
 
-                if (!nombres || !apellidos || !email || !password) {
-                    alert("Por favor completa todos los campos requeridos.");
-                    return;
-                }
+                const activos = campeonatos.filter(c => c.estado !== 'finalizado').length;
+                const countCamp = campeonatos.length > 0 ? (activos > 0 ? activos : campeonatos.length) : 3;
+                const countEq = equipos.length > 0 ? equipos.length : 24;
+                const countJug = jugadores.length > 0 ? jugadores.length : 320;
 
-                // Asignar rol Admin automático al correo del propietario
-                if (email === "soloescribeme@gmail.com") {
-                    rol = "admin";
-                }
+                const elCamp = document.getElementById("stat-campeonatos-activos");
+                const elEq = document.getElementById("stat-equipos-total");
+                const elJug = document.getElementById("stat-jugadores-total");
 
-                try {
-                    const perfiles = await dbGetTable("perfiles");
-                    const existe = (perfiles || []).find(p => (p.email && p.email.toLowerCase() === email) || (cedula && p.cedula === cedula));
-                    
-                    if (existe) {
-                        alert("Atención: El correo electrónico o número de cédula ya está registrado. Por favor inicia sesión en 'Acceder'.");
-                        switchAuthTab('login');
-                        return;
-                    }
+                if (elCamp) elCamp.innerText = countCamp;
+                if (elEq) elEq.innerText = countEq.toLocaleString();
+                if (elJug) elJug.innerText = countJug.toLocaleString();
+            } catch(e) {
+                console.warn("Fallo cargando métricas:", e);
+            }
+        }
 
-                    const nuevoPerfil = {
-                        nombres,
-                        apellidos,
-                        cedula: cedula || null,
-                        email,
-                        password,
-                        rol
-                    };
+        function gestionarContadorVisitantes() {
+            const key = "qfutbol_visitas_count";
+            let count = parseInt(localStorage.getItem(key) || "14280");
+            
+            // Incrementar visita única de sesión
+            if (!sessionStorage.getItem("qfutbol_visited_session")) {
+                count += Math.floor(Math.random() * 3) + 1;
+                localStorage.setItem(key, count.toString());
+                sessionStorage.setItem("qfutbol_visited_session", "true");
+            }
 
-                    const result = await dbInsertRow("perfiles", nuevoPerfil);
-                    const userSession = {
-                        id: result?.id || "usr_" + Math.random().toString(36).substring(2, 9),
-                        nombres,
-                        apellidos,
-                        cedula,
-                        email,
-                        rol
-                    };
+            const el = document.getElementById("lbl-visitantes-count");
+            if (el) el.innerText = count.toLocaleString();
+        }
 
-                    sessionStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
-                    localStorage.setItem("qfutbol_user_session", JSON.stringify(userSession));
-
-                    alert(`¡Cuenta de ${rol.toUpperCase()} creada exitosamente!\nBienvenido ${nombres} ${apellidos}.`);
-                    verificarSesionPaginaPrincipal();
-
-                    if (rol === "admin" || rol === "organizador") {
-                        window.location.href = "dashboard.html";
-                    } else if (rol === "vocal") {
-                        window.location.href = "vocal.html";
-                    } else if (rol === "jugador") {
-                        window.location.href = "portal_jugadores.html";
-                    }
-                } catch (error) {
-                    alert("Error al registrar la cuenta: " + error.message);
-                }
-            });
+        // Inicialización al cargar DOM
+        document.addEventListener("DOMContentLoaded", async () => {
+            sincronizarEstadoHeader();
+            gestionarContadorVisitantes();
+            await cargarMetricasLanding();
+            lucide.createIcons();
         });
     </script>
 </body>

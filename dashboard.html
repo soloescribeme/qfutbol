@@ -214,6 +214,9 @@
                     <i data-lucide="eye" style="width:16px;height:16px;"></i> Accesos Rápidos de Verificación Puntual:
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-primary" onclick="abrirModalDesignarAdmin()" style="font-size:0.82rem; padding:6px 14px; background:var(--grad-primary); color:#0a0b10; font-weight:750;">
+                        <i data-lucide="user-plus" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Designar Nuevo Administrador
+                    </button>
                     <button type="button" class="btn btn-secondary" onclick="switchTab('campeonato')" style="font-size:0.82rem; padding:6px 14px; border-color:var(--color-secondary); color:var(--color-secondary); font-weight:600;">
                         <i data-lucide="shield" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Ir a Panel de Organizador (Torneo)
                     </button>
@@ -1008,14 +1011,55 @@
                     <label class="form-label" for="eq-curso-paralelo"><i data-lucide="graduation-cap" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;color:var(--color-accent);"></i> Curso / Paralelo (Si es Escolar / Colegial)</label>
                     <input type="text" id="eq-curso-paralelo" class="form-input" placeholder="Ej. 6to EGB 'A', 3er Bachillerato 'B', Inicial 2">
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="eq-contacto-nombre">Nombre del Delegado / DT</label>
-                    <input type="text" id="eq-contacto-nombre" class="form-input" placeholder="Ej. Juan Pérez" required>
+
+                <!-- Perfil: Responsable de Equipo / Contacto (Delegado) -->
+                <div style="background:rgba(0, 255, 135, 0.04); border:1px solid rgba(0, 255, 135, 0.2); border-radius:var(--radius-sm); padding:12px; margin-bottom:12px;">
+                    <div style="font-weight:700; color:var(--color-primary); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="user-check" style="width:15px;height:15px;"></i> Perfil: Responsable / Delegado de Contacto
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="eq-contacto-nombre" style="font-size:0.75rem;">Nombre Completo</label>
+                            <input type="text" id="eq-contacto-nombre" class="form-input" placeholder="Ej. Juan Pérez" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="eq-contacto-cedula" style="font-size:0.75rem;">Cédula / DNI</label>
+                            <input type="text" id="eq-contacto-cedula" class="form-input" placeholder="Ej. 1712345678" required>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label class="form-label" for="eq-contacto-responsable" style="font-size:0.75rem;">Nro. Celular</label>
+                            <input type="text" id="eq-contacto-responsable" class="form-input" placeholder="Ej. 0987654321" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="eq-contacto-email" style="font-size:0.75rem;">Correo (Acceso)</label>
+                            <input type="email" id="eq-contacto-email" class="form-input" placeholder="delegado@ejemplo.com">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="eq-contacto-responsable">Nro. de Celular del Responsable (Recibir Horarios)</label>
-                    <input type="text" id="eq-contacto-responsable" class="form-input" placeholder="Ej. 0987654321" required>
+
+                <!-- Perfil: Director Técnico (DT) -->
+                <div style="background:rgba(96, 239, 255, 0.04); border:1px solid rgba(96, 239, 255, 0.2); border-radius:var(--radius-sm); padding:12px; margin-bottom:12px;">
+                    <div style="font-weight:700; color:var(--color-secondary); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="shield" style="width:15px;height:15px;"></i> Perfil: Director Técnico (DT)
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="eq-dt-nombre" style="font-size:0.75rem;">Nombre del DT</label>
+                            <input type="text" id="eq-dt-nombre" class="form-input" placeholder="Ej. Profe Carlos Méndez">
+                        </div>
+                        <div>
+                            <label class="form-label" for="eq-dt-cedula" style="font-size:0.75rem;">Cédula / DNI DT</label>
+                            <input type="text" id="eq-dt-cedula" class="form-input" placeholder="Ej. 1720000001">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label" for="eq-dt-telefono" style="font-size:0.75rem;">Celular DT</label>
+                        <input type="text" id="eq-dt-telefono" class="form-input" placeholder="Ej. 0998765432">
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-label" for="eq-logo">URL del Logo (Opcional)</label>
                     <input type="text" id="eq-logo" class="form-input" placeholder="https://ejemplo.com/logo.png">
@@ -1219,6 +1263,51 @@
                     <button type="button" class="btn btn-secondary" onclick="cerrarModalPagoPlataforma()">Cerrar</button>
                     <button type="submit" class="btn btn-primary" style="font-weight:700;">
                         <i data-lucide="send"></i> Enviar Comprobante para Verificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DESIGNAR NUEVO ADMINISTRADOR (EXCLUSIVO DEL ADMIN MÁSTER) -->
+    <div id="modal-designar-admin" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 480px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="shield-alert" style="color:var(--color-primary);"></i> Designar Nuevo Administrador
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalDesignarAdmin()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
+                Como Administrador Oficial, puedes conceder acceso de administración directa a otro usuario ingresando sus datos.
+            </p>
+            <form id="form-designar-admin" onsubmit="guardarNuevoAdmin(event)">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="form-group">
+                        <label class="form-label">Nombres</label>
+                        <input type="text" id="admin-nuevo-nombres" class="form-input" placeholder="Ej. Roberto" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Apellidos</label>
+                        <input type="text" id="admin-nuevo-apellidos" class="form-input" placeholder="Ej. Morales" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label">Cédula / DNI</label>
+                    <input type="text" id="admin-nuevo-cedula" class="form-input" placeholder="Ej. 1712345678" required>
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" id="admin-nuevo-email" class="form-input" placeholder="nuevo.admin@qfutbol.com" required>
+                </div>
+                <div class="form-group" style="margin-bottom:18px;">
+                    <label class="form-label">Contraseña Temporal de Acceso</label>
+                    <input type="password" id="admin-nuevo-pass" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalDesignarAdmin()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                        <i data-lucide="shield-check"></i> Asignar Privilegios Admin
                     </button>
                 </div>
             </form>
@@ -1822,6 +1911,63 @@
                 await cargarDatos();
                 await cargarAdminMetrics();
                 cerrarModalAdmin();
+            }
+        }
+
+        // ==========================================
+        // GESTIÓN DIRECTA DE ADMINISTRADORES (REGLA: ÚNICO ADMIN SALVO DESIGNACIÓN DIRECTA)
+        // ==========================================
+        function abrirModalDesignarAdmin() {
+            const user = obtenerSesionUsuario();
+            if (!user || user.rol !== "admin") {
+                alert("Acceso Restringido: Únicamente el Administrador Oficial puede designar administradores adicionales.");
+                return;
+            }
+            const modal = document.getElementById("modal-designar-admin");
+            if (modal) modal.style.display = "flex";
+            lucide.createIcons();
+        }
+
+        function cerrarModalDesignarAdmin() {
+            const modal = document.getElementById("modal-designar-admin");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function guardarNuevoAdmin(event) {
+            event.preventDefault();
+            const nombres = document.getElementById("admin-nuevo-nombres").value.trim();
+            const apellidos = document.getElementById("admin-nuevo-apellidos").value.trim();
+            const cedula = document.getElementById("admin-nuevo-cedula").value.trim();
+            const email = document.getElementById("admin-nuevo-email").value.trim().toLowerCase();
+            const pass = document.getElementById("admin-nuevo-pass").value;
+
+            try {
+                const perfiles = await dbGetTable("perfiles") || [];
+                const existente = perfiles.find(p => (p.email && p.email.toLowerCase() === email) || (p.cedula && p.cedula === cedula));
+
+                if (existente) {
+                    await dbUpdateRow("perfiles", existente.id, {
+                        rol: "admin",
+                        nombres: nombres || existente.nombres,
+                        apellidos: apellidos || existente.apellidos
+                    });
+                } else {
+                    await dbInsertRow("perfiles", {
+                        nombres,
+                        apellidos,
+                        cedula,
+                        email,
+                        password: pass,
+                        rol: "admin"
+                    });
+                }
+
+                alert(`✅ ¡Nuevo Administrador designado con éxito!\n\nUsuario: ${nombres} ${apellidos}\nCorreo: ${email}\nPrivilegios: Administrador Global QFutbol.`);
+                cerrarModalDesignarAdmin();
+                document.getElementById("form-designar-admin").reset();
+                await cargarAdminMetrics();
+            } catch(e) {
+                alert("Error al designar administrador: " + e.message);
             }
         }
 
@@ -2932,6 +3078,20 @@
                 banco_telefono_reporte: document.getElementById("camp-banco-telefono").value
             };
 
+            // Regla de Negocio: El usuario que crea un campeonato adquiere el perfil de Organizador
+            let activeUser = obtenerSesionUsuario();
+            if (activeUser) {
+                if (activeUser.rol !== "admin") {
+                    activeUser.rol = "organizador";
+                    sessionStorage.setItem("qfutbol_user_session", JSON.stringify(activeUser));
+                    localStorage.setItem("qfutbol_user_session", JSON.stringify(activeUser));
+                }
+                nuevoCamp.organizador_id = activeUser.id;
+                try {
+                    await dbUpdateRow("perfiles", activeUser.id, { rol: activeUser.rol });
+                } catch(e){}
+            }
+
             if (configCampeonato && configCampeonato.id) {
                 await dbUpdateRow("campeonatos", configCampeonato.id, nuevoCamp);
             } else {
@@ -2966,21 +3126,53 @@
             const selectCamp = document.getElementById("select-eq-campeonato-id");
             const campId = selectCamp ? selectCamp.value : (configCampeonato.id || "c1");
 
+            const contactoNombre = document.getElementById("eq-contacto-nombre").value.trim();
+            const contactoCedula = document.getElementById("eq-contacto-cedula") ? document.getElementById("eq-contacto-cedula").value.trim() : null;
+            const contactoCelular = document.getElementById("eq-contacto-responsable").value.trim();
+            const contactoEmail = document.getElementById("eq-contacto-email") ? document.getElementById("eq-contacto-email").value.trim() : null;
+            const dtNombre = document.getElementById("eq-dt-nombre") ? document.getElementById("eq-dt-nombre").value.trim() : null;
+            const dtCedula = document.getElementById("eq-dt-cedula") ? document.getElementById("eq-dt-cedula").value.trim() : null;
+            const dtCelular = document.getElementById("eq-dt-telefono") ? document.getElementById("eq-dt-telefono").value.trim() : null;
+
             const nuevoEq = {
                 campeonato_id: campId,
                 categoria_id: catId,
                 nombre: nombreEq,
                 curso_paralelo: document.getElementById("eq-curso-paralelo") ? document.getElementById("eq-curso-paralelo").value.trim() : null,
-                contacto_nombre: document.getElementById("eq-contacto-nombre").value,
-                contacto_responsable: document.getElementById("eq-contacto-responsable").value,
+                contacto_nombre: contactoNombre,
+                contacto_cedula: contactoCedula,
+                contacto_responsable: contactoCelular,
+                contacto_email: contactoEmail,
+                dt_nombre: dtNombre,
+                dt_cedula: dtCedula,
+                dt_celular: dtCelular,
                 logo_url: document.getElementById("eq-logo").value || null,
                 monto_pagado_inscripcion: parseFloat(document.getElementById("eq-abono").value || 0),
                 monto_garantia_pagado: 10.00
             };
 
             await dbInsertRow("equipos", nuevoEq);
+
+            // Regla: El organizador habilita el perfil de Delegado o DT para los representantes del equipo
+            if (contactoEmail && contactoCedula) {
+                try {
+                    const perfiles = await dbGetTable("perfiles") || [];
+                    const yaExiste = perfiles.find(p => (p.email && p.email.toLowerCase() === contactoEmail.toLowerCase()) || (p.cedula === contactoCedula));
+                    if (!yaExiste) {
+                        await dbInsertRow("perfiles", {
+                            nombres: contactoNombre,
+                            apellidos: `(Delegado ${nombreEq})`,
+                            cedula: contactoCedula,
+                            email: contactoEmail,
+                            password: "qfutbol_delegado",
+                            rol: "jugador" // perfil base para delegado/contacto
+                        });
+                    }
+                } catch(e){}
+            }
+
             hideModalAgregarEquipo();
-            alert(`Equipo "${nuevoEq.nombre}" inscrito exitosamente.`);
+            alert(`Equipo "${nuevoEq.nombre}" inscrito exitosamente con representantes asignados.`);
             await cargarDatos();
         });
 

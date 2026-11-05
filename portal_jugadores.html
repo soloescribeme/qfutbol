@@ -682,8 +682,15 @@
         function verificarSesionJugador() {
             let sessionUser = {};
             try {
-                const stored = sessionStorage.getItem("qfutbol_user_session");
-                if (stored) sessionUser = JSON.parse(stored);
+                const stored = sessionStorage.getItem("qfutbol_user_session") || localStorage.getItem("qfutbol_user_session");
+                if (stored) {
+                    sessionUser = JSON.parse(stored);
+                } else {
+                    // Regla de Negocio: Todo usuario que quiera revisar la información debe estar registrado
+                    alert("Acceso Restringido: Para revisar la información de equipos, calendarios y estadísticas, debes estar registrado en QFutbol.");
+                    window.location.href = "index.html";
+                    return;
+                }
             } catch(e){}
 
             const isAdmin = (sessionUser.email === "soloescribeme@gmail.com" || sessionUser.rol === "admin");
