@@ -73,6 +73,8 @@ CREATE TABLE campeonatos (
     canchas_nombres TEXT,
     pago_plataforma_realizado BOOLEAN DEFAULT FALSE NOT NULL,
     monto_pago_plataforma DECIMAL(10,2) DEFAULT 0.00 NOT NULL,
+    comprobante_pago_plataforma VARCHAR(150),
+    fecha_reporte_pago TIMESTAMP WITH TIME ZONE,
     banco_nombre VARCHAR(100),
     banco_tipo_cuenta VARCHAR(50),
     banco_numero_cuenta VARCHAR(50),
@@ -172,6 +174,10 @@ CREATE TABLE partidos (
     observaciones_acta TEXT,
     firma_local BOOLEAN DEFAULT FALSE NOT NULL,
     firma_visitante BOOLEAN DEFAULT FALSE NOT NULL,
+    nomina_activa_local TEXT,
+    nomina_activa_visitante TEXT,
+    motivo_suspension VARCHAR(150),
+    recuperacion_plan VARCHAR(50),
     fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     CONSTRAINT partidos_equipos_diferentes CHECK (equipo_local_id <> equipo_visitante_id)
 );
@@ -357,6 +363,44 @@ CREATE TRIGGER tr_partido_finalizado
 AFTER UPDATE OF estado, firma_local, firma_visitante ON partidos
 FOR EACH ROW
 EXECUTE FUNCTION fn_recalcular_scores_partido();
+
+-- Tabla de historial de campeones del torneo
+CREATE TABLE IF NOT EXISTS historial_campeones (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    campeonato_id UUID REFERENCES campeonatos(id) ON DELETE CASCADE,
+    edicion_nombre VARCHAR(150) NOT NULL,
+    categoria_nombre VARCHAR(100),
+    equipo_campeon_nombre VARCHAR(150) NOT NULL,
+    equipo_campeon_escudo TEXT,
+    equipo_subcampeon_nombre VARCHAR(150),
+    equipo_tercero_nombre VARCHAR(150),
+    goleador_nombre VARCHAR(150),
+    goles_cantidad INT DEFAULT 0,
+    mejor_jugador_nombre VARCHAR(150),
+    mejor_arquero_nombre VARCHAR(150),
+    imagen_fondo_url TEXT,
+    fecha_finalizacion DATE DEFAULT CURRENT_DATE,
+    detalles_adicionales TEXT,
+    fecha_registro TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabla de pases de jugadores entre equipos
+CREATE TABLE IF NOT EXISTS pases_jugadores (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    campeonato_id UUID REFERENCES campeonatos(id) ON DELETE CASCADE,
+    jugador_global_id UUID,
+    jugador_cedula VARCHAR(20) NOT NULL,
+    jugador_nombres VARCHAR(150) NOT NULL,
+    equipo_origen_id UUID REFERENCES equipos(id) ON DELETE SET NULL,
+    equipo_origen_nombre VARCHAR(150),
+    equipo_destino_id UUID REFERENCES equipos(id) ON DELETE CASCADE,
+    equipo_destino_nombre VARCHAR(150),
+    costo_pase DECIMAL(10,2) DEFAULT 0.00 NOT NULL,
+    estado_pago VARCHAR(20) DEFAULT 'pendiente',
+    comprobante_pago VARCHAR(150),
+    fecha_solicitud TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    fecha_aprobacion TIMESTAMP WITH TIME ZONE
+);
 
 -- 4. DATOS SEMILLA INICIALES DE PRUEBA
 

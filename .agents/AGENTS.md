@@ -68,7 +68,7 @@ En caso de igualdad de puntos en la tabla de posiciones, el sistema ordenará lo
 
 ## 4. Gestión del Campeonato y Finanzas
 
-*   **Inscripción por Equipo:** **$3.00 USD** por campeonato (cobro único de la plataforma al organizador).
+*   **Inscripción por Equipo:** **$1.00 USD** por campeonato (cobro único de la plataforma al organizador).
 *   **Garantía de Disciplina (Opcional):** El organizador puede configurar una garantía que el equipo paga al inicio del torneo y de donde se descuentan las multas por tarjetas.
 *   **Auspiciantes:** La aplicación permitirá mostrar banners de patrocinadores del campeonato en las pantallas públicas de estadísticas del torneo (fuente de ingresos extra para el organizador).
 Debe mostrar los auspiciantes en la imagen de generacion de calendarios, tabla de posiciones y en todas las imagenes que se creen del campeonato.
@@ -125,7 +125,7 @@ El módulo de apuestas operará de forma independiente pero alimentado en tiempo
 ## 9. Monetización de la Plataforma, Auspiciantes y Aspectos Legales
 
 ### 9.1 Cobro de la Plataforma QFutbol (Bloqueo de Fixture)
-*   **Costo de la Plataforma:** El organizador debe pagar a la administración de QFutbol una tarifa calculada como **$3.00 USD por cada equipo participante** inscrito en el campeonato.
+*   **Costo de la Plataforma:** El organizador debe pagar a la administración de QFutbol una tarifa calculada como **$1.00 USD por cada equipo participante** inscrito en el campeonato.
 *   **Bloqueo de Fixture:** El sistema **bloqueará de manera absoluta la opción de "Generar Fixture Automático"** hasta que el organizador registre el pago de esta tarifa por uso de la plataforma a la administración de QFutbol. Un mensaje claro informará el monto total calculado y los pasos para el depósito.
 
 ### 9.2 Registro de Datos Bancarios de la Liga

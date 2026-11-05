@@ -69,20 +69,27 @@ async function sincronizarColaOffline() {
         try {
             const { id, datos } = item;
             
-            // 1. Actualizar cabecera del partido (goles, firmas, estado finalizado)
-            const { error: errorPartido } = await supabase
-                .from('partidos')
-                .update({
-                    goles_local: datos.goles_local,
-                    goles_visitante: datos.goles_visitante,
-                    firma_local: datos.firma_local,
-                    firma_visitante: datos.firma_visitante,
-                    arbitro_nombre: datos.arbitro_nombre,
-                    estado: datos.estado
-                })
-                .eq('id', id);
-                
-            if (errorPartido) throw errorPartido;
+            // 1. Actualizar cabecera del partido (goles, firmas, estado finalizado, nómina activa)
+            const updatePayload = {
+                goles_local: datos.goles_local,
+                goles_visitante: datos.goles_visitante,
+                firma_local: datos.firma_local,
+                firma_visitante: datos.firma_visitante,
+                arbitro_nombre: datos.arbitro_nombre,
+                nomina_activa_local: datos.nomina_activa_local,
+                nomina_activa_visitante: datos.nomina_activa_visitante,
+                estado: datos.estado
+            };
+
+            if (typeof dbUpdateRow === 'function') {
+                await dbUpdateRow("partidos", id, updatePayload);
+            } else if (supabase && supabase.from) {
+                const { error: errorPartido } = await supabase
+                    .from('partidos')
+                    .update(updatePayload)
+                    .eq('id', id);
+                if (errorPartido) throw errorPartido;
+            }
             
             // 2. Eliminar estadísticas previas y penales de este partido para evitar duplicados
             const { error: errorDeleteStats } = await supabase

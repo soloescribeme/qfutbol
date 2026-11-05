@@ -267,6 +267,10 @@
         let equipoVisitante = null;
         let jugadoresLocal = [];
         let jugadoresVisitante = [];
+        let nominaActivaLocal = new Set();
+        let nominaActivaVisitante = new Set();
+        let sancionesAcumuladas = {};
+        let deudasEquipos = { local: 0, visitante: 0 };
         
         let localGoles = 0;
         let visitanteGoles = 0;
@@ -413,7 +417,7 @@
             const campeonatos = await dbGetTable("campeonatos");
             const configCamp = campeonatos.find(c => c.id === partidoSeleccionado.campeonato_id) || campeonatos[0] || {};
             if (configCamp && configCamp.pago_plataforma_realizado === false) {
-                alert("Encuentro Deportivo Bloqueado: La realización de encuentros deportivos y el registro de vocalías se encuentran deshabilitados hasta que el pago de la licencia ($1.00 USD por equipo a la cuenta de ahorros) sea verificado y confirmado por el administrador de la app Qfutbol.");
+                alert("Encuentro Deportivo Bloqueado: La realización de encuentros deportivos y el registro de vocalías se encuentran deshabilitados hasta que el pago de la licencia ($1.00 USD por equipo participante) sea verificado y confirmado por el administrador de la app QFutbol.");
                 container.style.display = "none";
                 return;
             }
@@ -460,9 +464,81 @@
                 return { ...ins, nombres: jG.nombres, apellidos: jG.apellidos, foto_url: jG.foto_url, cedula: jG.cedula };
             });
 
-            // Inicializar estructura de estadísticas en memoria si no existen
-            // Para el MVP, si el partido ya se estaba editando, podemos buscar en la tabla detalles_partido local
+            // Cargar sanciones previas acumuladas (Regla 1.1)
+            sancionesAcumuladas = {};
             const detalles = await dbGetTable("detalles_partido");
+            const limiteAmarillas = configCamp.amarillas_suspension || 5;
+
+            // Analizar partidos anteriores del torneo
+            detalles.filter(d => d.partido_id !== partidoSeleccionado.id).forEach(d => {
+                const jId = d.inscripcion_jugador_id;
+                if (!sancionesAcumuladas[jId]) {
+                    sancionesAcumuladas[jId] = { amarillas: 0, rojas: 0, suspendido: false, motivo: "" };
+                }
+                sancionesAcumuladas[jId].amarillas += (d.amarillas || 0);
+                sancionesAcumuladas[jId].rojas += (d.rojas || 0);
+                if (d.expulsado_etilicidad) sancionesAcumuladas[jId].rojas += 1;
+            });
+
+            Object.keys(sancionesAcumuladas).forEach(jId => {
+                const s = sancionesAcumuladas[jId];
+                if (s.amarillas >= limiteAmarillas) {
+                    s.suspendido = true;
+                    s.motivo = `${s.amarillas} Amarillas Acumuladas`;
+                } else if (s.rojas > 0) {
+                    s.suspendido = true;
+                    s.motivo = `Suspensión por Tarjeta Roja`;
+                }
+            });
+
+            // Control Financiero de Deudas (Regla 1.3)
+            const sancionesEquipos = await dbGetTable("sanciones_equipos");
+            const calcularDeuda = (eqId) => {
+                return (sancionesEquipos || []).filter(s => s.equipo_id === eqId && !s.pagada)
+                    .reduce((sum, s) => sum + parseFloat(s.monto || 0), 0);
+            };
+
+            deudasEquipos.local = calcularDeuda(equipoLocal.id);
+            deudasEquipos.visitante = calcularDeuda(equipoVisitante.id);
+
+            const alertFin = document.getElementById("alert-bloqueo-financiero");
+            if (deudasEquipos.local > 0 || deudasEquipos.visitante > 0) {
+                alertFin.style.display = "block";
+                let msg = `<strong>Control Financiero de Sanciones (Regla 1.3):</strong> `;
+                if (deudasEquipos.local > 0) msg += `Equipo ${equipoLocal.nombre} adeuda $${deudasEquipos.local.toFixed(2)} USD en multas. `;
+                if (deudasEquipos.visitante > 0) msg += `Equipo ${equipoVisitante.nombre} adeuda $${deudasEquipos.visitante.toFixed(2)} USD en multas. `;
+                msg += `<br><small style="color:var(--text-muted);">Debe regularizarse el pago para formalizar las estadísticas del partido.</small>`;
+                alertFin.innerHTML = `<i data-lucide="alert-triangle"></i> ${msg}`;
+            } else {
+                alertFin.style.display = "none";
+            }
+
+            // Inicializar Nómina Activa
+            nominaActivaLocal = new Set();
+            nominaActivaVisitante = new Set();
+
+            if (partidoSeleccionado.nomina_activa_local) {
+                try {
+                    const parsed = JSON.parse(partidoSeleccionado.nomina_activa_local);
+                    parsed.forEach(id => nominaActivaLocal.add(id));
+                } catch(e) {}
+            } else {
+                jugadoresLocal.forEach(j => {
+                    if (!sancionesAcumuladas[j.id]?.suspendido) nominaActivaLocal.add(j.id);
+                });
+            }
+
+            if (partidoSeleccionado.nomina_activa_visitante) {
+                try {
+                    const parsed = JSON.parse(partidoSeleccionado.nomina_activa_visitante);
+                    parsed.forEach(id => nominaActivaVisitante.add(id));
+                } catch(e) {}
+            } else {
+                jugadoresVisitante.forEach(j => {
+                    if (!sancionesAcumuladas[j.id]?.suspendido) nominaActivaVisitante.add(j.id);
+                });
+            }
+
             const detallesDeEstePartido = detalles.filter(d => d.partido_id === partidoSeleccionado.id);
 
             // Combinar todos los jugadores de ambos equipos para inicializar el objeto
@@ -505,32 +581,69 @@
             container.innerHTML = "";
 
             const listaMostrar = tabActiva === "local" ? jugadoresLocal : jugadoresVisitante;
+            const nominaActiva = tabActiva === "local" ? nominaActivaLocal : nominaActivaVisitante;
 
             if (listaMostrar.length === 0) {
                 container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);">No hay jugadores inscritos en este equipo.</div>`;
                 return;
             }
 
+            // Barra superior de Nómina Activa (Regla 8.3 & Regla 3)
+            const numConvocados = nominaActiva.size;
+            const minRequerido = 7;
+            const badgeMin = numConvocados >= minRequerido 
+                ? `<span style="color:var(--color-primary); font-weight:700;">✓ Mínimo reglamentario cumplido (${numConvocados} activos)</span>`
+                : `<span style="color:var(--color-danger); font-weight:700;">⚠️ Atención: Menos del mínimo reglamentario (${numConvocados} activos / mín. ${minRequerido})</span>`;
+
+            container.innerHTML += `
+                <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:10px 15px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="font-size:0.85rem; font-weight:700;"><i data-lucide="users" style="width:14px;height:14px;display:inline;"></i> Nómina Activa Oficial (Score Dinámico en Apuestas)</div>
+                        <div style="font-size:0.8rem; margin-top:2px;">${badgeMin}</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;" onclick="convocarTodos(true)">Convocar Todos</button>
+                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;" onclick="convocarTodos(false)">Desmarcar Todos</button>
+                        <button type="button" class="btn btn-primary" style="font-size:0.75rem; padding:4px 10px;" onclick="guardarProgresoPartido()"><i data-lucide="save" style="width:12px;height:12px;display:inline;"></i> Guardar Nómina</button>
+                    </div>
+                </div>
+            `;
+
             // Ordenar por dorsal
             listaMostrar.sort((a,b) => a.dorsal - b.dorsal).forEach(j => {
                 const stats = estadisticasPartido[j.id] || { goles: 0, asistencias: 0, amarillas: 0, rojas: 0, etilicidad: false, valoracion: 6.00 };
-                
+                const estaActivo = nominaActiva.has(j.id);
+                const sancion = sancionesAcumuladas[j.id];
+
+                let sancionBadge = "";
+                if (sancion && sancion.suspendido) {
+                    sancionBadge = `<span style="background:rgba(255,77,77,0.18); color:var(--color-danger); border:1px solid rgba(255,77,77,0.3); font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:var(--radius-sm);"><i data-lucide="alert-octagon" style="width:12px;height:12px;display:inline;"></i> SANCIONADO: ${sancion.motivo}</span>`;
+                }
+
                 // Formatear botones activos
                 const clAmarilla = stats.amarillas > 0 ? "btn-card-active-yellow" : "";
                 const clRoja = stats.rojas > 0 ? "btn-card-active-red" : "";
                 const clEtilico = stats.etilicidad ? "btn-etilicidad-active" : "";
+                const clConvocado = estaActivo ? "btn-card-active-yellow" : "";
 
                 container.innerHTML += `
-                    <div class="player-row">
+                    <div class="player-row" style="${!estaActivo ? 'opacity:0.6; background:rgba(0,0,0,0.4);' : ''}">
                         <div class="player-header">
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <span class="player-score" style="font-size:0.9rem;padding:3px 8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--border-glass);">${j.dorsal}</span>
                                 <div>
-                                    <div style="font-weight:600;font-size:0.95rem;">${j.nombres} ${j.apellidos}</div>
-                                    <div style="font-size:0.75rem;color:var(--text-muted);">${j.posicion} • C.I. ${j.cedula}</div>
+                                    <div style="font-weight:600;font-size:0.95rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                        ${j.nombres} ${j.apellidos}
+                                        ${sancionBadge}
+                                    </div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">${j.posicion} • C.I. ${j.cedula} • Rating: ${parseFloat(j.rating_campeonato || 6.0).toFixed(1)}</div>
                                 </div>
                             </div>
-                            <div style="display:flex;align-items:center;gap:5px;">
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <button type="button" class="stat-badge-btn ${clConvocado}" style="font-size:0.75rem; padding:4px 8px;" onclick="toggleConvocado('${j.id}')">
+                                    <i data-lucide="${estaActivo ? 'check-circle' : 'circle'}"></i>
+                                    <span>${estaActivo ? 'Nómina Activa ✓' : 'Baja / No Juega'}</span>
+                                </button>
                                 <span style="font-size:0.75rem;color:var(--text-muted);">Calificación:</span>
                                 <input type="number" value="${stats.valoracion.toFixed(1)}" min="1.0" max="10.0" step="0.5" 
                                     style="width:50px;background:rgba(0,0,0,0.3);border:1px solid var(--border-glass);color:var(--color-primary);text-align:center;border-radius:var(--radius-sm);font-weight:700;padding:2px 0;"
@@ -577,6 +690,42 @@
                 `;
             });
             lucide.createIcons();
+        }
+
+        function toggleConvocado(id) {
+            const nominaActiva = tabActiva === "local" ? nominaActivaLocal : nominaActivaVisitante;
+            const lista = tabActiva === "local" ? jugadoresLocal : jugadoresVisitante;
+            const j = lista.find(item => item.id === id);
+
+            if (nominaActiva.has(id)) {
+                nominaActiva.delete(id);
+            } else {
+                const sancion = sancionesAcumuladas[id];
+                if (sancion && sancion.suspendido) {
+                    if (!confirm(`⚠️ ALERTA DE SANCIÓN (Regla 1.1):\n\nEl jugador ${j ? j.nombres + ' ' + j.apellidos : ''} está registrado como suspendido por: ${sancion.motivo}.\n\n¿El organizador o mesa autoriza expresamente habilitarlo para este partido?`)) {
+                        return;
+                    }
+                }
+                nominaActiva.add(id);
+            }
+            renderizarPlanillaJugadores();
+        }
+
+        function convocarTodos(activar) {
+            const nominaActiva = tabActiva === "local" ? nominaActivaLocal : nominaActivaVisitante;
+            const lista = tabActiva === "local" ? jugadoresLocal : jugadoresVisitante;
+
+            if (activar) {
+                lista.forEach(j => {
+                    const sancion = sancionesAcumuladas[j.id];
+                    if (!sancion || !sancion.suspendido) {
+                        nominaActiva.add(j.id);
+                    }
+                });
+            } else {
+                nominaActiva.clear();
+            }
+            renderizarPlanillaJugadores();
         }
 
         // ==========================================
@@ -719,6 +868,8 @@
                 firma_visitante: firmaVisitante,
                 arbitro_nombre: document.getElementById("vocal-arbitro-nombre").value,
                 estado: estadoPartido,
+                nomina_activa_local: JSON.stringify(Array.from(nominaActivaLocal || [])),
+                nomina_activa_visitante: JSON.stringify(Array.from(nominaActivaVisitante || [])),
                 detalles: detalles,
                 penales: penales
             };
@@ -727,6 +878,29 @@
         // GUARDAR PROGRESO (BORRADOR LOCAL)
         async function guardarProgresoPartido() {
             const datos = consolidarDatosPartido('jugando');
+
+            // Actualizar referencia en memoria activa
+            if (partidoSeleccionado) {
+                partidoSeleccionado.nomina_activa_local = datos.nomina_activa_local;
+                partidoSeleccionado.nomina_activa_visitante = datos.nomina_activa_visitante;
+            }
+
+            // Persistir en Neon PostgreSQL si dbUpdateRow está disponible
+            if (typeof dbUpdateRow === 'function') {
+                try {
+                    await dbUpdateRow("partidos", partidoSeleccionado.id, {
+                        goles_local: datos.goles_local,
+                        goles_visitante: datos.goles_visitante,
+                        firma_local: datos.firma_local,
+                        firma_visitante: datos.firma_visitante,
+                        arbitro_nombre: datos.arbitro_nombre,
+                        nomina_activa_local: datos.nomina_activa_local,
+                        nomina_activa_visitante: datos.nomina_activa_visitante
+                    });
+                } catch(e) {
+                    console.warn("Error guardando progreso en Neon DB:", e);
+                }
+            }
             
             if (supabase && supabase.auth) {
                 // Actualizar en base remota de Supabase
@@ -735,7 +909,9 @@
                     goles_visitante: datos.goles_visitante,
                     firma_local: datos.firma_local,
                     firma_visitante: datos.firma_visitante,
-                    arbitro_nombre: datos.arbitro_nombre
+                    arbitro_nombre: datos.arbitro_nombre,
+                    nomina_activa_local: datos.nomina_activa_local,
+                    nomina_activa_visitante: datos.nomina_activa_visitante
                 }).eq('id', partidoSeleccionado.id);
             } else {
                 // Guardar en Mock db local
@@ -747,6 +923,8 @@
                     localDb.partidos[pIdx].firma_local = datos.firma_local;
                     localDb.partidos[pIdx].firma_visitante = datos.firma_visitante;
                     localDb.partidos[pIdx].arbitro_nombre = datos.arbitro_nombre;
+                    localDb.partidos[pIdx].nomina_activa_local = datos.nomina_activa_local;
+                    localDb.partidos[pIdx].nomina_activa_visitante = datos.nomina_activa_visitante;
                     
                     // Reemplazar detalles de partido
                     localDb.detalles_partido = localDb.detalles_partido.filter(d => d.partido_id !== partidoSeleccionado.id);
@@ -760,7 +938,13 @@
                     localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
                 }
             }
-            alert("Borrador del partido guardado correctamente.");
+
+            // Guardar también en la cola offline para redundancia
+            if (typeof guardarPartidoOffline === 'function' && partidoSeleccionado) {
+                guardarPartidoOffline(partidoSeleccionado.id, datos);
+            }
+
+            alert("Borrador del partido y nómina oficial guardados correctamente.");
         }
 
         // LÓGICA DE PENALES

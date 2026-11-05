@@ -152,7 +152,7 @@
                         Licencia y Costo por Uso de la App QFutbol ($1.00 USD por Equipo Inscrito)
                     </div>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.45;">
-                        Estimado Organizador: El costo por el uso de la plataforma es de <strong>$1.00 USD por cada equipo inscrito</strong> en el torneo, pagaderos mediante depósito o transferencia bancaria a la cuenta de ahorros del administrador. La opción para generar calendarios y encuentros deportivos se habilitará una vez sea confirmado el pago <strong>por el administrador de la app Qfutbol</strong>.
+                        Estimado Organizador: El costo por el uso de la plataforma es de <strong>$1.00 USD por cada equipo inscrito</strong> en el torneo, pagaderos mediante depósito o transferencia bancaria a la cuenta oficial de la administración de QFutbol. La opción para generar calendarios y fixtures deportivos se habilitará una vez sea confirmado el pago <strong>por la administración de la app QFutbol</strong>.
                     </p>
                 </div>
                 <div style="text-align: right; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); min-width: 200px;">
@@ -231,7 +231,7 @@
 
             <div style="background:rgba(0, 255, 135, 0.08); border-left:4px solid var(--color-primary); padding:12px 16px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
                 <i data-lucide="info" style="color:var(--color-primary); width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:6px;"></i>
-                <strong>Administración de la App:</strong> Este módulo está destinado exclusivamente a la gestión global de QFutbol (cobros de licencias de $1.00 USD/equipo, auditoría de métricas y estado del sistema). Las opciones del Organizador (<em>Configuración, Categorías, Equipos, Auspiciantes, Fixture, Finanzas</em>) están en su propio panel del torneo.
+                <strong>Administración de la App:</strong> Este módulo está destinado exclusivamente a la gestión global de QFutbol (cobros de licencias de $1.00 USD/equipo según Regla 9.1, auditoría de métricas y estado del sistema). Las opciones del Organizador (<em>Configuración, Categorías, Equipos, Auspiciantes, Fixture, Finanzas</em>) están en su propio panel del torneo.
             </div>
 
             <!-- TARJETAS DE MÉTRICAS GLOBALES ADMIN (COMPACTAS) -->
@@ -294,16 +294,16 @@
             <!-- SECCIÓN DE COBROS Y VERIFICACIÓN BANCARIA DE LA APP -->
             <div class="glass-panel" style="padding:20px; margin-bottom:25px; border-left:4px solid var(--color-primary);">
                 <h3 style="font-size:1.2rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-                    <i data-lucide="credit-card" style="color:var(--color-primary);"></i> Licencia de la App QFutbol ($1.00 por Equipo)
+                    <i data-lucide="credit-card" style="color:var(--color-primary);"></i> Licencia de la App QFutbol ($1.00 por Equipo Participante)
                 </h3>
                 <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
-                    El costo del uso de la aplicación es de <strong>$1.00 USD por cada equipo inscrito</strong> en un campeonato, pagaderos con transferencia o depósito bancario a la cuenta de ahorros del administrador. Mientras no se confirme el pago <strong>por el administrador de la app Qfutbol</strong>, el sistema mantendrá bloqueadas las opciones para generar calendarios y realizar encuentros deportivos.
+                    El costo del uso de la aplicación es de <strong>$1.00 USD por cada equipo participante</strong> inscrito en un campeonato (Regla 9.1), pagaderos con transferencia o depósito bancario a la administración de QFutbol. Mientras no se confirme el pago <strong>por el administrador de la app QFutbol</strong>, el sistema mantendrá bloqueadas de manera absoluta las opciones para generar calendarios de fixture y disputar partidos oficiales.
                 </p>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; font-size:0.88rem; background:rgba(0,0,0,0.2); padding:15px; border-radius:var(--radius-sm);">
-                    <div><strong>Propietario:</strong> Luis Antonio Lozano Lozano</div>
-                    <div><strong>Correo Oficial:</strong> soloescribeme@gmail.com</div>
-                    <div><strong>Cuenta de Pago:</strong> Cuenta de Ahorros</div>
-                    <div><strong>Tarifa App:</strong> $1.00 USD / Equipo Inscrito</div>
+                    <div><strong>Propietario / Admin:</strong> Luis Antonio Lozano Lozano</div>
+                    <div><strong>Banco Oficial:</strong> Banco Pichincha (Cta. Corriente)</div>
+                    <div><strong>Número de Cuenta:</strong> 2100234567 (C.I. 1104196144)</div>
+                    <div><strong>Tarifa Oficial:</strong> $1.00 USD / Equipo Participante</div>
                 </div>
             </div>
 
@@ -491,9 +491,6 @@
                     </button>
                 </form>
             </div>
-        </div>dar Configuración
-                </button>
-            </form>
         </div>
 
         <!-- TAB: CATEGORÍAS -->
@@ -817,6 +814,14 @@
                     <h2 style="font-size: 1.5rem;"><i data-lucide="calendar-days"></i> Fixture y Calendario</h2>
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Configura la distribución y genera el calendario oficial una vez cerradas las inscripciones.</p>
                 </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="exportarImagenFixtureConAuspiciantes()" style="font-size:0.85rem; padding:8px 14px;">
+                        <i data-lucide="camera"></i> Descargar Imagen Fixture
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="abrirModalAfichePromo()" style="font-size:0.85rem; padding:8px 14px; background:var(--grad-primary); border:none; color:var(--text-dark); font-weight:700;">
+                        <i data-lucide="share-2"></i> Afiche para Redes
+                    </button>
+                </div>
             </div>
 
             <!-- Configuración de Generación de Fixture -->
@@ -865,32 +870,55 @@
                 </div>
             </div>
             
-            <!-- Alerta Pago Plataforma QFutbol (Bloqueo) -->
-            <div id="alerta-pago-plataforma-fixture" class="alert alert-danger" style="margin-bottom: 25px; display: none; flex-direction: column; align-items: flex-start; gap: 12px;">
+            <!-- Alerta Pago Plataforma QFutbol (Bloqueo Absoluto) -->
+            <div id="alerta-pago-plataforma-fixture" class="alert alert-danger" style="margin-bottom: 25px; display: none; flex-direction: column; align-items: flex-start; gap: 12px; border-left: 4px solid var(--color-danger); background: rgba(255, 77, 77, 0.08);">
                 <div>
-                    <i data-lucide="lock" style="color:var(--color-danger); width:20px; height:20px; display:inline-block; vertical-align:middle; margin-right:8px;"></i>
-                    <strong style="font-size:1.05rem; color:var(--text-main);">Generación de Fixture Bloqueada</strong>
+                    <i data-lucide="lock" style="color:var(--color-danger); width:22px; height:22px; display:inline-block; vertical-align:middle; margin-right:8px;"></i>
+                    <strong style="font-size:1.05rem; color:var(--text-main);">Generación de Fixture Bloqueada por Licencia QFutbol</strong>
                 </div>
                 <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.4;">
-                    Debes saldar el costo de uso de la plataforma QFutbol para poder generar el calendario. El costo es de **$1.00 USD por cada equipo inscrito** y debe ser verificado y habilitado <strong>por el administrador de la app Qfutbol</strong>.
+                    Para habilitar el fixture automático debes abonar la tarifa por uso de la plataforma de <strong>$1.00 USD por cada equipo participante</strong> (Regla 9.1). Reporta tu depósito o transferencia bancaria a la administración de QFutbol para que el fixture quede habilitado.
                 </p>
                 <div style="font-size:0.95rem; font-weight:700;">
-                    Equipos inscritos: <span id="lbl-plataforma-equipos-count" style="color:var(--color-secondary);">0</span> | Total a Pagar: <span id="lbl-plataforma-monto-pago" style="color:var(--color-primary); font-size:1.15rem;">$0.00 USD</span>
+                    Equipos inscritos: <span id="lbl-plataforma-equipos-count" style="color:var(--color-secondary);">0</span> | Total Licencia: <span id="lbl-plataforma-monto-pago" style="color:var(--color-primary); font-size:1.15rem;">$0.00 USD</span>
                 </div>
-                <button class="btn btn-primary" style="background:var(--grad-accent); color:var(--text-main); border:none; font-size:0.85rem; padding:8px 16px; margin-top:5px;" onclick="simularPagoPlataforma()">
-                    <i data-lucide="credit-card"></i> Solicitar Verificación de Licencia ($1.00 x Equipo)
+                <div id="lbl-plataforma-comprobante-info" style="display:none; font-size:0.85rem; background:rgba(0,0,0,0.25); padding:6px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-glass);"></div>
+                <button class="btn btn-primary" style="background:var(--grad-accent); color:var(--text-main); border:none; font-size:0.88rem; padding:9px 18px; margin-top:5px; font-weight:700;" onclick="abrirModalPagoPlataforma()">
+                    <i data-lucide="credit-card"></i> Gestionar / Reportar Comprobante de Licencia ($1.00 x Equipo)
                 </button>
             </div>
             
-            <!-- Vista de Jornadas -->
-            <div id="jornadas-container" style="display: flex; flex-direction: column; gap: 30px;">
-                <!-- Carga dinámica de jornadas -->
+            <!-- Contenedor Exportable de Fixture con Auspiciantes -->
+            <div id="fixture-export-area" style="background:var(--bg-glass); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-glass);">
+                <!-- Encabezado de Fixture para Imagen Compartible -->
+                <div id="fixture-export-header" style="text-align:center; margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid var(--border-glass);">
+                    <h3 id="fixture-export-camp-titulo" style="font-size:1.6rem; color:var(--color-primary); font-weight:800; margin-bottom:5px;">Campeonato QFutbol</h3>
+                    <p id="fixture-export-camp-subtitulo" style="font-size:0.9rem; color:var(--text-muted);">Calendario Oficial de Partidos</p>
+                </div>
+
+                <!-- Vista de Jornadas -->
+                <div id="jornadas-container" style="display: flex; flex-direction: column; gap: 30px;">
+                    <!-- Carga dinámica de jornadas -->
+                </div>
+
+                <!-- Banner de Auspiciantes Oficiales en Fixture (Regla 4 y 9.3) -->
+                <div id="fixture-auspiciantes-banner" style="margin-top:35px; padding:20px; background:rgba(0,0,0,0.35); border-radius:var(--radius-md); border:1px solid var(--border-glass);">
+                    <div style="font-size:0.82rem; font-weight:700; color:var(--color-secondary); text-align:center; margin-bottom:15px; letter-spacing:1px; text-transform:uppercase;">
+                        ⭐ Auspiciantes Oficiales del Campeonato ⭐
+                    </div>
+                    <div id="fixture-auspiciantes-logos" style="display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:center;">
+                        <!-- Logos dinámicos -->
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- TAB: FINANZAS -->
         <div id="tab-finanzas" class="tab-content glass-panel">
             <h2 style="font-size: 1.5rem; margin-bottom: 20px;"><i data-lucide="wallet"></i> Control de Abonos y Multas</h2>
+            
+            <!-- ALERTA DE FECHA LÍMITE DE ABONOS / PLAZOS (Regla de Abonos y Notificaciones) -->
+            <div id="alerta-limite-pago-container" style="display:none; margin-bottom:20px;"></div>
             
             <div style="overflow-x: auto;">
                 <table>
@@ -1021,8 +1049,20 @@
 
     <!-- MODAL AGREGAR ABONO -->
     <div id="modal-abono" class="modal">
-        <div class="modal-content glass-panel" style="width: 100%; max-width: 400px;">
-            <h3 style="font-size: 1.3rem; margin-bottom: 20px;">Registrar Abono / Pago</h3>
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 440px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size: 1.3rem; margin:0;"><i data-lucide="wallet" style="color:var(--color-primary); width:20px; height:20px; display:inline-block; vertical-align:middle;"></i> Registrar Abono / Pago</h3>
+                <button type="button" class="btn btn-secondary" onclick="hideModalAbono()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
+            </div>
+
+            <!-- Datos Bancarios Oficiales de la Liga (Regla 9.2) -->
+            <div id="box-datos-bancarios-organizador" style="background:rgba(96,239,255,0.06); border:1px solid rgba(96,239,255,0.25); border-radius:var(--radius-sm); padding:12px; margin-bottom:15px; font-size:0.8rem; display:none;">
+                <div style="font-weight:700; color:var(--color-secondary); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                    <i data-lucide="landmark" style="width:15px;height:15px;"></i> Cuenta Bancaria de la Liga para Transferencias:
+                </div>
+                <div id="abono-banco-info" style="color:var(--text-main); line-height:1.45;"></div>
+            </div>
+
             <form id="abono-form">
                 <input type="hidden" id="abono-equipo-id">
                 <div class="form-group">
@@ -1044,9 +1084,13 @@
                     <label class="form-label" for="abono-monto">Monto a Pagar ($)</label>
                     <input type="number" id="abono-monto" class="form-input" value="1.00" min="0.10" step="0.10" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label" for="abono-comprobante">Nro. Comprobante / Referencia Bancaria (Opcional)</label>
+                    <input type="text" id="abono-comprobante" class="form-input" placeholder="Ej. Depósito / Transf. #987654">
+                </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-secondary" onclick="hideModalAbono()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Aplicar Pago</button>
+                    <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Aplicar Pago</button>
                 </div>
             </form>
         </div>
@@ -1105,8 +1149,163 @@
         </div>
     </div>
 
+    <!-- MODAL DE GESTIÓN Y REPORTE DE PAGO DE LICENCIA QFUTBOL ($1.00 USD/EQUIPO) -->
+    <div id="modal-pago-plataforma" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                <h3 style="font-size:1.25rem; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="shield-check" style="color:var(--color-primary);"></i> Licencia QFutbol & Desbloqueo de Fixture
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalPagoPlataforma()" style="padding:4px 10px; font-size:0.8rem;">✕ Cerrar</button>
+            </div>
+
+            <!-- Resumen Financiero Calculado -->
+            <div style="background:rgba(0, 255, 135, 0.05); border:1px solid rgba(0, 255, 135, 0.25); border-radius:var(--radius-sm); padding:16px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.9rem; color:var(--text-muted);">Equipos Participantes Inscritos:</span>
+                    <strong id="modal-lic-equipos" style="font-size:1.05rem; color:var(--text-main);">0 equipos</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.9rem; color:var(--text-muted);">Tarifa de Plataforma (Regla 9.1):</span>
+                    <strong style="font-size:0.95rem; color:var(--color-secondary);">$1.00 USD / equipo</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border-glass); padding-top:10px;">
+                    <span style="font-weight:700; font-size:1rem;">Total a Cancelar por Licencia:</span>
+                    <span id="modal-lic-total" style="color:var(--color-primary); font-size:1.4rem; font-weight:800;">$0.00 USD</span>
+                </div>
+                <div id="modal-lic-estado-badge" style="margin-top:12px; text-align:center;"></div>
+            </div>
+
+            <!-- Datos Bancarios Oficiales de QFutbol -->
+            <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:15px; margin-bottom:20px; font-size:0.85rem; line-height:1.6;">
+                <div style="font-weight:700; color:var(--color-accent); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                    <i data-lucide="landmark"></i> Cuenta Bancaria Oficial de QFutbol para Pagos de Licencia:
+                </div>
+                <div><strong>Banco:</strong> Banco Pichincha</div>
+                <div><strong>Tipo de Cuenta:</strong> Cuenta Corriente</div>
+                <div><strong>Número de Cuenta:</strong> 2100234567</div>
+                <div><strong>Titular:</strong> Luis Antonio Lozano Lozano</div>
+                <div><strong>C.I. / RUC:</strong> 1104196144</div>
+                <div><strong>Correo Oficial:</strong> soloescribeme@gmail.com</div>
+                <div><strong>WhatsApp de Soporte:</strong> 0991234567</div>
+            </div>
+
+            <!-- Formulario de Reporte de Comprobante -->
+            <form id="form-reporte-pago-plataforma" onsubmit="guardarReportePagoPlataforma(event)">
+                <h4 style="font-size:0.95rem; margin-bottom:12px; color:var(--text-main);"><i data-lucide="file-check"></i> Reportar Comprobante de Depósito / Transferencia</h4>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="modal-lic-banco-origen">Banco de Origen</label>
+                        <input type="text" id="modal-lic-banco-origen" class="form-input" placeholder="Ej. Banco Pichincha" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="modal-lic-comprobante">Nro. de Comprobante / Ref.</label>
+                        <input type="text" id="modal-lic-comprobante" class="form-input" placeholder="Ej. 85934120" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" for="modal-lic-fecha">Fecha de la Transferencia</label>
+                    <input type="date" id="modal-lic-fecha" class="form-input" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" for="modal-lic-notas">Observaciones Adicionales (Opcional)</label>
+                    <input type="text" id="modal-lic-notas" class="form-input" placeholder="Ej. Transferencia efectuada desde cuenta de la directiva">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalPagoPlataforma()">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:700;">
+                        <i data-lucide="send"></i> Enviar Comprobante para Verificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE GENERACIÓN DE AFICHE PROMOCIONAL PARA REDES SOCIALES (REGLA 4 Y 9.3) -->
+    <div id="modal-afiche-promo" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="share-2" style="color:var(--color-primary);"></i> Afiche Oficial para Redes Sociales
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalAfichePromo()" style="padding:4px 10px; font-size:0.8rem;">✕ Cerrar</button>
+            </div>
+
+            <!-- LIENZO DEL AFICHE PROMOCIONAL -->
+            <div id="afiche-promo-canvas" style="background: linear-gradient(145deg, #0d131f 0%, #151a2e 50%, #080d1a 100%); border: 2px solid var(--color-primary); border-radius: var(--radius-lg); padding: 25px; box-shadow: 0 15px 40px rgba(0, 255, 135, 0.15); color: #fff;">
+                <!-- Header del Afiche -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="img/logo.jpg" style="width:38px; height:38px; border-radius:var(--radius-sm); object-fit:cover;">
+                        <span style="font-size:1.3rem; font-weight:800; background:linear-gradient(135deg, #fff 0%, var(--color-secondary) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">QFutbol</span>
+                    </div>
+                    <div style="background:rgba(0,255,135,0.15); color:var(--color-primary); padding:4px 12px; border-radius:var(--radius-sm); font-size:0.75rem; font-weight:700; border:1px solid rgba(0,255,135,0.3);">
+                        ⚡ INSCRIPCIONES ABIERTAS ⚡
+                    </div>
+                </div>
+
+                <!-- Título y Sector -->
+                <div style="text-align:center; margin-bottom:20px;">
+                    <h2 id="afiche-nombre-camp" style="font-size:2rem; font-weight:900; line-height:1.2; margin-bottom:6px; color:#fff; text-transform:uppercase; text-shadow:0 0 15px rgba(0,255,135,0.3);">GRAN COPA BARRIAL</h2>
+                    <p id="afiche-lugar-camp" style="font-size:0.95rem; color:var(--color-secondary); font-weight:600;"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline;"></i> Quito, Pichincha</p>
+                </div>
+
+                <!-- Rejilla de Características -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); padding:12px; text-align:center;">
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Inscripción por Equipo</div>
+                        <div id="afiche-costo-inscripcion" style="font-size:1.4rem; font-weight:800; color:var(--color-primary); margin-top:2px;">$0.00</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); padding:12px; text-align:center;">
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Garantía de Disciplina</div>
+                        <div id="afiche-garantia" style="font-size:1.4rem; font-weight:800; color:var(--color-secondary); margin-top:2px;">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- Categorías Habilitadas -->
+                <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:14px; margin-bottom:20px;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--color-accent); margin-bottom:8px; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="layers" style="width:14px;height:14px;"></i> Categorías en Disputa:
+                    </div>
+                    <div id="afiche-categorias-list" style="display:flex; flex-wrap:wrap; gap:8px;">
+                        <!-- Inserta categorías -->
+                    </div>
+                </div>
+
+                <!-- Canchas y Fecha Límite -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.8rem; margin-bottom:20px; background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:var(--radius-sm);">
+                    <div><strong>📍 Canchas:</strong> <span id="afiche-canchas">Principal</span></div>
+                    <div><strong>📅 Límite de Pago:</strong> <span id="afiche-limite-pago">A confirmar</span></div>
+                </div>
+
+                <!-- Footer Auspiciantes Oficiales en el Afiche (Reglas 4 & 9.3) -->
+                <div style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:14px;">
+                    <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-align:center; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">
+                        Patrocinadores Oficiales
+                    </div>
+                    <div id="afiche-sponsors-logos" style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center;">
+                        <!-- Auspiciantes con jerarquía -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalAfichePromo()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="descargarAfichePromoPNG()" style="font-weight:700;">
+                    <i data-lucide="download"></i> Descargar Imagen PNG para Redes
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
     <script src="js/fixture.js"></script>
@@ -1198,7 +1397,27 @@
             modalAbono.style.display = "flex";
             document.getElementById("abono-equipo-id").value = id;
             document.getElementById("abono-equipo-nombre").value = nombre;
-            document.getElementById("abono-monto").value = "1.00";
+            document.getElementById("abono-monto").value = "5.00";
+            
+            const inputComp = document.getElementById("abono-comprobante");
+            if (inputComp) inputComp.value = "";
+
+            const boxBanco = document.getElementById("box-datos-bancarios-organizador");
+            const infoBanco = document.getElementById("abono-banco-info");
+            if (boxBanco && infoBanco) {
+                if (configCampeonato && configCampeonato.banco_nombre && configCampeonato.banco_numero_cuenta) {
+                    boxBanco.style.display = "block";
+                    infoBanco.innerHTML = `
+                        <div><strong>Banco:</strong> ${configCampeonato.banco_nombre} (${configCampeonato.banco_tipo_cuenta || 'Ahorros'})</div>
+                        <div><strong>Número de Cuenta:</strong> <code style="font-weight:700; color:var(--color-primary);">${configCampeonato.banco_numero_cuenta}</code></div>
+                        <div><strong>Titular:</strong> ${configCampeonato.banco_titular || 'Organizador'} • <strong>C.I./RUC:</strong> ${configCampeonato.banco_titular_identificacion || 'N/A'}</div>
+                        ${configCampeonato.banco_telefono_reporte ? `<div><strong>WhatsApp Reportes:</strong> ${configCampeonato.banco_telefono_reporte}</div>` : ''}
+                    `;
+                } else {
+                    boxBanco.style.display = "none";
+                }
+            }
+            if (window.lucide) lucide.createIcons();
         }
         function hideModalAbono() {
             modalAbono.style.display = "none";
@@ -1388,9 +1607,12 @@
                 vigentes.forEach(c => {
                     const eqCampCount = equipos.filter(e => e.campeonato_id === c.id).length;
                     const pagado = c.pago_plataforma_realizado;
-                    const badgeLic = pagado 
-                        ? '<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary);">Aprobado ✓</span>'
-                        : '<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger);">Pendiente ✗</span>';
+                    const montoCamp = (eqCampCount * 1.00).toFixed(2);
+                    let badgeLic = pagado 
+                        ? `<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary);">Aprobado ✓</span><br><small style="color:var(--color-primary); font-weight:700;">$${montoCamp} USD</small>`
+                        : (c.comprobante_pago_plataforma 
+                            ? `<span class="status-badge" style="background:rgba(255,171,0,0.15); color:var(--color-warning);">⏳ Por Verificar</span><br><small style="color:var(--color-accent); font-weight:600;">Ref: #${c.comprobante_pago_plataforma}</small><br><strong style="color:var(--color-primary);">$${montoCamp} USD</strong>`
+                            : `<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger);">Sin Pago ✗</span><br><strong style="color:var(--color-danger);">$${montoCamp} USD</strong>`);
 
                     html += `
                         <tr>
@@ -1400,8 +1622,8 @@
                             <td>${badgeLic}</td>
                             <td>
                                 ${pagado 
-                                    ? `<button onclick="revocarPagoPlataformaAdmin('${c.id}')" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 8px; color:var(--color-danger);">Bloquear Fixture</button>`
-                                    : `<button onclick="aprobarPagoPlataformaAdmin('${c.id}')" class="btn btn-primary" style="font-size:0.75rem; padding:4px 8px;">Aprobar y Habilitar Fixture</button>`
+                                    ? `<button onclick="revocarPagoPlataformaAdmin('${c.id}')" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 8px; color:var(--color-danger);"><i data-lucide="lock"></i> Bloquear Fixture</button>`
+                                    : `<button onclick="aprobarPagoPlataformaAdmin('${c.id}')" class="btn btn-primary" style="font-size:0.75rem; padding:4px 8px;"><i data-lucide="check-circle"></i> Aprobar Licencia ($3/Eq)</button>`
                                 }
                             </td>
                         </tr>
@@ -1495,10 +1717,10 @@
                 html += `</div>`;
                 contenido.innerHTML = html;
             } else if (tipo === 'cobros_confirmar') {
-                titulo.innerHTML = '<i data-lucide="clock" style="color:var(--color-danger);"></i> Cobros por Confirmar (Licencia de App)';
+                titulo.innerHTML = '<i data-lucide="clock" style="color:var(--color-danger);"></i> Cobros por Confirmar (Licencia QFutbol $1.00/Equipo)';
                 const pendientes = campeonatos.filter(c => c.pago_plataforma_realizado === false);
                 if (pendientes.length === 0) {
-                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--color-primary);'>¡No hay cobros pendientes de confirmación! Todos los campeonatos están al día.</p>";
+                    contenido.innerHTML = "<p style='text-align:center; padding:20px; color:var(--color-primary);'>¡No hay cobros pendientes de confirmación! Todos los campeonatos tienen licencia habilitada.</p>";
                     return;
                 }
                 let html = `
@@ -1508,6 +1730,7 @@
                                 <tr>
                                     <th>Campeonato</th>
                                     <th>Equipos Inscritos</th>
+                                    <th>Comprobante Reportado</th>
                                     <th>Monto Licencia ($1.00/Eq)</th>
                                     <th>Acción de Aprobación</th>
                                 </tr>
@@ -1517,14 +1740,19 @@
                 pendientes.forEach(p => {
                     const eqCount = equipos.filter(e => e.campeonato_id === p.id).length;
                     const monto = eqCount * 1.00;
+                    const compHtml = p.comprobante_pago_plataforma
+                        ? `<span class="badge badge-warning" style="background:rgba(255,171,0,0.15); color:var(--color-warning); font-size:0.8rem; padding:4px 8px;"><i data-lucide="file-text"></i> ${p.comprobante_pago_plataforma}</span>`
+                        : `<span style="color:var(--text-muted); font-size:0.8rem;">Sin comprobante reportado</span>`;
+
                     html += `
                         <tr>
                             <td><strong>${p.nombre}</strong></td>
                             <td>${eqCount} equipos</td>
-                            <td><strong style="color:var(--color-primary); font-size:1.05rem;">$${monto.toFixed(2)} USD</strong></td>
+                            <td>${compHtml}</td>
+                            <td><strong style="color:var(--color-primary); font-size:1.1rem;">$${monto.toFixed(2)} USD</strong></td>
                             <td>
-                                <button onclick="aprobarPagoPlataformaAdmin('${p.id}')" class="btn btn-primary" style="font-size:0.8rem; padding:6px 12px;">
-                                    <i data-lucide="check"></i> Aprobar y Habilitar por el administrador de la app Qfutbol
+                                <button onclick="aprobarPagoPlataformaAdmin('${p.id}')" class="btn btn-primary" style="font-size:0.8rem; padding:6px 12px; font-weight:700;">
+                                    <i data-lucide="check-circle"></i> Aprobar Licencia y Habilitar Fixture
                                 </button>
                             </td>
                         </tr>
@@ -1579,7 +1807,7 @@
                 monto_pago_plataforma: montoCalculado
             });
 
-            alert(`¡Pago de licencia de $${montoCalculado.toFixed(2)} USD aprobado con éxito por el administrador de la app Qfutbol! La generación de calendarios y encuentros deportivos ha sido habilitada.`);
+            alert(`✅ ¡Licencia de $${montoCalculado.toFixed(2)} USD aprobada con éxito por el Administrador de QFutbol!\n\nEl campeonato "${camp.nombre || 'Torneo'}" ha sido habilitado para generar fixtures automáticos.`);
             await cargarDatos();
             await cargarAdminMetrics();
             cerrarModalAdmin();
@@ -2028,6 +2256,9 @@
             const alertaFixture = document.getElementById("alerta-pago-plataforma-fixture");
             const statusOrgBadge = document.getElementById("status-licencia-org-badge");
 
+            const compReportado = configCampeonato.comprobante_pago_plataforma;
+            const elCompInfo = document.getElementById("lbl-plataforma-comprobante-info");
+
             if (pagoRealizado) {
                 if (alertaFixture) alertaFixture.style.display = "none";
                 if (btnFixture) {
@@ -2037,7 +2268,7 @@
                 }
                 if (statusOrgBadge) {
                     statusOrgBadge.style.color = "var(--color-primary)";
-                    statusOrgBadge.innerText = "Confirmado por el Administrador ✓";
+                    statusOrgBadge.innerText = "Licencia Activa / Aprobada ✓";
                 }
             } else {
                 if (alertaFixture) alertaFixture.style.display = "flex";
@@ -2046,9 +2277,22 @@
                     btnFixture.style.opacity = "0.5";
                     btnFixture.style.cursor = "not-allowed";
                 }
-                if (statusOrgBadge) {
-                    statusOrgBadge.style.color = "var(--color-warning)";
-                    statusOrgBadge.innerText = "⏳ Pendiente de Confirmación ($1.00/Equipo)";
+
+                if (compReportado) {
+                    if (statusOrgBadge) {
+                        statusOrgBadge.style.color = "var(--color-accent)";
+                        statusOrgBadge.innerText = "⏳ Comprobante Reportado (En Revisión)";
+                    }
+                    if (elCompInfo) {
+                        elCompInfo.style.display = "block";
+                        elCompInfo.innerHTML = `📄 <strong>Comprobante Reportado:</strong> #${compReportado} <span style="color:var(--color-warning);">(En espera de aprobación por el Administrador QFutbol)</span>`;
+                    }
+                } else {
+                    if (statusOrgBadge) {
+                        statusOrgBadge.style.color = "var(--color-danger)";
+                        statusOrgBadge.innerText = "🔒 Licencia Pendiente ($1.00/Equipo)";
+                    }
+                    if (elCompInfo) elCompInfo.style.display = "none";
                 }
                 
                 const countLbl = document.getElementById("lbl-plataforma-equipos-count");
@@ -2109,6 +2353,11 @@
                 return;
             }
 
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const fechaLimite = configCampeonato.limite_pago_inscripcion;
+            const tieneLimite = !!fechaLimite;
+            const estaVencido = tieneLimite && (hoyStr > fechaLimite);
+
             cacheEquipos.forEach(eq => {
                 const costoInscripcion = parseFloat(configCampeonato.costo_inscripcion || 3.00);
                 const abonado = parseFloat(eq.monto_pagado_inscripcion || 0);
@@ -2118,10 +2367,20 @@
                 let badgeText = "Sin Pago";
                 if (abonado >= costoInscripcion) {
                     badgeClass = "badge-success";
-                    badgeText = "Pagado";
+                    badgeText = "Pagado ✓";
                 } else if (abonado > 0) {
                     badgeClass = "badge-warning";
                     badgeText = `Abono (${formatMoney(abonado)})`;
+                }
+
+                // Alerta de plazo de pago de inscripción (Regla de Abonos y Notificaciones)
+                let moraBadge = "";
+                if (abonado < costoInscripcion && tieneLimite) {
+                    if (estaVencido) {
+                        moraBadge = `<br><span style="background:rgba(255,77,77,0.15); color:var(--color-danger); border:1px solid rgba(255,77,77,0.3); font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:var(--radius-sm); display:inline-block; margin-top:3px;"><i data-lucide="alert-circle" style="width:11px;height:11px;display:inline;"></i> Plazo Vencido (${fechaLimite})</span>`;
+                    } else {
+                        moraBadge = `<br><span style="background:rgba(255,211,42,0.12); color:var(--color-warning); border:1px solid rgba(255,211,42,0.25); font-size:0.68rem; padding:2px 6px; border-radius:var(--radius-sm); display:inline-block; margin-top:3px;"><i data-lucide="clock" style="width:11px;height:11px;display:inline;"></i> Vence: ${fechaLimite}</span>`;
+                    }
                 }
 
                 const subCurso = eq.curso_paralelo ? `<br><small style="color:var(--color-accent); font-size:0.75rem; font-weight:600;"><i data-lucide="graduation-cap" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i> ${eq.curso_paralelo}</small>` : '';
@@ -2133,7 +2392,7 @@
                         <td>${formatMoney(costoInscripcion)}</td>
                         <td>${formatMoney(abonado)}</td>
                         <td>${formatMoney(garantia)}</td>
-                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span>${moraBadge}</td>
                         <td>
                             <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem;" onclick="showModalAbono('${eq.id}', '${eq.nombre}')">
                                 <i data-lucide="plus-circle" style="width:14px;height:14px;display:inline;vertical-align:middle;"></i> Abono
@@ -2155,14 +2414,31 @@
                 return;
             }
 
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const fechaLimite = configCampeonato.limite_pago_inscripcion;
+            const tieneLimite = !!fechaLimite;
+            const estaVencido = tieneLimite && (hoyStr > fechaLimite);
+            let morososCount = 0;
+            let morososMonto = 0;
+
             for (const eq of cacheEquipos) {
                 const fin = await calcularFinanzasEquipo(eq.id);
                 finanzasCalculadasCache[eq.id] = fin;
+                if (fin.saldoInscripcion > 0) {
+                    morososCount++;
+                    morososMonto += fin.saldoInscripcion;
+                }
+
+                let moraBadge = "";
+                if (fin.saldoInscripcion > 0 && tieneLimite && estaVencido) {
+                    moraBadge = `<span style="background:rgba(255,77,77,0.15); color:var(--color-danger); border:1px solid rgba(255,77,77,0.3); font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:var(--radius-sm); margin-left:6px; white-space:nowrap;"><i data-lucide="alert-circle" style="width:11px;height:11px;display:inline;"></i> Plazo Vencido</span>`;
+                }
 
                 tbody.innerHTML += `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
                         <td style="font-weight:600; cursor:pointer;" onclick="toggleDetalleFinanzas('${eq.id}')">
                             <span style="display:inline-block; transition:transform 0.2s; font-size:0.75rem;" id="arrow-fin-${eq.id}">▶</span> ${eq.nombre}
+                            ${moraBadge}
                         </td>
                         <td style="color:${fin.saldoInscripcion > 0 ? 'var(--color-danger)' : 'var(--color-primary)'}; font-weight:500;">${formatMoney(fin.saldoInscripcion)}</td>
                         <td style="color:${fin.saldoTarjetas > 0 ? 'var(--color-danger)' : 'var(--text-muted)'};">${formatMoney(fin.saldoTarjetas)}</td>
@@ -2218,8 +2494,34 @@
                             </div>
                         </td>
                     </tr>
-                `;
             }
+
+            const alertaLimiteEl = document.getElementById("alerta-limite-pago-container");
+            if (alertaLimiteEl) {
+                if (tieneLimite && estaVencido && morososCount > 0) {
+                    alertaLimiteEl.style.display = "block";
+                    alertaLimiteEl.innerHTML = `
+                        <div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <i data-lucide="alert-triangle" style="display:inline; margin-right:6px;"></i>
+                                <strong>Alerta de Plazo Vencido de Inscripción (Regla de Abonos):</strong> La fecha límite configurada (${fechaLimite}) ha expirado. Hay <strong>${morososCount} equipos</strong> con saldos pendientes de pago de inscripción por un total de <strong>${formatMoney(morososMonto)}</strong>.
+                            </div>
+                            <span style="font-size:0.75rem; color:var(--color-danger); font-weight:700;">Requiere regularización inmediata</span>
+                        </div>
+                    `;
+                } else if (tieneLimite && !estaVencido && morososCount > 0) {
+                    alertaLimiteEl.style.display = "block";
+                    alertaLimiteEl.innerHTML = `
+                        <div class="alert alert-warning" style="display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="clock" style="display:inline;"></i>
+                            <span>Fecha límite de pago de inscripción de equipos: <strong>${fechaLimite}</strong> (${morososCount} equipos con saldo de inscripción pendiente).</span>
+                        </div>
+                    `;
+                } else {
+                    alertaLimiteEl.style.display = "none";
+                }
+            }
+
             lucide.createIcons();
         }
 
@@ -2302,11 +2604,156 @@
                 `;
                 container.innerHTML += jornadaHtml;
             });
+            // Actualizar encabezado del export de fixture
+            const elExpTitulo = document.getElementById("fixture-export-camp-titulo");
+            const elExpSub = document.getElementById("fixture-export-camp-subtitulo");
+            if (elExpTitulo && configCampeonato) elExpTitulo.innerText = configCampeonato.nombre || "Campeonato Oficial";
+            if (elExpSub && configCampeonato) elExpSub.innerText = `${configCampeonato.ciudad || 'Quito'}, ${configCampeonato.pais || 'Ecuador'} • Calendario Oficial de Partidos`;
+
+            renderizarAuspiciantesEnBannerFixture();
             lucide.createIcons();
+        }
+
+        async function renderizarAuspiciantesEnBannerFixture() {
+            const container = document.getElementById("fixture-auspiciantes-logos");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const auspiciantes = await dbGetTable("auspiciantes");
+            if (!auspiciantes || auspiciantes.length === 0) {
+                container.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Espacio disponible para patrocinadores oficiales</span>`;
+                return;
+            }
+
+            const ordenPrioridades = { 'alta': 1, 'media': 2, 'baja': 3 };
+            auspiciantes.sort((a, b) => (ordenPrioridades[a.prioridad || 'media'] || 2) - (ordenPrioridades[b.prioridad || 'media'] || 2));
+
+            auspiciantes.forEach(aus => {
+                const prioridad = aus.prioridad || "media";
+                let styleImg = "height: 40px; border-radius: var(--radius-sm); object-fit: contain; background: rgba(255,255,255,0.05); padding: 4px; border: 1px solid var(--border-glass);";
+                if (prioridad === "alta") {
+                    styleImg = "height: 60px; border-radius: var(--radius-sm); object-fit: contain; background: rgba(0,255,135,0.08); padding: 6px; border: 2px solid var(--color-primary); box-shadow: 0 0 15px rgba(0, 255, 135, 0.4);";
+                } else if (prioridad === "baja") {
+                    styleImg = "height: 30px; opacity: 0.7; border-radius: var(--radius-sm); object-fit: contain; padding: 2px; border: 1px dashed var(--border-glass);";
+                }
+
+                container.innerHTML += `
+                    <div style="text-align: center;" title="${aus.nombre} (${prioridad.toUpperCase()})">
+                        <img src="${aus.logo_url || 'img/logo.jpg'}" style="${styleImg}" alt="${aus.nombre}">
+                        <div style="font-size:0.7rem; font-weight:600; color:var(--text-muted); margin-top:3px;">${aus.nombre}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function exportarImagenFixtureConAuspiciantes() {
+            if (cachePartidos.length === 0) {
+                alert("Primero debes generar el fixture para poder exportarlo.");
+                return;
+            }
+
+            const area = document.getElementById("fixture-export-area");
+            if (!area) return;
+
+            try {
+                const canvas = await html2canvas(area, {
+                    backgroundColor: "#0b0f19",
+                    scale: 2,
+                    useCORS: true
+                });
+
+                const link = document.createElement("a");
+                link.download = `Fixture_${(configCampeonato.nombre || 'Campeonato').replace(/\s+/g, '_')}_QFutbol.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                console.error("Error al exportar fixture:", err);
+                alert("No se pudo generar la imagen del fixture. Por favor intenta de nuevo.");
+            }
+        }
+
+        async function abrirModalAfichePromo() {
+            const modal = document.getElementById("modal-afiche-promo");
+            if (!modal) return;
+            modal.style.display = "flex";
+
+            // Llenar datos
+            document.getElementById("afiche-nombre-camp").innerText = configCampeonato.nombre || "Gran Copa QFutbol";
+            document.getElementById("afiche-lugar-camp").innerHTML = `<i data-lucide="map-pin" style="width:14px;height:14px;display:inline;"></i> ${configCampeonato.barrio_sector || ''} ${configCampeonato.ciudad || 'Quito'}, ${configCampeonato.pais || 'Ecuador'}`;
+            document.getElementById("afiche-costo-inscripcion").innerText = formatMoney(configCampeonato.costo_inscripcion || 0);
+            document.getElementById("afiche-garantia").innerText = formatMoney(configCampeonato.garantia_disciplina || 0);
+            document.getElementById("afiche-canchas").innerText = configCampeonato.canchas_nombres || "Cancha Principal";
+            document.getElementById("afiche-limite-pago").innerText = configCampeonato.limite_pago_inscripcion || "Pronto por confirmar";
+
+            // Categorías
+            const contCat = document.getElementById("afiche-categorias-list");
+            contCat.innerHTML = "";
+            const categorias = await dbGetTable("categorias");
+            if (!categorias || categorias.length === 0) {
+                contCat.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Categoría Libre</span>`;
+            } else {
+                categorias.forEach(cat => {
+                    contCat.innerHTML += `<span style="background:rgba(125,95,255,0.15); color:var(--color-secondary); border:1px solid rgba(125,95,255,0.3); padding:4px 10px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:700;">${cat.nombre} (${cat.genero.toUpperCase()})</span>`;
+                });
+            }
+
+            // Auspiciantes en afiche
+            const contSponsors = document.getElementById("afiche-sponsors-logos");
+            contSponsors.innerHTML = "";
+            const auspiciantes = await dbGetTable("auspiciantes");
+            if (!auspiciantes || auspiciantes.length === 0) {
+                contSponsors.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">Espacio disponible para marcas y empresas aliadas</span>`;
+            } else {
+                const ordenPrioridades = { 'alta': 1, 'media': 2, 'baja': 3 };
+                auspiciantes.sort((a, b) => (ordenPrioridades[a.prioridad || 'media'] || 2) - (ordenPrioridades[b.prioridad || 'media'] || 2));
+                auspiciantes.forEach(aus => {
+                    const prioridad = aus.prioridad || "media";
+                    let styleImg = "height: 38px; border-radius: var(--radius-sm); object-fit: contain; background: rgba(255,255,255,0.06); padding: 4px; border: 1px solid rgba(255,255,255,0.15);";
+                    if (prioridad === "alta") {
+                        styleImg = "height: 52px; border-radius: var(--radius-sm); object-fit: contain; background: rgba(0,255,135,0.1); padding: 5px; border: 2px solid var(--color-primary); box-shadow: 0 0 14px rgba(0, 255, 135, 0.45);";
+                    }
+                    contSponsors.innerHTML += `<img src="${aus.logo_url || 'img/logo.jpg'}" style="${styleImg}" alt="${aus.nombre}">`;
+                });
+            }
+
+            lucide.createIcons();
+        }
+
+        function cerrarModalAfichePromo() {
+            const modal = document.getElementById("modal-afiche-promo");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function descargarAfichePromoPNG() {
+            const canvasEl = document.getElementById("afiche-promo-canvas");
+            if (!canvasEl) return;
+
+            try {
+                const canvas = await html2canvas(canvasEl, {
+                    backgroundColor: "#0d131f",
+                    scale: 2,
+                    useCORS: true
+                });
+
+                const link = document.createElement("a");
+                link.download = `Afiche_${(configCampeonato.nombre || 'Campeonato').replace(/\s+/g, '_')}_QFutbol.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                console.error("Error al descargar afiche:", err);
+                alert("Error generando afiche de redes. Intenta de nuevo.");
+            }
         }
 
         // Acción: Generar Fixture Round Robin
         async function dispararGeneracionFixture() {
+            // REGLA 9.1: Bloqueo de Fixture hasta confirmar pago de plataforma ($1.00/equipo)
+            if (!configCampeonato.pago_plataforma_realizado) {
+                alert("🔒 BLOQUEO DE REGLAMENTO QFUTBOL:\n\nLa generación automática de fixture se encuentra bloqueada de manera absoluta hasta confirmar el pago de la tarifa de la plataforma ($1.00 USD por cada equipo participante).\n\nPor favor reporta tu comprobante de pago para habilitar el torneo.");
+                abrirModalPagoPlataforma();
+                return;
+            }
+
             if (cacheEquipos.length < 2) {
                 alert("Debes inscribir al menos 2 equipos para poder generar un fixture.");
                 return;
@@ -2544,11 +2991,13 @@
             const concepto = document.getElementById("abono-concepto").value;
             const monto = parseFloat(document.getElementById("abono-monto").value);
 
+            const comprobante = document.getElementById("abono-comprobante") ? document.getElementById("abono-comprobante").value.trim() : null;
             const nuevoPago = {
                 equipo_id: eqId,
                 concepto: concepto,
                 monto: monto,
-                metodo_pago: 'efectivo',
+                comprobante: comprobante || null,
+                metodo_pago: comprobante ? 'transferencia' : 'efectivo',
                 estado: 'aprobado'
             };
 
@@ -2709,20 +3158,76 @@
             }
         }
 
-        // Pago / Verificación de licencia de plataforma
-        async function simularPagoPlataforma() {
-            const montoPago = cacheEquipos.length * 1.00;
-            
-            if (confirm(`¿Estás seguro de registrar el pago de uso de la plataforma por valor de $${montoPago.toFixed(2)} USD para habilitación por el administrador de la app Qfutbol?`)) {
-                
-                await dbUpdateRow("campeonatos", configCampeonato.id, {
-                    pago_plataforma_realizado: true,
-                    monto_pago_plataforma: montoPago
-                });
+        // ==========================================
+        // GESTIÓN Y REPORTE DE PAGO DE LICENCIA QFUTBOL ($1.00 USD / EQUIPO)
+        // ==========================================
+        function abrirModalPagoPlataforma() {
+            const modal = document.getElementById("modal-pago-plataforma");
+            if (!modal) return;
+            modal.style.display = "flex";
 
-                alert(`¡Pago y reporte registrados con éxito! La generación de fixture automático ha sido habilitada por el administrador de la app Qfutbol.`);
-                await cargarDatos();
+            const count = cacheEquipos ? cacheEquipos.length : 0;
+            const monto = (count * 1.00).toFixed(2);
+
+            const elCount = document.getElementById("modal-lic-equipos");
+            const elTotal = document.getElementById("modal-lic-total");
+            const elBadge = document.getElementById("modal-lic-estado-badge");
+            const inputFecha = document.getElementById("modal-lic-fecha");
+
+            if (elCount) elCount.innerText = `${count} equipos participantes`;
+            if (elTotal) elTotal.innerText = `$${monto} USD`;
+            if (inputFecha && !inputFecha.value) inputFecha.value = new Date().toISOString().split('T')[0];
+
+            if (elBadge) {
+                if (configCampeonato.pago_plataforma_realizado) {
+                    elBadge.innerHTML = `<span class="badge badge-success" style="background:rgba(0,255,135,0.15); color:var(--color-primary); padding:6px 12px; font-weight:700;">✓ Licencia Confirmada y Fixture Desbloqueado</span>`;
+                } else if (configCampeonato.comprobante_pago_plataforma) {
+                    elBadge.innerHTML = `<span class="badge badge-warning" style="background:rgba(255,171,0,0.15); color:var(--color-warning); padding:6px 12px; font-weight:700;">⏳ Comprobante #${configCampeonato.comprobante_pago_plataforma} en Revisión Administrativa</span>`;
+                } else {
+                    elBadge.innerHTML = `<span class="badge badge-danger" style="background:rgba(255,77,77,0.15); color:var(--color-danger); padding:6px 12px; font-weight:700;">🔒 Fixture Bloqueado - Pendiente de Reportar Pago</span>`;
+                }
             }
+
+            if (configCampeonato.comprobante_pago_plataforma) {
+                const elComp = document.getElementById("modal-lic-comprobante");
+                if (elComp && !elComp.value) elComp.value = configCampeonato.comprobante_pago_plataforma;
+            }
+
+            lucide.createIcons();
+        }
+
+        function cerrarModalPagoPlataforma() {
+            const modal = document.getElementById("modal-pago-plataforma");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function guardarReportePagoPlataforma(event) {
+            event.preventDefault();
+            const bancoOrigen = document.getElementById("modal-lic-banco-origen").value;
+            const comprobante = document.getElementById("modal-lic-comprobante").value;
+            const fecha = document.getElementById("modal-lic-fecha").value;
+            const notas = document.getElementById("modal-lic-notas").value;
+
+            const count = cacheEquipos ? cacheEquipos.length : 0;
+            const monto = count * 1.00;
+
+            if (!comprobante) {
+                alert("Debes ingresar el número de comprobante o referencia bancaria.");
+                return;
+            }
+
+            const refCompleta = `${comprobante} (${bancoOrigen || 'Transferencia'})`;
+
+            await dbUpdateRow("campeonatos", configCampeonato.id, {
+                comprobante_pago_plataforma: refCompleta,
+                fecha_reporte_pago: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+                monto_pago_plataforma: monto
+            });
+
+            alert(`✅ ¡Comprobante de pago reportado exitosamente a QFutbol!\n\nReferencia: #${refCompleta}\nMonto: $${monto.toFixed(2)} USD\n\nEl administrador de QFutbol verificará la transacción y habilitará la generación de fixture en breve.`);
+            cerrarModalPagoPlataforma();
+            await cargarDatos();
+            await cargarAdminMetrics();
         }
 
         // ==========================================

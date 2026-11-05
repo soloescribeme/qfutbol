@@ -472,6 +472,7 @@
 
         // ==========================================================================
         // CÁLCULO DE CUOTAS PREMIUM CON PROMEDIOS Y MARGEN DE CASA (LA CASA GANA SÍ O SÍ)
+        // Regla 8.3: Score Dinámico basado en Nómina Activa de Convocados
         // ==========================================================================
         function renderizarPartidosApuestas() {
             const container = document.getElementById("lista-apuestas-partidos");
@@ -488,20 +489,58 @@
                 const loc = cacheEquipos.find(e => e.id === p.equipo_local_id) || { id: "l", nombre: "Local" };
                 const vis = cacheEquipos.find(e => e.id === p.equipo_visitante_id) || { id: "v", nombre: "Visitante" };
 
-                // 1. CÁLCULO DEL SCORE DEL EQUIPO (Promedio de sus jugadores inscritos)
+                // 1. CÁLCULO DEL SCORE BASE DEL EQUIPO (Todos los inscritos)
                 const insLocal = cacheInscripciones.filter(i => i.equipo_id === loc.id);
                 const insVisitante = cacheInscripciones.filter(i => i.equipo_id === vis.id);
 
-                const scoreEquipoLocal = insLocal.length > 0 
+                const scoreBaseLocal = insLocal.length > 0 
                     ? insLocal.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / insLocal.length 
                     : 6.00;
 
-                const scoreEquipoVisitante = insVisitante.length > 0 
+                const scoreBaseVisitante = insVisitante.length > 0 
                     ? insVisitante.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / insVisitante.length 
                     : 6.00;
 
-                // 2. FÓRMULA DE PROBABILIDADES JUSTAS (En base a scores)
-                // Se asume un peso de empate base de 2.0
+                // 2. CÁLCULO DEL SCORE DINÁMICO (Regla 8.3: Basado en Nómina Activa del Vocal)
+                let tieneNominaLocal = false;
+                let nominaLocalIds = [];
+                if (p.nomina_activa_local) {
+                    try {
+                        nominaLocalIds = JSON.parse(p.nomina_activa_local);
+                        if (Array.isArray(nominaLocalIds) && nominaLocalIds.length > 0) tieneNominaLocal = true;
+                    } catch(e) {}
+                }
+
+                let tieneNominaVisitante = false;
+                let nominaVisitanteIds = [];
+                if (p.nomina_activa_visitante) {
+                    try {
+                        nominaVisitanteIds = JSON.parse(p.nomina_activa_visitante);
+                        if (Array.isArray(nominaVisitanteIds) && nominaVisitanteIds.length > 0) tieneNominaVisitante = true;
+                    } catch(e) {}
+                }
+
+                const jugadoresActivosLocal = tieneNominaLocal 
+                    ? insLocal.filter(i => nominaLocalIds.includes(i.id))
+                    : insLocal;
+
+                const jugadoresActivosVisitante = tieneNominaVisitante 
+                    ? insVisitante.filter(i => nominaVisitanteIds.includes(i.id))
+                    : insVisitante;
+
+                const scoreEquipoLocal = jugadoresActivosLocal.length > 0 
+                    ? jugadoresActivosLocal.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / jugadoresActivosLocal.length 
+                    : scoreBaseLocal;
+
+                const scoreEquipoVisitante = jugadoresActivosVisitante.length > 0 
+                    ? jugadoresActivosVisitante.reduce((acc, curr) => acc + parseFloat(curr.rating_campeonato || 6.00), 0) / jugadoresActivosVisitante.length 
+                    : scoreBaseVisitante;
+
+                const esNominaConfirmada = tieneNominaLocal || tieneNominaVisitante;
+                const caidaLocal = scoreEquipoLocal < (scoreBaseLocal - 0.05);
+                const caidaVisitante = scoreEquipoVisitante < (scoreBaseVisitante - 0.05);
+
+                // 3. FÓRMULA DE PROBABILIDADES JUSTAS (En base a scores dinámicos)
                 const factorEmpate = 2.00; 
                 const totalPuntos = scoreEquipoLocal + scoreEquipoVisitante + factorEmpate;
 
@@ -509,7 +548,7 @@
                 const probVisitanteJusta = scoreEquipoVisitante / totalPuntos;
                 const probEmpateJusta = factorEmpate / totalPuntos;
 
-                // 3. GARANTÍA DE MARGEN DE LA CASA (Overround del 10% - La casa gana sí o sí)
+                // 4. GARANTÍA DE MARGEN DE LA CASA (Overround del 10% - La casa gana sí o sí)
                 const recargoCasa = 1.10; // Factor de recargo del 10%
                 
                 // Aplicamos recargo de probabilidad
@@ -524,20 +563,43 @@
 
                 const labelPartido = `${loc.nombre} vs ${vis.nombre}`;
 
+                let badgeNomina = esNominaConfirmada 
+                    ? `<span style="background:rgba(0,255,135,0.15); color:var(--color-primary); border:1px solid rgba(0,255,135,0.3); font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:var(--radius-sm);"><i data-lucide="radio" style="width:12px;height:12px;display:inline;"></i> Nómina Oficial Confirmada (Cuota en Vivo)</span>`
+                    : `<span style="background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-glass); font-size:0.75rem; padding:3px 8px; border-radius:var(--radius-sm);"><i data-lucide="clock" style="width:12px;height:12px;display:inline;"></i> Cuota Preliminar (Plantilla General)</span>`;
+
+                let avisoBajas = "";
+                if (caidaLocal || caidaVisitante) {
+                    const equiposAfectados = [];
+                    if (caidaLocal) equiposAfectados.push(loc.nombre);
+                    if (caidaVisitante) equiposAfectados.push(vis.nombre);
+                    avisoBajas = `
+                        <div style="background:rgba(255,77,77,0.1); border:1px solid rgba(255,77,77,0.25); color:var(--color-danger); font-size:0.75rem; padding:6px 10px; border-radius:var(--radius-sm); display:flex; align-items:center; gap:6px;">
+                            <i data-lucide="trending-down" style="width:14px;height:14px;"></i>
+                            <span><strong>Variación Dinámica (Regla 8.3):</strong> Bajas clave en nómina de <strong>${equiposAfectados.join(' y ')}</strong>. Su score disminuyó y su cuota subió.</span>
+                        </div>
+                    `;
+                }
+
                 container.innerHTML += `
                     <div class="bet-card">
-                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
                             <span>${p.grupo || 'Liga Regular'}</span>
-                            <span><i data-lucide="shield" style="width:12px; height:12px; display:inline; vertical-align:middle; color:var(--color-primary)"></i> Apuesta Garantizada</span>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                ${badgeNomina}
+                                <span><i data-lucide="shield" style="width:12px; height:12px; display:inline; vertical-align:middle; color:var(--color-primary)"></i> Apuesta Garantizada</span>
+                            </div>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:1.1rem; margin: 5px 0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:1.15rem; margin: 5px 0;">
                             <span>${loc.nombre}</span>
                             <span style="color:var(--text-muted); font-size:0.85rem; font-weight:500;">vs</span>
                             <span>${vis.nombre}</span>
                         </div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">
-                            <span>Score Promedio: <strong>${loc.nombre}</strong> (${scoreEquipoLocal.toFixed(2)}) vs <strong>${vis.nombre}</strong> (${scoreEquipoVisitante.toFixed(2)})</span>
+                        <div style="font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">
+                            <span>Score: <strong>${loc.nombre}</strong> (${scoreEquipoLocal.toFixed(2)}${tieneNominaLocal ? ` • ${jugadoresActivosLocal.length} conv.` : ''})</span>
+                            <span>vs</span>
+                            <span>Score: <strong>${vis.nombre}</strong> (${scoreEquipoVisitante.toFixed(2)}${tieneNominaVisitante ? ` • ${jugadoresActivosVisitante.length} conv.` : ''})</span>
                         </div>
+                        ${avisoBajas}
                         <div class="odds-container">
                             <button id="btn-odd-${p.id}-local" class="odd-btn" onclick="seleccionarApuesta('${p.id}', 'local', ${cuotaL}, '${labelPartido}', 'Victoria ${loc.nombre}')">
                                 <span class="odd-label">Local</span>
