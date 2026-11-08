@@ -304,13 +304,22 @@ h1, h2, h3, h4, h5, h6 {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(10, 11, 16, 0.85);
+    background: rgba(10, 11, 16, 0.88);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 1000;
+    z-index: 10000;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 20px 15px;
+    overflow-y: auto;
+}
+
+@media (max-height: 780px), (max-width: 600px) {
+    .modal {
+        align-items: flex-start;
+        padding-top: 15px;
+        padding-bottom: 25px;
+    }
 }
 
 .modal-content {

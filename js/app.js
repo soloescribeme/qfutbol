@@ -42,20 +42,40 @@ async function neonQuery(sql, params = []) {
     }
 
     try {
+        let finalSql = sql;
+        if (params && Array.isArray(params) && params.length > 0) {
+            params.forEach((val, idx) => {
+                let formattedVal = 'NULL';
+                if (val !== null && val !== undefined) {
+                    if (typeof val === 'number') {
+                        formattedVal = val.toString();
+                    } else if (typeof val === 'boolean') {
+                        formattedVal = val ? 'TRUE' : 'FALSE';
+                    } else if (typeof val === 'object') {
+                        formattedVal = `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+                    } else {
+                        formattedVal = `'${String(val).replace(/'/g, "''")}'`;
+                    }
+                }
+                const regex = new RegExp(`\\$${idx + 1}(?![0-9])`, 'g');
+                finalSql = finalSql.replace(regex, () => formattedVal);
+            });
+        }
+
         const response = await fetch(NEON_HTTP_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Neon-Connection-String': NEON_DB_URL
             },
-            body: JSON.stringify({ query: sql, params })
+            body: JSON.stringify({ query: finalSql })
         });
 
         const data = await response.json();
         if (data.rows) {
             return data.rows;
         } else if (data.message) {
-            console.error("Error en consulta Neon SQL:", data.message, "SQL:", sql);
+            console.error("Error en consulta Neon SQL:", data.message, "SQL:", finalSql);
             return null;
         }
         return [];

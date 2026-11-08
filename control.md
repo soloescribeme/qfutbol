@@ -1,12 +1,41 @@
 # 📌 Control de Avance - QFutbol
 
-> **Última actualización:** 4 de Noviembre, 2026  
+> **Última actualización:** 8 de Noviembre, 2026  
 > **Tecnología:** HTML5 + Vanilla JS + CSS + Neon PostgreSQL / Supabase  
-> **Estado General:** 🟢 Pizarra multitorneo activa, autenticación de Google/Gmail sincronizada en base de datos, recuperación de clave operativa y botones del dashboard totalmente funcionales. Desplegado en Vercel.
+> **Estado General:** 🟢 Modal de autenticación responsivo con botón de cierre fijo, recuperación de clave segura en 2 pasos vía código/enlace, motor de consultas Neon HTTP reparado, Pizarra multitorneo activa y desplegado en Vercel.
 
 ---
 
-### 🚀 Resumen del Trabajo Realizado Hoy (4 de Noviembre, 2026)
+### 🚀 Resumen del Trabajo Realizado Recientemente (8 de Noviembre, 2026)
+
+#### 1. Rediseño Responsivo del Modal de Autenticación y Registro (`index.html` y `css/styles.css`)
+- **Diagnóstico:** En pantallas medianas, portátiles o dispositivos móviles, el formulario de registro excedía la altura visible de la ventana (*viewport*), ocultando la cabecera y el botón de cerrar (`✕`), impidiendo cancelar o completar el registro fluidamente.
+- **Solución y Mejoras:**
+  - **Cabecera Fija (*Sticky Header*):** Se rediseñó el contenedor `#modal-auth` para tener una cabecera anclada en la parte superior que siempre muestra el título y el botón `✕ Cerrar` visible en todo momento.
+  - **Scroll Suave y Adaptativo:** Se configuró el cuerpo del modal con `overflow-y: auto`, flexbox responsivo y límites `max-height: calc(100vh - 40px)` y `max-width: 500px`.
+  - **Cierre por Entorno y Teclado:** Se habilitó el cierre automático haciendo clic fuera del modal (*backdrop click*) y mediante la tecla `Escape`.
+  - **Media Query para Pantallas Compactas:** Ajuste automático de padding y alineación superior (`align-items: flex-start`) en pantallas con altura menor a 780px.
+
+#### 2. Flujo Seguro de Recuperación de Contraseña por Correo (`index.html`)
+- **Diagnóstico:** Anteriormente se permitía sobrescribir la contraseña directamente ingresando solo el correo o cédula, exponiendo los perfiles a ataques de suplantación o manipulación no autorizada.
+- **Solución y Mejoras (Proceso en 2 Pasos):**
+  - **Paso 1 (Solicitud de Código):** El usuario ingresa su correo registrado. El sistema consulta Neon PostgreSQL (`perfiles`); si el usuario existe, genera un **código de seguridad criptográfico de 6 dígitos** con expiración de 15 minutos y lo almacena junto al timestamp en `perfiles.reset_token` y `perfiles.reset_token_expires`.
+  - **Paso 2 (Verificación y Cambio):** Muestra el código generado, botón directo **"Abrir Mi Correo"** (`mailto:`) y botón **"Copiar Enlace Seguro"** con el token (`?action=reset_password&email=...&token=...`).
+  - **Doble Validación:** Solo tras ingresar el código válido de 6 dígitos (no expirado) se actualiza la contraseña de forma segura en Neon DB y se anula el token utilizado.
+  - **Soporte de Enlace Directo:** Si el usuario accede mediante el enlace recibido en su correo, la aplicación detecta automáticamente los parámetros `action=reset_password`, precarga el correo, valida el token y lo lleva directo al paso de cambio de contraseña.
+
+#### 3. Corrección del Motor de Consultas Neon PostgreSQL (`js/app.js`)
+- **Diagnóstico:** El endpoint HTTP `/sql` de Neon (`https://ep-falling-band-acw0oe8s.sa-east-1.aws.neon.tech/sql`) no acepta parámetros separados en formato `{ query: "...", params: [...] }` con placeholders `$1, $2`, respondiendo con error HTTP 400 (`syntax error at or near ","`). Esto causaba que los registros nuevos (`dbInsertRow`) o actualizaciones fallaran silenciosamente y recurrieran al mock local.
+- **Solución:**
+  - Se implementó un formateador seguro en `neonQuery` que interpola y escapa de forma limpia y tipada los parámetros antes de enviarlos a Neon DB.
+  - Se crearon las columnas `reset_token` (VARCHAR 255) y `reset_token_expires` (TIMESTAMPTZ) en la tabla `perfiles` de Neon DB.
+
+#### 4. Diagnóstico del Correo `fferrimaster@gmail.com`
+- Al verificar la tabla `perfiles` en Neon PostgreSQL, se comprobó que dicho correo no se encontraba registrado aún en la base de datos de producción (la tabla únicamente contenía dos registros previos de prueba con correos nulos). Por esta razón, el sistema informaba correctamente que el correo no existía. Con el nuevo modal accesible y el motor de inserción reparado, la cuenta ya puede registrarse sin ningún obstáculo.
+
+---
+
+### 🚀 Resumen del Trabajo Realizado Previamente (4 de Noviembre, 2026)
 
 #### 1. Corrección Integral de Botones y Pestañas en el Panel de Organizador (`dashboard.html`)
 - **Diagnóstico:** Se detectó un error de sintaxis (`SyntaxError: Unexpected token 'class'`) originado por un template literal HTML no cerrado en la fila de desglose de finanzas (`renderizarFinanzas()`). Al fallar el parseo del script en el navegador, todas las funciones globales (`switchTab`, `mostrarFormularioNuevoCampeonato`, etc.) quedaban como `undefined`.
