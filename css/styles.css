@@ -11,28 +11,33 @@
     --bg-card-hover: rgba(255, 255, 255, 0.06);
     --border-glass: rgba(255, 255, 255, 0.08);
     --border-active: rgba(0, 255, 135, 0.3);
-    
-    --color-primary: #00ff87; /* Verde Neón Fútbol */
-    --color-secondary: #60efff; /* Celeste Eléctrico */
-    --color-accent: #7d5fff; /* Violeta Premium */
-    --color-danger: #ff4d4d; /* Rojo Tarjeta */
-    --color-warning: #ffd32a; /* Amarillo Tarjeta */
-    
+
+    --color-primary: #00ff87;
+    /* Verde Neón Fútbol */
+    --color-secondary: #60efff;
+    /* Celeste Eléctrico */
+    --color-accent: #7d5fff;
+    /* Violeta Premium */
+    --color-danger: #ff4d4d;
+    /* Rojo Tarjeta */
+    --color-warning: #ffd32a;
+    /* Amarillo Tarjeta */
+
     --text-main: #f5f6fa;
     --text-muted: #8e95b3;
     --text-dark: #0a0b10;
-    
+
     /* Gradientes */
     --grad-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     --grad-accent: linear-gradient(135deg, var(--color-accent) 0%, #ff4b8b 100%);
     --grad-dark: linear-gradient(135deg, #151824 0%, #0a0b10 100%);
-    
+
     /* Efecto Blur */
     --blur-glass: blur(16px);
     --radius-lg: 16px;
     --radius-md: 12px;
     --radius-sm: 8px;
-    
+
     --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -46,7 +51,7 @@
 
 body {
     background-color: var(--bg-main);
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(125, 95, 255, 0.1) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(0, 255, 135, 0.08) 0px, transparent 50%);
     color: var(--text-main);
@@ -56,7 +61,12 @@ body {
 }
 
 /* Tipografía */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-weight: 700;
     letter-spacing: -0.02em;
     background: linear-gradient(to right, #ffffff, #dcdde1);
@@ -290,9 +300,11 @@ h1, h2, h3, h4, h5, h6 {
     .app-container {
         padding: 12px;
     }
+
     .glass-panel {
         padding: 16px;
     }
+
     .btn {
         width: 100%;
         margin-bottom: 8px;
@@ -314,7 +326,8 @@ h1, h2, h3, h4, h5, h6 {
     overflow-y: auto;
 }
 
-@media (max-height: 780px), (max-width: 600px) {
+@media (max-height: 780px),
+(max-width: 600px) {
     .modal {
         align-items: flex-start;
         padding-top: 15px;

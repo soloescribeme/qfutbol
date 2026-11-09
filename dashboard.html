@@ -128,6 +128,10 @@
                         <i data-lucide="shield" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Organizador
                     </button>
 
+                    <button id="btn-profile-delegado" type="button" onclick="switchProfile('delegado')" class="btn" style="font-weight: 700; padding: 7px 14px; font-size: 0.85rem; background: rgba(0, 210, 255, 0.12); border: 1px solid var(--color-accent); color: var(--color-accent);">
+                        <i data-lucide="users" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Mis Equipos / Delegado
+                    </button>
+
                     <a id="btn-profile-vocal" href="vocal.html" class="btn" style="font-weight: 700; padding: 7px 14px; font-size: 0.85rem; background: rgba(0, 210, 255, 0.12); border: 1px solid var(--color-accent); color: var(--color-accent); text-decoration: none;">
                         <i data-lucide="clipboard-list" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Vocal
                     </a>
@@ -345,6 +349,33 @@
                 </div>
             </div>
         </div> <!-- FIN TAB: tab-admin -->
+
+        <!-- TAB: PIZARRA DEL DELEGADO (MIS EQUIPOS Y JUGADORES AUTORIZADOS) -->
+        <div id="tab-delegado" class="tab-content glass-panel" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border-glass); padding-bottom:15px;">
+                <div>
+                    <h2 style="font-size: 1.5rem; color:var(--color-accent); display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="shield-check" style="color:var(--color-accent);"></i> Pizarra del Delegado: Mis Campeonatos y Equipos Autorizados
+                    </h2>
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+                        Aquí se muestran los campeonatos en los que tu correo ha sido registrado y autorizado para inscribir la nómina de jugadores y gestionar tu equipo.
+                    </p>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span id="lbl-delegado-logged-email" style="font-size:0.85rem; color:var(--color-accent); font-weight:700; background:rgba(0, 210, 255, 0.1); padding:6px 12px; border-radius:var(--radius-sm); border:1px solid rgba(0, 210, 255, 0.25);">
+                        Delegado Activo
+                    </span>
+                    <button type="button" class="btn btn-secondary" onclick="switchProfile('organizador')" style="font-size:0.82rem; padding:6px 12px;">
+                        <i data-lucide="arrow-left"></i> Volver a Organizador
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor dinámico de campeonatos y equipos del delegado -->
+            <div id="container-pizarra-delegado">
+                <!-- Se puebla dinámicamente con renderizarPizarraDelegado() -->
+            </div>
+        </div>
 
         <!-- TAB: CONFIGURACIÓN Y GESTIÓN DE CAMPEONATOS -->
         <div id="tab-campeonato" class="tab-content active glass-panel">
@@ -1075,6 +1106,44 @@
                     </div>
                 </div>
 
+                <!-- Preguntar si el responsable del equipo es el mismo que va a inscribir a los jugadores -->
+                <div class="form-group" style="background:rgba(0, 255, 135, 0.08); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid rgba(0, 255, 135, 0.25); margin-bottom:12px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.83rem; font-weight:700; color:var(--text-main); margin:0;">
+                        <input type="checkbox" id="eq-mismo-responsable-check" checked onchange="toggleMismoResponsableInscripcion(this.checked)" style="width:17px; height:17px; accent-color:var(--color-primary);">
+                        <span>¿El responsable del equipo es la misma persona que inscribirá a los jugadores?</span>
+                    </label>
+                    <small style="display:block; color:var(--text-muted); font-size:0.74rem; margin-top:4px; margin-left:25px;">
+                        Si está marcado, se autorizará automáticamente con su correo para gestionar la nómina de jugadores.
+                    </small>
+                </div>
+
+                <!-- Bloque Delegado de Inscripción Separado -->
+                <div id="box-delegado-inscripciones-separado" style="display:none; background:rgba(0, 210, 255, 0.05); border:1px solid rgba(0, 210, 255, 0.25); border-radius:var(--radius-sm); padding:12px; margin-bottom:12px;">
+                    <div style="font-weight:700; color:var(--color-accent); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="user-check"></i> Delegado Autorizado para Inscripción de Jugadores
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="eq-delegado-nombre" style="font-size:0.75rem;">Nombre Completo</label>
+                            <input type="text" id="eq-delegado-nombre" class="form-input" placeholder="Ej. Roberto Gómez">
+                        </div>
+                        <div>
+                            <label class="form-label" for="eq-delegado-cedula" style="font-size:0.75rem;">Cédula / DNI</label>
+                            <input type="text" id="eq-delegado-cedula" class="form-input" placeholder="Ej. 1719876543">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label class="form-label" for="eq-delegado-telefono" style="font-size:0.75rem;">Celular / Teléfono</label>
+                            <input type="text" id="eq-delegado-telefono" class="form-input" placeholder="Ej. 0991234567">
+                        </div>
+                        <div>
+                            <label class="form-label" for="eq-delegado-email" style="font-size:0.75rem;">Correo Electrónico (Acceso)</label>
+                            <input type="email" id="eq-delegado-email" class="form-input" placeholder="delegado.inscripcion@ejemplo.com">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Perfil: Director Técnico (DT) -->
                 <div style="background:rgba(96, 239, 255, 0.04); border:1px solid rgba(96, 239, 255, 0.2); border-radius:var(--radius-sm); padding:12px; margin-bottom:12px;">
                     <div style="font-weight:700; color:var(--color-secondary); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
@@ -1350,7 +1419,271 @@
         </div>
     </div>
 
-    <!-- MODAL DE GENERACIÓN DE AFICHE PROMOCIONAL PARA REDES SOCIALES (REGLA 4 Y 9.3) -->
+    <!-- MODAL ACTUALIZAR FICHA DE EQUIPO Y DELEGADOS -->
+    <div id="modal-actualizar-equipo" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <div>
+                    <h3 id="lbl-titulo-actualizar-equipo" style="font-size: 1.25rem; margin:0; color:var(--color-primary); display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="shield"></i> Ficha y Datos del Equipo
+                    </h3>
+                    <small id="lbl-subtitulo-actualizar-equipo" style="color:var(--text-muted);"></small>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarEquipo()" style="padding:4px 10px; font-size:0.8rem;">✕ Cerrar</button>
+            </div>
+
+            <div id="alerta-bloqueo-edicion-equipo" style="display:none; background:rgba(255, 171, 0, 0.12); border:1px solid var(--color-warning); color:var(--color-warning); padding:10px 14px; border-radius:var(--radius-sm); font-size:0.82rem; font-weight:600; margin-bottom:15px; line-height:1.4;">
+                🔒 <strong>Campeonato Iniciado:</strong> El nombre y la categoría del club están congelados oficialmente. Por normativa, solo se permite actualizar los datos del <strong>Director Técnico (DT)</strong>, el <strong>Delegado Autorizado de Inscripción</strong> y la nómina de <strong>Jugadores</strong>.
+            </div>
+
+            <form id="form-actualizar-equipo" onsubmit="guardarActualizacionEquipo(event)">
+                <input type="hidden" id="act-eq-id">
+
+                <!-- DATOS ESTRUCTURALES DEL CLUB (EDITABLES ANTES DEL INICIO) -->
+                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:12px; margin-bottom:14px;">
+                    <div style="font-weight:700; font-size:0.85rem; color:var(--text-main); margin-bottom:8px;">
+                        ⚽ Identidad del Club
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label class="form-label" for="act-eq-nombre">Nombre del Equipo</label>
+                        <input type="text" id="act-eq-nombre" class="form-input" required>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="act-eq-categoria-id">Categoría</label>
+                            <select id="act-eq-categoria-id" class="form-input" required></select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="act-eq-curso-paralelo">Curso / Paralelo</label>
+                            <input type="text" id="act-eq-curso-paralelo" class="form-input" placeholder="Ej. 6to EGB 'A'">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="act-eq-logo">URL del Logotipo / Escudo</label>
+                        <input type="text" id="act-eq-logo" class="form-input" placeholder="https://ejemplo.com/escudo.png">
+                    </div>
+                </div>
+
+                <!-- RESPONSABLE PRINCIPAL / CONTACTO -->
+                <div style="background:rgba(0, 255, 135, 0.04); border:1px solid rgba(0, 255, 135, 0.2); border-radius:var(--radius-sm); padding:12px; margin-bottom:14px;">
+                    <div style="font-weight:700; color:var(--color-primary); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="user-check"></i> Responsable Principal / Contacto Directo
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="act-eq-contacto-nombre" style="font-size:0.75rem;">Nombre Completo</label>
+                            <input type="text" id="act-eq-contacto-nombre" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="act-eq-contacto-cedula" style="font-size:0.75rem;">Cédula / DNI</label>
+                            <input type="text" id="act-eq-contacto-cedula" class="form-input" required>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label class="form-label" for="act-eq-contacto-telefono" style="font-size:0.75rem;">Nro. Celular</label>
+                            <input type="text" id="act-eq-contacto-telefono" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="act-eq-contacto-email" style="font-size:0.75rem;">Correo Electrónico</label>
+                            <input type="email" id="act-eq-contacto-email" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELECTOR: MISMO RESPONSABLE DE INSCRIPCIONES -->
+                <div class="form-group" style="background:rgba(0, 255, 135, 0.08); padding:10px 14px; border-radius:var(--radius-sm); border:1px solid rgba(0, 255, 135, 0.25); margin-bottom:14px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.83rem; font-weight:700; color:var(--text-main); margin:0;">
+                        <input type="checkbox" id="act-eq-mismo-responsable-check" onchange="toggleActMismoResponsable(this.checked)" style="width:17px; height:17px; accent-color:var(--color-primary);">
+                        <span>¿El responsable del equipo es la misma persona que inscribirá a los jugadores?</span>
+                    </label>
+                    <small style="display:block; color:var(--text-muted); font-size:0.74rem; margin-top:4px; margin-left:25px;">
+                        Si desmarcas esta casilla, podrás autorizar a otra persona con su correo para que registre la nómina de jugadores.
+                    </small>
+                </div>
+
+                <!-- BLOQUE DELEGADO AUTORIZADO SEPARADO -->
+                <div id="act-box-delegado-separado" style="display:none; background:rgba(0, 210, 255, 0.05); border:1px solid rgba(0, 210, 255, 0.25); border-radius:var(--radius-sm); padding:12px; margin-bottom:14px;">
+                    <div style="font-weight:700; color:var(--color-accent); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="shield-check"></i> Delegado Autorizado para Inscribir Jugadores
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="act-eq-delegado-nombre" style="font-size:0.75rem;">Nombre del Delegado</label>
+                            <input type="text" id="act-eq-delegado-nombre" class="form-input" placeholder="Ej. Roberto Sánchez">
+                        </div>
+                        <div>
+                            <label class="form-label" for="act-eq-delegado-cedula" style="font-size:0.75rem;">Cédula / DNI</label>
+                            <input type="text" id="act-eq-delegado-cedula" class="form-input" placeholder="Ej. 1729988776">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label class="form-label" for="act-eq-delegado-telefono" style="font-size:0.75rem;">Celular Delegado</label>
+                            <input type="text" id="act-eq-delegado-telefono" class="form-input" placeholder="Ej. 0981234567">
+                        </div>
+                        <div>
+                            <label class="form-label" for="act-eq-delegado-email" style="font-size:0.75rem;">Correo Electrónico (Acceso Pizarra)</label>
+                            <input type="email" id="act-eq-delegado-email" class="form-input" placeholder="delegado@ejemplo.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIRECTOR TÉCNICO (DT) -->
+                <div style="background:rgba(96, 239, 255, 0.04); border:1px solid rgba(96, 239, 255, 0.2); border-radius:var(--radius-sm); padding:12px; margin-bottom:18px;">
+                    <div style="font-weight:700; color:var(--color-secondary); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="award"></i> Director Técnico (DT)
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-label" for="act-eq-dt-nombre" style="font-size:0.75rem;">Nombre del DT</label>
+                            <input type="text" id="act-eq-dt-nombre" class="form-input" placeholder="Ej. Prof. Mario Gómez">
+                        </div>
+                        <div>
+                            <label class="form-label" for="act-eq-dt-cedula" style="font-size:0.75rem;">Cédula / DNI DT</label>
+                            <input type="text" id="act-eq-dt-cedula" class="form-input" placeholder="Ej. 1708899001">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label" for="act-eq-dt-telefono" style="font-size:0.75rem;">Celular DT</label>
+                        <input type="text" id="act-eq-dt-telefono" class="form-input" placeholder="Ej. 0998877665">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="abrirModalGestionJugadoresEquipo(document.getElementById('act-eq-id').value); cerrarModalActualizarEquipo();" style="border-color:var(--color-accent); color:var(--color-accent); font-weight:600;">
+                        <i data-lucide="users"></i> Gestionar Nómina de Jugadores
+                    </button>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarEquipo()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                            <i data-lucide="save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL GESTIÓN E INSCRIPCIÓN DE JUGADORES CON CONSULTA UNIVERSAL -->
+    <div id="modal-gestionar-jugadores-equipo" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 800px; max-height: 92vh; overflow-y: auto;">
+            <!-- Header Modal -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img id="gest-jug-logo-eq" src="" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--color-primary);">
+                    <div>
+                        <h3 id="gest-jug-nombre-eq" style="font-size: 1.3rem; margin:0; color:var(--text-main);">Nómina del Equipo</h3>
+                        <div id="gest-jug-subtitulo" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalGestionJugadores()" style="padding:5px 12px; font-size:0.85rem;">✕ Cerrar</button>
+            </div>
+
+            <!-- SECCIÓN 1: FORMULARIO DE INSCRIPCIÓN CON CONSULTA UNIVERSAL -->
+            <div style="background:rgba(0,0,0,0.22); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
+                <div style="font-weight:750; font-size:0.95rem; color:var(--color-primary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                    <i data-lucide="user-plus"></i> Inscribir Jugador (Consulta Universal por Cédula)
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-top:0; margin-bottom:14px; line-height:1.4;">
+                    Ingresa el número de Cédula o DNI. Si el jugador ya ha participado en cualquier campeonato de QFutbol, <strong>sus datos se cargarán automáticamente de la Base Universal</strong> sin tener que volver a escribirlos.
+                </p>
+
+                <!-- Barra de búsqueda por Cédula -->
+                <div style="display:grid; grid-template-columns:1fr auto; gap:10px; margin-bottom:14px;">
+                    <input type="text" id="gest-buscar-cedula" class="form-input" placeholder="Ingresa Cédula o DNI del Jugador (Ej. 1723456789)" style="font-weight:700; font-size:1.05rem;" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); buscarJugadorUniversal(); }">
+                    <button type="button" class="btn btn-primary" onclick="buscarJugadorUniversal()" style="padding:0 18px; font-weight:750;">
+                        <i data-lucide="search"></i> Consultar Base Universal
+                    </button>
+                </div>
+
+                <!-- Banner de Resultado de Búsqueda -->
+                <div id="gest-resultado-banner" style="display:none; padding:10px 14px; border-radius:var(--radius-sm); margin-bottom:14px; font-size:0.85rem;"></div>
+
+                <!-- Formulario de Guardado de Jugador -->
+                <form id="form-inscribir-jugador-equipo" onsubmit="guardarInscripcionJugadorEquipo(event)">
+                    <input type="hidden" id="gest-jug-id-global">
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="gest-jug-nombres">Nombres Completos</label>
+                            <input type="text" id="gest-jug-nombres" class="form-input" required placeholder="Ej. Carlos Alberto">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="gest-jug-apellidos">Apellidos Completos</label>
+                            <input type="text" id="gest-jug-apellidos" class="form-input" required placeholder="Ej. Zambrano Solís">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label class="form-label" for="gest-jug-foto">Foto del Jugador / Carnet (URL Opcional)</label>
+                        <input type="text" id="gest-jug-foto" class="form-input" placeholder="https://ejemplo.com/foto_jugador.jpg">
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:14px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="gest-jug-dorsal">Nro. Camiseta (Dorsal)</label>
+                            <input type="number" id="gest-jug-dorsal" class="form-input" min="1" max="99" value="10" required style="font-weight:800; font-size:1.1rem; color:var(--color-primary);">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="gest-jug-posicion">Posición</label>
+                            <select id="gest-jug-posicion" class="form-input" required>
+                                <option value="DEL">Delantero (DEL)</option>
+                                <option value="MED" selected>Mediocampo (MED)</option>
+                                <option value="DEF">Defensa (DEF)</option>
+                                <option value="ARQ">Arquero (ARQ)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="gest-jug-rol">Rol en Nómina</label>
+                            <select id="gest-jug-rol" class="form-input">
+                                <option value="jugador">Jugador</option>
+                                <option value="capitan">Capitán</option>
+                                <option value="subcapitan">Subcapitán</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" class="btn btn-secondary" onclick="limpiarFormularioJugador()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                            <i data-lucide="user-check"></i> Confirmar Inscripción en el Club
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SECCIÓN 2: NÓMINA ACTUAL DEL EQUIPO -->
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <div style="font-weight:750; font-size:1rem; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="users" style="color:var(--color-accent);"></i> Plantilla Oficial de Jugadores Inscritos:
+                        <span id="gest-total-jugadores-badge" class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary); font-size:0.8rem;">0 Jugadores</span>
+                    </div>
+                    <small style="color:var(--text-muted);">Los dorsales deben ser únicos dentro del mismo equipo</small>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dorsal</th>
+                                <th>Foto</th>
+                                <th>Nombres y Apellidos</th>
+                                <th>Cédula / DNI</th>
+                                <th>Posición</th>
+                                <th>Rol</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gest-tbody-nomina-jugadores">
+                            <!-- Se renderiza dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="modal-afiche-promo" class="modal" style="display:none;">
         <div class="modal-content glass-panel" style="width: 95%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
@@ -1564,6 +1897,7 @@
         function switchProfile(profile) {
             const btnAdmin = document.getElementById("btn-profile-admin");
             const btnOrg = document.getElementById("btn-profile-organizador");
+            const btnDelegado = document.getElementById("btn-profile-delegado");
             const badge = document.getElementById("lbl-active-profile-badge");
             const subnavOrg = document.getElementById("subnav-organizador");
             const kpiGrid = document.querySelector(".dashboard-grid");
@@ -1578,6 +1912,10 @@
                 if (btnOrg) {
                     btnOrg.style.background = "rgba(125, 95, 255, 0.12)";
                     btnOrg.style.color = "var(--color-secondary)";
+                }
+                if (btnDelegado) {
+                    btnDelegado.style.background = "rgba(0, 210, 255, 0.12)";
+                    btnDelegado.style.color = "var(--color-accent)";
                 }
                 if (badge) {
                     badge.innerText = "Modo: Administración Global QFutbol";
@@ -1599,6 +1937,10 @@
                     btnOrg.style.background = "var(--color-secondary)";
                     btnOrg.style.color = "#ffffff";
                 }
+                if (btnDelegado) {
+                    btnDelegado.style.background = "rgba(0, 210, 255, 0.12)";
+                    btnDelegado.style.color = "var(--color-accent)";
+                }
                 if (badge) {
                     badge.innerText = "Modo: Organizador del Torneo";
                     badge.style.background = "rgba(125, 95, 255, 0.15)";
@@ -1610,6 +1952,31 @@
                 if (kpiGrid) kpiGrid.style.display = "grid";
 
                 switchTab('campeonato');
+            } else if (profile === 'delegado') {
+                if (btnAdmin) {
+                    btnAdmin.style.background = "rgba(0, 255, 135, 0.12)";
+                    btnAdmin.style.color = "var(--color-primary)";
+                }
+                if (btnOrg) {
+                    btnOrg.style.background = "rgba(125, 95, 255, 0.12)";
+                    btnOrg.style.color = "var(--color-secondary)";
+                }
+                if (btnDelegado) {
+                    btnDelegado.style.background = "var(--color-accent)";
+                    btnDelegado.style.color = "#0a0b10";
+                }
+                if (badge) {
+                    badge.innerText = "Modo: Delegado Autorizado (Inscripción de Jugadores)";
+                    badge.style.background = "rgba(0, 210, 255, 0.15)";
+                    badge.style.color = "var(--color-accent)";
+                }
+                if (pizarraHeader) pizarraHeader.style.display = "none";
+                if (bannerCosto) bannerCosto.style.display = "none";
+                if (subnavOrg) subnavOrg.style.display = "none";
+                if (kpiGrid) kpiGrid.style.display = "none";
+
+                switchTab('delegado');
+                renderizarPizarraDelegado();
             }
         }
 
@@ -2453,6 +2820,7 @@
             renderizarSanciones();
             await renderizarAuspiciantes();
             renderizarListaCampeonatos(cacheCampeonatos);
+            if (typeof renderizarPizarraDelegado === 'function') await renderizarPizarraDelegado();
             lucide.createIcons();
         }
 
@@ -2471,7 +2839,7 @@
                         </button>
                     </div>
                 `;
-                document.getElementById("container-form-campeonato").style.display = "block";
+                document.getElementById("container-form-campeonato").style.display = "none";
                 if (window.lucide) lucide.createIcons();
                 return;
             }
@@ -2572,6 +2940,7 @@
             cacheSanciones = await dbGetTable("sanciones_equipos") || [];
             cacheJugadores = await dbGetTable("jugadores") || [];
             cacheInscripciones = await dbGetTable("inscripciones_equipo") || [];
+            cachePagos = await dbGetTable("pagos_abonos") || [];
 
             // 2. Determinar qué campeonato es el activo
             const savedCampId = sessionStorage.getItem("qfutbol_active_camp_id") || localStorage.getItem("qfutbol_active_camp_id");
@@ -2602,6 +2971,7 @@
             renderizarSanciones();
             await renderizarAuspiciantes();
             renderizarListaCampeonatos(cacheCampeonatos);
+            if (typeof renderizarPizarraDelegado === 'function') await renderizarPizarraDelegado();
             lucide.createIcons();
         }
 
@@ -2667,9 +3037,16 @@
 
             equiposTorneo.forEach(eq => {
                 const costoInscripcion = parseFloat(configCampeonato.costo_inscripcion || 3.00);
-                const abonado = parseFloat(eq.monto_pagado_inscripcion || 0);
-                const garantia = parseFloat(eq.monto_garantia_pagado || 0);
                 
+                // Calcular abonos reales consolidados
+                const pagosInsc = (cachePagos || []).filter(p => p.equipo_id === eq.id && p.concepto === 'inscripcion' && p.estado !== 'rechazado').reduce((s, p) => s + parseFloat(p.monto || 0), 0);
+                const abonado = Math.max(parseFloat(eq.monto_pagado_inscripcion || 0), pagosInsc);
+
+                const pagosGar = (cachePagos || []).filter(p => p.equipo_id === eq.id && p.concepto === 'garantia' && p.estado !== 'rechazado').reduce((s, p) => s + parseFloat(p.monto || 0), 0);
+                const garantia = Math.max(parseFloat(eq.monto_garantia_pagado || 0), pagosGar);
+                
+                const jugCount = (cacheInscripciones || []).filter(i => i.equipo_id === eq.id).length;
+
                 let badgeClass = "badge-danger";
                 let badgeText = "Sin Pago";
                 if (abonado >= costoInscripcion) {
@@ -2700,9 +3077,15 @@
                         <td>${formatMoney(abonado)}</td>
                         <td>${formatMoney(garantia)}</td>
                         <td><span class="badge ${badgeClass}">${badgeText}</span>${moraBadge}</td>
-                        <td>
-                            <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem;" onclick="showModalAbono('${eq.id}', '${eq.nombre}')">
-                                <i data-lucide="plus-circle" style="width:14px;height:14px;display:inline;vertical-align:middle;"></i> Abono
+                        <td style="white-space:nowrap;">
+                            <button class="btn btn-secondary" style="padding:5px 9px; font-size:0.75rem; margin-right:4px;" onclick="abrirModalActualizarEquipo('${eq.id}')" title="Actualizar ficha y responsable de inscripciones">
+                                <i data-lucide="edit" style="width:13px;height:13px;display:inline;"></i> Ficha
+                            </button>
+                            <button class="btn btn-primary" style="padding:5px 9px; font-size:0.75rem; margin-right:4px;" onclick="abrirModalGestionJugadoresEquipo('${eq.id}')" title="Inscribir y gestionar jugadores">
+                                <i data-lucide="users" style="width:13px;height:13px;display:inline;"></i> Jugadores (${jugCount})
+                            </button>
+                            <button class="btn btn-secondary" style="padding:5px 9px; font-size:0.75rem;" onclick="showModalAbono('${eq.id}', '${eq.nombre}')" title="Registrar abono de inscripción o garantía">
+                                <i data-lucide="wallet" style="width:13px;height:13px;display:inline;"></i> Abono
                             </button>
                         </td>
                     </tr>
@@ -3302,7 +3685,21 @@
             const contactoNombre = document.getElementById("eq-contacto-nombre").value.trim();
             const contactoCedula = document.getElementById("eq-contacto-cedula") ? document.getElementById("eq-contacto-cedula").value.trim() : null;
             const contactoCelular = document.getElementById("eq-contacto-responsable").value.trim();
-            const contactoEmail = document.getElementById("eq-contacto-email") ? document.getElementById("eq-contacto-email").value.trim() : null;
+            const contactoEmail = document.getElementById("eq-contacto-email") ? document.getElementById("eq-contacto-email").value.trim().toLowerCase() : null;
+
+            const mismoResp = document.getElementById("eq-mismo-responsable-check") ? document.getElementById("eq-mismo-responsable-check").checked : true;
+            let delNombre = contactoNombre;
+            let delCedula = contactoCedula;
+            let delCelular = contactoCelular;
+            let delEmail = contactoEmail;
+
+            if (!mismoResp) {
+                delNombre = document.getElementById("eq-delegado-nombre")?.value.trim() || contactoNombre;
+                delCedula = document.getElementById("eq-delegado-cedula")?.value.trim() || contactoCedula;
+                delCelular = document.getElementById("eq-delegado-telefono")?.value.trim() || contactoCelular;
+                delEmail = (document.getElementById("eq-delegado-email")?.value.trim() || contactoEmail)?.toLowerCase();
+            }
+
             const dtNombre = document.getElementById("eq-dt-nombre") ? document.getElementById("eq-dt-nombre").value.trim() : null;
             const dtCedula = document.getElementById("eq-dt-cedula") ? document.getElementById("eq-dt-cedula").value.trim() : null;
             const dtCelular = document.getElementById("eq-dt-telefono") ? document.getElementById("eq-dt-telefono").value.trim() : null;
@@ -3316,9 +3713,14 @@
                 contacto_cedula: contactoCedula,
                 contacto_responsable: contactoCelular,
                 contacto_email: contactoEmail,
+                mismo_responsable_inscripcion: mismoResp,
+                delegado_inscripcion_nombre: delNombre,
+                delegado_inscripcion_cedula: delCedula,
+                delegado_inscripcion_telefono: delCelular,
+                delegado_inscripcion_email: delEmail,
                 dt_nombre: dtNombre,
                 dt_cedula: dtCedula,
-                dt_celular: dtCelular,
+                dt_telefono: dtCelular,
                 logo_url: document.getElementById("eq-logo").value || null,
                 monto_pagado_inscripcion: parseFloat(document.getElementById("eq-abono").value || 0),
                 monto_garantia_pagado: 10.00
@@ -3326,19 +3728,19 @@
 
             await dbInsertRow("equipos", nuevoEq);
 
-            // Regla: El organizador habilita el perfil de Delegado o DT para los representantes del equipo
-            if (contactoEmail && contactoCedula) {
+            // Regla: Habilitar cuenta de acceso para el delegado autorizado de inscripción
+            if (delEmail) {
                 try {
                     const perfiles = await dbGetTable("perfiles") || [];
-                    const yaExiste = perfiles.find(p => (p.email && p.email.toLowerCase() === contactoEmail.toLowerCase()) || (p.cedula === contactoCedula));
+                    const yaExiste = perfiles.find(p => p.email && p.email.toLowerCase() === delEmail);
                     if (!yaExiste) {
                         await dbInsertRow("perfiles", {
-                            nombres: contactoNombre,
+                            nombres: delNombre,
                             apellidos: `(Delegado ${nombreEq})`,
-                            cedula: contactoCedula,
-                            email: contactoEmail,
+                            cedula: delCedula,
+                            email: delEmail,
                             password: "qfutbol_delegado",
-                            rol: "jugador" // perfil base para delegado/contacto
+                            rol: "delegado"
                         });
                     }
                 } catch(e){}
@@ -3347,9 +3749,10 @@
             hideModalAgregarEquipo();
             alert(`Equipo "${nuevoEq.nombre}" inscrito exitosamente con representantes asignados.`);
             await cargarDatos();
+            if (typeof renderizarPizarraDelegado === 'function') renderizarPizarraDelegado();
         });
 
-        // Registrar Abono
+        // Registrar Abono (Actualización automática y sincronizada)
         document.getElementById("abono-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const eqId = document.getElementById("abono-equipo-id").value;
@@ -3359,46 +3762,629 @@
             const comprobante = document.getElementById("abono-comprobante") ? document.getElementById("abono-comprobante").value.trim() : null;
             const nuevoPago = {
                 equipo_id: eqId,
+                campeonato_id: configCampeonato?.id || null,
                 concepto: concepto,
                 monto: monto,
-                comprobante: comprobante || null,
+                comprobante_url: comprobante || null,
                 metodo_pago: comprobante ? 'transferencia' : 'efectivo',
                 estado: 'aprobado'
             };
 
-            // 1. Insertar en pagos_abonos
+            // 1. Insertar en pagos_abonos en Neon DB
             await dbInsertRow("pagos_abonos", nuevoPago);
 
-            // 2. Modificar en DB (Legacy/Compatibilidad)
-            if (concepto === "inscripcion" || concepto === "garantia") {
-                if (supabase && supabase.auth) {
-                    if (concepto === "inscripcion") {
-                        const eqObj = cacheEquipos.find(e => e.id === eqId);
-                        const nuevoMonto = parseFloat(eqObj.monto_pagado_inscripcion || 0) + monto;
-                        await supabase.from('equipos').update({ monto_pagado_inscripcion: nuevoMonto }).eq('id', eqId);
-                    } else if (concepto === "garantia") {
-                        const eqObj = cacheEquipos.find(e => e.id === eqId);
-                        const nuevoMonto = parseFloat(eqObj.monto_garantia_pagado || 0) + monto;
-                        await supabase.from('equipos').update({ monto_garantia_pagado: nuevoMonto }).eq('id', eqId);
-                    }
-                } else {
-                    const localDb = JSON.parse(localStorage.getItem("qfutbol_mock_db"));
-                    const eqIdx = localDb.equipos.findIndex(e => e.id === eqId);
-                    if (eqIdx !== -1) {
-                        if (concepto === "inscripcion") {
-                            localDb.equipos[eqIdx].monto_pagado_inscripcion = (parseFloat(localDb.equipos[eqIdx].monto_pagado_inscripcion || 0) + monto);
-                        } else if (concepto === "garantia") {
-                            localDb.equipos[eqIdx].monto_garantia_pagado = (parseFloat(localDb.equipos[eqIdx].monto_garantia_pagado || 0) + monto);
-                        }
-                        localStorage.setItem("qfutbol_mock_db", JSON.stringify(localDb));
-                    }
+            // 2. Modificar en Neon DB equipos y memoria local
+            const eqObj = (cacheEquipos || []).find(e => e.id === eqId);
+            if (eqObj) {
+                if (concepto === "inscripcion") {
+                    const nuevoMonto = parseFloat(eqObj.monto_pagado_inscripcion || 0) + monto;
+                    await dbUpdateRow("equipos", eqId, { monto_pagado_inscripcion: nuevoMonto });
+                    eqObj.monto_pagado_inscripcion = nuevoMonto;
+                } else if (concepto === "garantia") {
+                    const nuevoMonto = parseFloat(eqObj.monto_garantia_pagado || 0) + monto;
+                    await dbUpdateRow("equipos", eqId, { monto_garantia_pagado: nuevoMonto });
+                    eqObj.monto_garantia_pagado = nuevoMonto;
                 }
             }
 
             hideModalAbono();
-            alert("Abono registrado con éxito.");
+            alert(`¡Abono de $${monto.toFixed(2)} registrado con éxito!`);
             await cargarDatos();
         });
+
+        // ==========================================
+        // GESTIÓN DE EQUIPOS, DELEGADOS Y NÓMINA UNIVERSAL
+        // ==========================================
+
+        function toggleMismoResponsableInscripcion(checked) {
+            const box = document.getElementById("box-delegado-inscripciones-separado");
+            if (box) box.style.display = checked ? "none" : "block";
+        }
+
+        function toggleActMismoResponsable(checked) {
+            const box = document.getElementById("act-box-delegado-separado");
+            if (box) box.style.display = checked ? "none" : "block";
+        }
+
+        async function abrirModalActualizarEquipo(equipoId) {
+            const eq = (cacheEquipos || []).find(e => e.id === equipoId);
+            if (!eq) {
+                alert("Equipo no encontrado.");
+                return;
+            }
+
+            document.getElementById("act-eq-id").value = eq.id;
+            document.getElementById("lbl-titulo-actualizar-equipo").innerHTML = `<i data-lucide="shield"></i> Ficha: ${eq.nombre}`;
+            document.getElementById("lbl-subtitulo-actualizar-equipo").innerText = `Campeonato: ${configCampeonato?.nombre || 'Torneo Actual'}`;
+
+            // Determinar si el campeonato ya inició
+            const campIniciado = configCampeonato.estado === 'iniciado' || configCampeonato.estado === 'en_progreso' || (cachePartidos || []).some(p => (!p.campeonato_id || p.campeonato_id === configCampeonato.id) && (p.estado === 'finalizado' || p.estado === 'en_juego'));
+
+            const bannerBloqueo = document.getElementById("alerta-bloqueo-edicion-equipo");
+            if (bannerBloqueo) bannerBloqueo.style.display = campIniciado ? "block" : "none";
+
+            // Campos estructurales: bloqueados si ya inició el torneo
+            const inputNombre = document.getElementById("act-eq-nombre");
+            const selectCat = document.getElementById("act-eq-categoria-id");
+            const inputCurso = document.getElementById("act-eq-curso-paralelo");
+            const inputLogo = document.getElementById("act-eq-logo");
+
+            inputNombre.value = eq.nombre || "";
+            inputNombre.disabled = campIniciado;
+            inputNombre.style.opacity = campIniciado ? "0.6" : "1";
+
+            // Categorías dropdown
+            selectCat.innerHTML = "";
+            const catsTorneo = (cacheCategorias || []).filter(c => !c.campeonato_id || c.campeonato_id === configCampeonato.id);
+            catsTorneo.forEach(cat => {
+                selectCat.innerHTML += `<option value="${cat.id}" ${cat.id === eq.categoria_id ? 'selected' : ''}>${cat.nombre} (${cat.genero || 'Libre'})</option>`;
+            });
+            selectCat.disabled = campIniciado;
+            selectCat.style.opacity = campIniciado ? "0.6" : "1";
+
+            inputCurso.value = eq.curso_paralelo || "";
+            inputCurso.disabled = campIniciado;
+            inputCurso.style.opacity = campIniciado ? "0.6" : "1";
+
+            inputLogo.value = eq.logo_url || "";
+            inputLogo.disabled = campIniciado;
+            inputLogo.style.opacity = campIniciado ? "0.6" : "1";
+
+            // Responsable de contacto
+            document.getElementById("act-eq-contacto-nombre").value = eq.contacto_nombre || "";
+            document.getElementById("act-eq-contacto-cedula").value = eq.contacto_cedula || "";
+            document.getElementById("act-eq-contacto-telefono").value = eq.contacto_responsable || "";
+            document.getElementById("act-eq-contacto-email").value = eq.contacto_email || "";
+
+            // Mismo responsable check
+            const mismoResp = eq.mismo_responsable_inscripcion !== false;
+            const chkMismo = document.getElementById("act-eq-mismo-responsable-check");
+            if (chkMismo) chkMismo.checked = mismoResp;
+
+            toggleActMismoResponsable(mismoResp);
+
+            document.getElementById("act-eq-delegado-nombre").value = eq.delegado_inscripcion_nombre || eq.contacto_nombre || "";
+            document.getElementById("act-eq-delegado-cedula").value = eq.delegado_inscripcion_cedula || eq.contacto_cedula || "";
+            document.getElementById("act-eq-delegado-telefono").value = eq.delegado_inscripcion_telefono || eq.contacto_responsable || "";
+            document.getElementById("act-eq-delegado-email").value = eq.delegado_inscripcion_email || eq.contacto_email || "";
+
+            // DT (Siempre editable)
+            document.getElementById("act-eq-dt-nombre").value = eq.dt_nombre || "";
+            document.getElementById("act-eq-dt-cedula").value = eq.dt_cedula || "";
+            document.getElementById("act-eq-dt-telefono").value = eq.dt_telefono || eq.dt_celular || "";
+
+            const modal = document.getElementById("modal-actualizar-equipo");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalActualizarEquipo() {
+            const modal = document.getElementById("modal-actualizar-equipo");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function guardarActualizacionEquipo(e) {
+            e.preventDefault();
+            const eqId = document.getElementById("act-eq-id").value;
+            const eqOriginal = (cacheEquipos || []).find(e => e.id === eqId);
+            if (!eqOriginal) return;
+
+            const campIniciado = configCampeonato.estado === 'iniciado' || configCampeonato.estado === 'en_progreso' || (cachePartidos || []).some(p => (!p.campeonato_id || p.campeonato_id === configCampeonato.id) && (p.estado === 'finalizado' || p.estado === 'en_juego'));
+
+            const contactoNombre = document.getElementById("act-eq-contacto-nombre").value.trim();
+            const contactoCedula = document.getElementById("act-eq-contacto-cedula").value.trim();
+            const contactoCelular = document.getElementById("act-eq-contacto-telefono").value.trim();
+            const contactoEmail = document.getElementById("act-eq-contacto-email").value.trim().toLowerCase();
+
+            const mismoResp = document.getElementById("act-eq-mismo-responsable-check").checked;
+            let delNombre = contactoNombre;
+            let delCedula = contactoCedula;
+            let delTel = contactoCelular;
+            let delEmail = contactoEmail;
+
+            if (!mismoResp) {
+                delNombre = document.getElementById("act-eq-delegado-nombre").value.trim() || contactoNombre;
+                delCedula = document.getElementById("act-eq-delegado-cedula").value.trim() || contactoCedula;
+                delTel = document.getElementById("act-eq-delegado-telefono").value.trim() || contactoCelular;
+                delEmail = (document.getElementById("act-eq-delegado-email").value.trim() || contactoEmail).toLowerCase();
+            }
+
+            const dtNombre = document.getElementById("act-eq-dt-nombre").value.trim();
+            const dtCedula = document.getElementById("act-eq-dt-cedula").value.trim();
+            const dtTelefono = document.getElementById("act-eq-dt-telefono").value.trim();
+
+            const updates = {
+                contacto_nombre: contactoNombre,
+                contacto_cedula: contactoCedula,
+                contacto_responsable: contactoCelular,
+                contacto_email: contactoEmail,
+                mismo_responsable_inscripcion: mismoResp,
+                delegado_inscripcion_nombre: delNombre,
+                delegado_inscripcion_cedula: delCedula,
+                delegado_inscripcion_telefono: delTel,
+                delegado_inscripcion_email: delEmail,
+                dt_nombre: dtNombre,
+                dt_cedula: dtCedula,
+                dt_telefono: dtTelefono
+            };
+
+            // Solo actualizar nombre y categoría si el campeonato no ha iniciado
+            if (!campIniciado) {
+                updates.nombre = document.getElementById("act-eq-nombre").value.trim();
+                updates.categoria_id = document.getElementById("act-eq-categoria-id").value;
+                updates.curso_paralelo = document.getElementById("act-eq-curso-paralelo").value.trim() || null;
+                updates.logo_url = document.getElementById("act-eq-logo").value.trim() || null;
+            }
+
+            await dbUpdateRow("equipos", eqId, updates);
+
+            // Asegurar cuenta de acceso para el delegado autorizado
+            if (delEmail) {
+                try {
+                    const perfiles = await dbGetTable("perfiles") || [];
+                    const yaExiste = perfiles.find(p => p.email && p.email.toLowerCase() === delEmail);
+                    if (!yaExiste) {
+                        await dbInsertRow("perfiles", {
+                            nombres: delNombre,
+                            apellidos: `(Delegado ${updates.nombre || eqOriginal.nombre})`,
+                            cedula: delCedula,
+                            email: delEmail,
+                            password: "qfutbol_delegado",
+                            rol: "delegado"
+                        });
+                    }
+                } catch(err){}
+            }
+
+            cerrarModalActualizarEquipo();
+            alert("¡Ficha del equipo actualizada exitosamente en la base de datos!");
+            await cargarDatos();
+            if (typeof renderizarPizarraDelegado === 'function') renderizarPizarraDelegado();
+        }
+
+        // ==========================================
+        // GESTIÓN DE JUGADORES CON CONSULTA UNIVERSAL
+        // ==========================================
+
+        let equipoGestionActivo = null;
+
+        async function abrirModalGestionJugadoresEquipo(equipoId) {
+            const eq = (cacheEquipos || []).find(e => e.id === equipoId);
+            if (!eq) {
+                alert("Equipo no encontrado.");
+                return;
+            }
+            equipoGestionActivo = eq;
+
+            const logoImg = document.getElementById("gest-jug-logo-eq");
+            if (logoImg) logoImg.src = eq.logo_url || "https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=80";
+
+            document.getElementById("gest-jug-nombre-eq").innerText = eq.nombre;
+            const cat = (cacheCategorias || []).find(c => c.id === eq.categoria_id);
+            document.getElementById("gest-jug-subtitulo").innerText = `Campeonato: ${configCampeonato?.nombre || 'Torneo Actual'} | Categoría: ${cat?.nombre || 'General'}${eq.curso_paralelo ? ' (' + eq.curso_paralelo + ')' : ''}`;
+
+            limpiarFormularioJugador();
+            await renderizarNominaEquipoModal(eq.id);
+
+            const modal = document.getElementById("modal-gestionar-jugadores-equipo");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalGestionJugadores() {
+            const modal = document.getElementById("modal-gestionar-jugadores-equipo");
+            if (modal) modal.style.display = "none";
+            equipoGestionActivo = null;
+        }
+
+        function limpiarFormularioJugador() {
+            document.getElementById("gest-buscar-cedula").value = "";
+            document.getElementById("gest-jug-id-global").value = "";
+            
+            const txtNombres = document.getElementById("gest-jug-nombres");
+            const txtApellidos = document.getElementById("gest-jug-apellidos");
+            const txtFoto = document.getElementById("gest-jug-foto");
+
+            txtNombres.value = "";
+            txtNombres.readOnly = false;
+            txtNombres.style.background = "";
+
+            txtApellidos.value = "";
+            txtApellidos.readOnly = false;
+            txtApellidos.style.background = "";
+
+            txtFoto.value = "";
+            txtFoto.readOnly = false;
+            txtFoto.style.background = "";
+
+            document.getElementById("gest-jug-dorsal").value = "10";
+            document.getElementById("gest-jug-posicion").value = "MED";
+            document.getElementById("gest-jug-rol").value = "jugador";
+
+            const banner = document.getElementById("gest-resultado-banner");
+            if (banner) banner.style.display = "none";
+        }
+
+        async function buscarJugadorUniversal() {
+            const cedula = document.getElementById("gest-buscar-cedula").value.trim();
+            if (!cedula) {
+                alert("Por favor ingresa la Cédula o DNI del jugador para buscar.");
+                return;
+            }
+
+            // Consultar tabla jugadores (mapeada a jugadores_globales en Neon DB)
+            const jugadores = await dbGetTable("jugadores") || [];
+            const j = jugadores.find(item => item.cedula && item.cedula.toLowerCase() === cedula.toLowerCase());
+
+            const banner = document.getElementById("gest-resultado-banner");
+            const txtId = document.getElementById("gest-jug-id-global");
+            const txtNombres = document.getElementById("gest-jug-nombres");
+            const txtApellidos = document.getElementById("gest-jug-apellidos");
+            const txtFoto = document.getElementById("gest-jug-foto");
+
+            if (j) {
+                // Encontrado en Base Universal
+                banner.style.display = "block";
+                banner.style.background = "rgba(0, 255, 135, 0.12)";
+                banner.style.border = "1px solid var(--color-primary)";
+                banner.style.color = "var(--color-primary)";
+                banner.innerHTML = `
+                    <div style="font-weight:750; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="check-circle" style="width:16px;height:16px;"></i> ¡Jugador encontrado en la Base Universal de QFutbol!
+                    </div>
+                    <div style="margin-top:4px; color:var(--text-main); font-size:0.83rem;">
+                        <strong>${j.nombres} ${j.apellidos}</strong> (Score histórico: ${(j.rating_general || 6.0)})
+                        <br><small style="color:var(--text-muted);">Los datos personales han sido recuperados automáticamente de la base de datos.</small>
+                    </div>
+                `;
+
+                txtId.value = j.id;
+                txtNombres.value = j.nombres || "";
+                txtNombres.readOnly = true;
+                txtNombres.style.background = "rgba(255,255,255,0.04)";
+
+                txtApellidos.value = j.apellidos || "";
+                txtApellidos.readOnly = true;
+                txtApellidos.style.background = "rgba(255,255,255,0.04)";
+
+                txtFoto.value = j.foto_url || "";
+                txtFoto.readOnly = true;
+                txtFoto.style.background = "rgba(255,255,255,0.04)";
+            } else {
+                // Nuevo jugador
+                banner.style.display = "block";
+                banner.style.background = "rgba(0, 210, 255, 0.1)";
+                banner.style.border = "1px solid var(--color-accent)";
+                banner.style.color = "var(--color-accent)";
+                banner.innerHTML = `
+                    <div style="font-weight:750; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="info" style="width:16px;height:16px;"></i> Nuevo Jugador en QFutbol
+                    </div>
+                    <div style="margin-top:4px; color:var(--text-main); font-size:0.83rem;">
+                        No se encontraron registros con esta cédula. Ingresa los nombres para guardarlo en la Base Universal para este y futuros torneos.
+                    </div>
+                `;
+
+                txtId.value = "";
+                txtNombres.value = "";
+                txtNombres.readOnly = false;
+                txtNombres.style.background = "";
+                txtNombres.focus();
+
+                txtApellidos.value = "";
+                txtApellidos.readOnly = false;
+                txtApellidos.style.background = "";
+
+                txtFoto.value = "";
+                txtFoto.readOnly = false;
+                txtFoto.style.background = "";
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function guardarInscripcionJugadorEquipo(e) {
+            e.preventDefault();
+            if (!equipoGestionActivo) return;
+
+            const cedula = document.getElementById("gest-buscar-cedula").value.trim();
+            if (!cedula) {
+                alert("Debes ingresar la Cédula o DNI del jugador.");
+                document.getElementById("gest-buscar-cedula").focus();
+                return;
+            }
+
+            const dorsal = parseInt(document.getElementById("gest-jug-dorsal").value);
+            if (isNaN(dorsal) || dorsal < 1 || dorsal > 99) {
+                alert("El número de camiseta debe estar entre 1 y 99.");
+                return;
+            }
+
+            const eqId = equipoGestionActivo.id;
+            const campId = equipoGestionActivo.campeonato_id || configCampeonato?.id;
+
+            // 1. Validar que el dorsal no esté duplicado en el mismo equipo
+            const inscripciones = await dbGetTable("inscripciones_equipo") || [];
+            const yaDorsal = inscripciones.some(ins => ins.equipo_id === eqId && parseInt(ins.dorsal) === dorsal);
+            if (yaDorsal) {
+                alert(`Error: El número de camiseta #${dorsal} ya está asignado a otro jugador en este equipo.`);
+                return;
+            }
+
+            let jugadorId = document.getElementById("gest-jug-id-global").value;
+            const nombres = document.getElementById("gest-jug-nombres").value.trim();
+            const apellidos = document.getElementById("gest-jug-apellidos").value.trim();
+            const fotoUrl = document.getElementById("gest-jug-foto").value.trim() || null;
+            const posicion = document.getElementById("gest-jug-posicion").value;
+            const rol = document.getElementById("gest-jug-rol").value;
+
+            // 2. Si es nuevo, insertarlo en jugadores globales (Base Universal)
+            if (!jugadorId) {
+                const nuevoJ = {
+                    cedula: cedula,
+                    nombres: nombres,
+                    apellidos: apellidos,
+                    foto_url: fotoUrl,
+                    aceptacion_terminos: true,
+                    rating_general: 6.00
+                };
+                const jInsertado = await dbInsertRow("jugadores", nuevoJ);
+                jugadorId = jInsertado?.id;
+            }
+
+            // 3. Validar restricción: Un jugador no puede estar en dos equipos del mismo campeonato
+            if (jugadorId) {
+                const equiposDelTorneo = (cacheEquipos || []).filter(eq => eq.campeonato_id === campId);
+                const equiposIds = new Set(equiposDelTorneo.map(e => e.id));
+                const inscripcionDuplicada = inscripciones.find(ins => ins.jugador_global_id === jugadorId && equiposIds.has(ins.equipo_id));
+                if (inscripcionDuplicada) {
+                    const eqExistente = equiposDelTorneo.find(e => e.id === inscripcionDuplicada.equipo_id);
+                    alert(`Error de Reglamento: El jugador ${nombres} ${apellidos} ya está inscrito en este campeonato en el club "${eqExistente?.nombre || 'otro equipo'}". No puede jugar en dos equipos del mismo torneo.`);
+                    return;
+                }
+            }
+
+            // 4. Inscribir en inscripciones_equipo
+            const nuevaInsc = {
+                campeonato_id: campId,
+                equipo_id: eqId,
+                jugador_global_id: jugadorId,
+                dorsal: dorsal,
+                posicion: posicion,
+                rol_en_equipo: rol,
+                es_delegado: (rol === 'delegado'),
+                rating_campeonato: 6.00
+            };
+
+            await dbInsertRow("inscripciones_equipo", nuevaInsc);
+
+            alert(`¡Jugador ${nombres} ${apellidos} (#${dorsal}) inscrito exitosamente en ${equipoGestionActivo.nombre}!`);
+            limpiarFormularioJugador();
+            await renderizarNominaEquipoModal(eqId);
+            await cargarDatos();
+        }
+
+        async function renderizarNominaEquipoModal(equipoId) {
+            const tbody = document.getElementById("gest-tbody-nomina-jugadores");
+            const badgeCount = document.getElementById("gest-total-jugadores-badge");
+            if (!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px; color:var(--text-muted);">Cargando plantilla...</td></tr>`;
+
+            const inscripciones = await dbGetTable("inscripciones_equipo") || [];
+            const jugadores = await dbGetTable("jugadores") || [];
+
+            const inscEquipo = inscripciones.filter(ins => ins.equipo_id === equipoId);
+            if (badgeCount) badgeCount.innerText = `${inscEquipo.length} Jugadores`;
+
+            if (inscEquipo.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Este equipo aún no tiene jugadores inscritos. Usa el buscador superior para agregar el primero.</td></tr>`;
+                return;
+            }
+
+            // Ordenar por dorsal numéricamente
+            inscEquipo.sort((a, b) => (parseInt(a.dorsal) || 0) - (parseInt(b.dorsal) || 0));
+
+            let html = "";
+            inscEquipo.forEach(ins => {
+                const j = jugadores.find(item => item.id === ins.jugador_global_id) || {};
+                const foto = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80";
+                const nombres = [j.nombres, j.apellidos].filter(Boolean).join(" ") || "Jugador Registrado";
+                const cedula = j.cedula || "N/D";
+                const rolLabel = ins.rol_en_equipo === 'capitan' ? '⭐ Capitán' : (ins.rol_en_equipo === 'subcapitan' ? 'Subcapitán' : 'Jugador');
+
+                html += `
+                    <tr>
+                        <td>
+                            <span style="display:inline-block; width:28px; height:28px; line-height:28px; text-align:center; font-weight:800; border-radius:50%; background:rgba(0,255,135,0.12); color:var(--color-primary); border:1px solid rgba(0,255,135,0.3);">
+                                ${ins.dorsal || '-'}
+                            </span>
+                        </td>
+                        <td><img src="${foto}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid var(--border-glass);"></td>
+                        <td style="font-weight:600;">${nombres}</td>
+                        <td style="color:var(--text-muted); font-size:0.85rem;">${cedula}</td>
+                        <td><span class="badge" style="background:rgba(0,210,255,0.1); color:var(--color-accent);">${ins.posicion || 'MED'}</span></td>
+                        <td><span style="font-size:0.8rem; color:var(--text-muted);">${rolLabel}</span></td>
+                        <td>
+                            <button type="button" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="eliminarInscripcionJugador('${ins.id}', '${nombres}', '${equipoId}')">
+                                <i data-lucide="trash-2" style="width:12px;height:12px;display:inline;"></i> Retirar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function eliminarInscripcionJugador(inscripcionId, nombreJugador, equipoId) {
+            if (!confirm(`¿Estás seguro de que deseas retirar a "${nombreJugador}" de la plantilla del equipo?`)) return;
+            await dbDeleteRow("inscripciones_equipo", inscripcionId);
+            await renderizarNominaEquipoModal(equipoId);
+            await cargarDatos();
+        }
+
+        // ==========================================
+        // PIZARRA DEL DELEGADO (CAMPEONATOS Y EQUIPOS ASIGNADOS)
+        // ==========================================
+
+        async function renderizarPizarraDelegado() {
+            const container = document.getElementById("container-pizarra-delegado");
+            const lblEmail = document.getElementById("lbl-delegado-logged-email");
+            if (!container) return;
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">Cargando campeonatos y equipos autorizados...</div>`;
+
+            const user = obtenerSesionUsuario();
+            const userEmail = (user?.email || "").toLowerCase().trim();
+            if (lblEmail) lblEmail.innerText = userEmail ? `Delegado: ${userEmail}` : "Delegado";
+
+            const campeonatos = cacheCampeonatos || await dbGetTable("campeonatos") || [];
+            const equipos = cacheEquipos || await dbGetTable("equipos") || [];
+            const inscripciones = cacheInscripciones || await dbGetTable("inscripciones_equipo") || [];
+            const partidos = cachePartidos || await dbGetTable("partidos") || [];
+
+            // Filtrar equipos donde este usuario es delegado o responsable
+            let equiposAutorizados = [];
+            if (user?.rol === 'admin' || user?.rol === 'organizador' || !userEmail) {
+                equiposAutorizados = equipos;
+            } else {
+                equiposAutorizados = equipos.filter(eq => {
+                    const delEmail = (eq.delegado_inscripcion_email || "").toLowerCase().trim();
+                    const contEmail = (eq.contacto_email || "").toLowerCase().trim();
+                    return delEmail === userEmail || contEmail === userEmail;
+                });
+            }
+
+            if (equiposAutorizados.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:45px 20px; background:rgba(0,0,0,0.2); border:1px dashed var(--border-glass); border-radius:var(--radius-md);">
+                        <i data-lucide="shield-alert" style="width:48px; height:48px; color:var(--color-warning); margin-bottom:12px; opacity:0.8;"></i>
+                        <h3 style="font-size:1.2rem; color:var(--text-main); font-weight:700;">No tienes equipos autorizados asignados</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); max-width:500px; margin:8px auto 20px;">
+                            Tu correo <strong>${userEmail || 'actual'}</strong> aún no ha sido registrado como Delegado Autorizado en ningún equipo. Solicita al organizador del campeonato o al representante de tu club que actualice la ficha del equipo ingresando tu correo electrónico.
+                        </p>
+                        <button type="button" class="btn btn-secondary" onclick="switchProfile('organizador')">
+                            Ir al Panel de Organizador
+                        </button>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            // Agrupar equipos por campeonato
+            const campMap = {};
+            equiposAutorizados.forEach(eq => {
+                const cId = eq.campeonato_id || 'general';
+                if (!campMap[cId]) campMap[cId] = [];
+                campMap[cId].push(eq);
+            });
+
+            let html = "";
+            for (const [cId, eqs] of Object.entries(campMap)) {
+                const camp = campeonatos.find(c => c.id === cId) || { nombre: 'Campeonato Activo', ciudad: 'Sede General' };
+                const campPartidos = partidos.filter(p => p.campeonato_id === camp.id);
+                const campIniciado = camp.estado === 'iniciado' || camp.estado === 'en_progreso' || campPartidos.some(p => p.estado === 'finalizado' || p.estado === 'en_juego');
+
+                const estadoTorneoBadge = campIniciado
+                    ? `<span class="status-badge" style="background:rgba(255,171,0,0.15); color:var(--color-warning); font-size:0.8rem; font-weight:700;"><i data-lucide="play-circle" style="width:13px;height:13px;display:inline;"></i> Torneo Iniciado</span>`
+                    : `<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary); font-size:0.8rem; font-weight:700;"><i data-lucide="clock" style="width:13px;height:13px;display:inline;"></i> Fase Previa / Inscripciones</span>`;
+
+                html += `
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:20px; margin-bottom:25px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border-glass); padding-bottom:12px; margin-bottom:16px;">
+                            <div>
+                                <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.5px;">Campeonato:</span>
+                                <h3 style="font-size:1.35rem; color:var(--color-primary); margin:2px 0 0;">${camp.nombre}</h3>
+                                <small style="color:var(--text-muted); font-size:0.8rem;">📍 ${[camp.ciudad, camp.pais].filter(Boolean).join(', ') || 'Sede General'}</small>
+                            </div>
+                            <div>
+                                ${estadoTorneoBadge}
+                            </div>
+                        </div>
+
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:600;">
+                            Equipos autorizados para tu usuario en este torneo (${eqs.length}):
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+                `;
+
+                eqs.forEach(eq => {
+                    const cat = (cacheCategorias || []).find(c => c.id === eq.categoria_id);
+                    const jugCount = inscripciones.filter(i => i.equipo_id === eq.id).length;
+
+                    const reglaEdicionTexto = campIniciado
+                        ? `<span style="color:var(--color-warning); font-size:0.75rem; font-weight:600;"><i data-lucide="lock" style="width:12px;height:12px;display:inline;"></i> Torneo Iniciado: Editable Jugadores, DT y Delegado</span>`
+                        : `<span style="color:var(--color-primary); font-size:0.75rem; font-weight:600;"><i data-lucide="unlock" style="width:12px;height:12px;display:inline;"></i> Fase Previa: Todos los datos editables</span>`;
+
+                    html += `
+                        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(0, 210, 255, 0.2); border-radius:var(--radius-sm); padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                    <img src="${eq.logo_url || 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=80'}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--color-accent);">
+                                    <div>
+                                        <h4 style="font-size:1.15rem; margin:0; color:var(--text-main);">${eq.nombre}</h4>
+                                        <span style="font-size:0.8rem; color:var(--color-accent); font-weight:600;">${cat?.nombre || 'Categoría General'}${eq.curso_paralelo ? ' (' + eq.curso_paralelo + ')' : ''}</span>
+                                    </div>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.8rem; background:rgba(255,255,255,0.02); padding:10px; border-radius:var(--radius-sm); margin-bottom:12px;">
+                                    <div>
+                                        <span style="color:var(--text-muted); display:block; font-size:0.72rem;">Jugadores Inscritos:</span>
+                                        <strong style="color:var(--color-primary); font-size:1.05rem;">${jugCount}</strong>
+                                    </div>
+                                    <div>
+                                        <span style="color:var(--text-muted); display:block; font-size:0.72rem;">DT Asignado:</span>
+                                        <strong style="color:var(--text-main);">${eq.dt_nombre || 'Por asignar'}</strong>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom:14px;">
+                                    ${reglaEdicionTexto}
+                                </div>
+                            </div>
+
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:12px;">
+                                <button type="button" class="btn btn-primary" style="flex:1.3; font-size:0.82rem; padding:8px 12px; font-weight:750;" onclick="abrirModalGestionJugadoresEquipo('${eq.id}')">
+                                    <i data-lucide="users"></i> Registrar Jugadores
+                                </button>
+                                <button type="button" class="btn btn-secondary" style="flex:0.9; font-size:0.82rem; padding:8px 10px;" onclick="abrirModalActualizarEquipo('${eq.id}')">
+                                    <i data-lucide="edit"></i> Ficha Club
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
 
         // ==========================================
         // AUSPICIANTES Y LICENCIA DE PLATAFORMA
@@ -3910,6 +4896,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('tab') === 'admin' || urlParams.get('profile') === 'admin') {
                 setTimeout(() => switchProfile('admin'), 200);
+            } else if (urlParams.get('modo') === 'delegado' || urlParams.get('profile') === 'delegado' || urlParams.get('tab') === 'delegado') {
+                setTimeout(() => switchProfile('delegado'), 200);
+            } else {
+                const user = obtenerSesionUsuario();
+                if (user && user.rol === 'delegado') {
+                    setTimeout(() => switchProfile('delegado'), 200);
+                }
             }
             setTimeout(cargarDatos, 1100);
         });

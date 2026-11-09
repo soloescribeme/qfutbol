@@ -815,6 +815,9 @@
                     if (user.rol === "admin" || user.rol === "organizador") {
                         btnPanel.href = "dashboard.html";
                         btnPanel.innerHTML = '<i data-lucide="layout-dashboard" style="width:15px;height:15px;"></i> Panel Organizador';
+                    } else if (user.rol === "delegado") {
+                        btnPanel.href = "dashboard.html?modo=delegado";
+                        btnPanel.innerHTML = '<i data-lucide="shield" style="width:15px;height:15px;"></i> Pizarra Delegado (Inscribir Jugadores)';
                     } else if (user.rol === "vocal") {
                         btnPanel.href = "vocal.html";
                         btnPanel.innerHTML = '<i data-lucide="clipboard-list" style="width:15px;height:15px;"></i> Panel Vocal';
@@ -1238,6 +1241,8 @@
 
                         if (userSession.rol === "admin" || userSession.rol === "organizador") {
                             window.location.href = "dashboard.html";
+                        } else if (userSession.rol === "delegado") {
+                            window.location.href = "dashboard.html?modo=delegado";
                         } else if (userSession.rol === "vocal") {
                             window.location.href = "vocal.html";
                         } else {
@@ -1276,6 +1281,8 @@
                 // Redirección por rol
                 if (userSession.rol === "admin" || userSession.rol === "organizador") {
                     window.location.href = "dashboard.html";
+                } else if (userSession.rol === "delegado") {
+                    window.location.href = "dashboard.html?modo=delegado";
                 } else if (userSession.rol === "vocal") {
                     window.location.href = "vocal.html";
                 } else {

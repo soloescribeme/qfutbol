@@ -225,18 +225,18 @@ function saveMockDB(db) {
 // CÁLCULO FINANCIERO DINÁMICO DE EQUIPOS (EN LÍNEA)
 // ==========================================================================
 async function calcularFinanzasEquipo(equipoId) {
-    const cacheEquipos = await dbGetTable("equipos");
-    const cachePartidos = await dbGetTable("partidos");
-    const cacheInscripciones = await dbGetTable("inscripciones_equipo");
-    const cacheDetallesPartidos = await dbGetTable("detalles_partido");
-    const cachePagos = await dbGetTable("pagos_abonos");
-    const cacheSanciones = await dbGetTable("sanciones_equipos");
-    const cacheCategorias = await dbGetTable("categorias");
-    const campeonatos = await dbGetTable("campeonatos");
-    const configCampeonato = (campeonatos || []).find(c => c.id === eq.campeonato_id) || (campeonatos && campeonatos.length > 0 ? campeonatos[0] : {});
-
+    const cacheEquipos = await dbGetTable("equipos") || [];
     const eq = cacheEquipos.find(e => e.id === equipoId);
     if (!eq) return null;
+
+    const cachePartidos = await dbGetTable("partidos") || [];
+    const cacheInscripciones = await dbGetTable("inscripciones_equipo") || [];
+    const cacheDetallesPartidos = await dbGetTable("detalles_partido") || [];
+    const cachePagos = await dbGetTable("pagos_abonos") || [];
+    const cacheSanciones = await dbGetTable("sanciones_equipos") || [];
+    const cacheCategorias = await dbGetTable("categorias") || [];
+    const campeonatos = await dbGetTable("campeonatos") || [];
+    const configCampeonato = campeonatos.find(c => c.id === eq.campeonato_id) || (campeonatos.length > 0 ? campeonatos[0] : {});
 
     const cat = cacheCategorias.find(c => c.id === eq.categoria_id) || {};
 

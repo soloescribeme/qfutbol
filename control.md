@@ -1,12 +1,55 @@
 # 📌 Control de Avance - QFutbol
 
-> **Última actualización:** 8 de Noviembre, 2026  
+> **Última actualización:** 8 de Noviembre, 2026 (Sesión Vespertina)  
 > **Tecnología:** HTML5 + Vanilla JS + CSS + Neon PostgreSQL / Supabase  
-> **Estado General:** 🟢 Modal de autenticación responsivo con botón de cierre fijo, recuperación de clave segura en 2 pasos vía código/enlace, motor de consultas Neon HTTP reparado, Pizarra multitorneo activa y desplegado en Vercel.
+> **Estado General:** 🟢 Pizarra del Delegado implementada, Base Universal de Jugadores con autollenado por Cédula/DNI, actualización automática de abonos en tiempo real, ficha de equipo con bloqueo pre/post inicio de torneo, formulario de campeonato oculto por defecto y sincronización en Neon PostgreSQL. Desplegado en Vercel.
 
 ---
 
-### 🚀 Resumen del Trabajo Realizado Recientemente (8 de Noviembre, 2026)
+### 🚀 Resumen del Trabajo Realizado Recientemente (8 de Noviembre, 2026 - Sesión Vespertina)
+
+#### 1. Formulario de Campeonato Oculto por Defecto (`dashboard.html`)
+- Se corrigió la inicialización del contenedor `#container-form-campeonato`: ahora permanece oculto (`display: none`) de manera predeterminada incluso cuando no hay torneos registrados.
+- Se despliega únicamente cuando el usuario hace clic expresamente en los botones **`+ Registrar Nuevo Campeonato`** o **`+ Registrar Mi Primer Campeonato`**, con desplazamiento suave y enfoque automático al campo del nombre.
+
+#### 2. Actualización Instantánea de Abonos sin Recargar la Página (`dashboard.html` y `js/app.js`)
+- **Corrección en `calcularFinanzasEquipo` (`js/app.js`):** Se resolvió un error de *Temporal Dead Zone* (TDZ) en el que `eq` se referenciaba antes de su inicialización (`const eq = ...`), lo que interrumpía el recálculo dinámico de las finanzas.
+- **Persistencia en Neon DB y Sincronización en Vivo:** Al registrar un abono (`abono-form`), el sistema inserta el registro en `pagos_abonos`, actualiza las columnas `monto_pagado_inscripcion` o `monto_garantia_pagado` en la tabla `equipos` de Neon DB y refresca instantáneamente las tablas de equipos, desglose de finanzas y métricas KPI sin necesidad de refrescar el navegador.
+
+#### 3. Ficha de Equipo, Delegado Autorizado y Pregunta de Mismo Responsable (`dashboard.html`)
+- **Pregunta Automatizada en Registro y Edición:** Se incorporó el selector:  
+  `¿El responsable del equipo es la misma persona que inscribirá a los jugadores?` (marcado por defecto).  
+  - Al estar marcado, sincroniza automáticamente el nombre, cédula, teléfono y correo del responsable de contacto para el rol de delegado.
+  - Al desmarcarlo, despliega campos independientes para registrar al **Delegado Autorizado de Inscripción**.
+- **Ficha del Equipo (`#modal-actualizar-equipo`):** Nuevo modal accesible desde el botón **`Ficha`** en la lista de equipos.
+- **Regla de Negocio Pre / Post Inicio de Campeonato:**
+  - **Antes de iniciar el campeonato:** Todos los datos del equipo (Nombre, Categoría, Curso, Logo, DT, Contacto y Delegado) son 100% editables.
+  - **Una vez iniciado el campeonato:** Se bloquean los datos estructurales del club (Nombre, Categoría, Logo) con una alerta de normativa oficial, permitiendo actualizar únicamente los datos del **Director Técnico (DT)**, el **Delegado de Inscripciones** y la nómina de **Jugadores**.
+
+#### 4. Pizarra del Delegado: Campeonatos y Equipos Autorizados (`dashboard.html` e `index.html`)
+- Se agregó el perfil **`Mis Equipos / Delegado`** en la barra superior y la pestaña `#tab-delegado`.
+- Al iniciar sesión con un correo registrado como delegado autorizado o contacto de un equipo, el sistema filtra y presenta exclusivamente los campeonatos y los equipos donde el usuario tiene potestad de inscripción.
+- Dentro de cada campeonato, el delegado visualiza el estado del torneo (fase previa o iniciado), el número de jugadores inscritos y accesos directos para:
+  - **`⚽ Registrar Jugadores`** (abre la gestión de nómina).
+  - **`✏️ Ficha Club`** (abre la ficha del equipo).
+- En la portada (`index.html`), se adaptó la barra de bienvenida y la redirección automática para usuarios con rol `delegado`.
+
+#### 5. Base de Datos Universal de Jugadores (`dashboard.html` y Neon PostgreSQL)
+- **Modal de Gestión de Jugadores (`#modal-gestionar-jugadores-equipo`):** Permite inscribir jugadores con consulta directa a la Base Universal de QFutbol (`jugadores_globales`).
+- **Autollenado y Consulta Universal:** Al ingresar la Cédula o DNI:
+  - **Si el jugador ya existe en la base universal:** Carga de inmediato sus nombres, apellidos, foto y score histórico en modo lectura, sin requerir que el delegado vuelva a subirlos o escribirlos.
+  - **Si es un jugador nuevo:** Permite registrar sus datos por primera vez y los almacena en la Base Universal para cualquier campeonato presente o futuro.
+- **Reglas de Torneo:** Valida que el dorsal no esté duplicado en el club y que el jugador no participe en dos equipos del mismo campeonato.
+
+#### 6. Esquema de Base de Datos Actualizado en Neon PostgreSQL
+- Se agregaron las columnas requeridas mediante `ALTER TABLE`:
+  - `equipos`: `contacto_cedula`, `contacto_email`, `delegado_inscripcion_nombre`, `delegado_inscripcion_cedula`, `delegado_inscripcion_telefono`, `delegado_inscripcion_email`, `mismo_responsable_inscripcion`, `dt_nombre`, `dt_cedula`, `dt_telefono`, `curso_paralelo`.
+  - `inscripciones_equipo`: `rol_en_equipo`.
+  - `pagos_abonos`: `campeonato_id`.
+
+---
+
+### 🚀 Resumen del Trabajo Realizado Anteriormente (8 de Noviembre, 2026 - Sesión Matutina)
 
 #### 1. Rediseño Responsivo del Modal de Autenticación y Registro (`index.html` y `css/styles.css`)
 - **Diagnóstico:** En pantallas medianas, portátiles o dispositivos móviles, el formulario de registro excedía la altura visible de la ventana (*viewport*), ocultando la cabecera y el botón de cerrar (`✕`), impidiendo cancelar o completar el registro fluidamente.
