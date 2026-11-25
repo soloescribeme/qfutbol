@@ -99,9 +99,26 @@
                                 <label class="form-label" for="reg-apellidos">Apellidos</label>
                                 <input type="text" id="reg-apellidos" class="form-input" placeholder="Ej. Pérez Silva" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-foto">Foto URL / Carnet (Opcional)</label>
-                                <input type="text" id="reg-foto" class="form-input" placeholder="https://images.unsplash.com/photo-...">
+                            <div class="form-group" style="margin-bottom:12px; border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:10px; background:rgba(0,0,0,0.15);">
+                                <label class="form-label" style="margin-bottom:6px;"><i data-lucide="camera"></i> Foto del Jugador / Carnet</label>
+                                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                    <div style="position:relative; width:48px; height:48px; border-radius:50%; border:2px solid var(--color-primary); overflow:hidden; background:rgba(0,0,0,0.3); flex-shrink:0;">
+                                        <img id="reg-foto-preview" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                    <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
+                                        <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('reg-foto-cam').click()">
+                                            <i data-lucide="camera"></i> Tomar con Celular
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('reg-foto-file').click()">
+                                            <i data-lucide="image"></i> Galería / Archivo
+                                        </button>
+                                        <input type="file" id="reg-foto-cam" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoJugadorPortal(this.files[0])">
+                                        <input type="file" id="reg-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoJugadorPortal(this.files[0])">
+                                    </div>
+                                </div>
+                                <div style="margin-top:6px;">
+                                    <input type="text" id="reg-foto" class="form-input" placeholder="O pega URL de foto (https://...)" style="font-size:0.82rem;" oninput="actualizarPreviewFotoPortalUrl(this.value)">
+                                </div>
                             </div>
                             
                             <!-- Datos del Torneo Actual -->
@@ -178,13 +195,21 @@
                     <h2 style="font-size: 1.35rem; margin-bottom: 15px;"><i data-lucide="contact"></i> Ficha Técnica del Jugador</h2>
                     
                     <div class="profile-header">
-                        <img id="ficha-avatar" src="" alt="Avatar" class="profile-avatar">
+                        <div style="position:relative; cursor:pointer; width:80px; height:80px; flex-shrink:0;" onclick="abrirModalActualizarFotoPortal(jugadorSeleccionadoId)" title="Clic para tomar o cambiar foto con celular">
+                            <img id="ficha-avatar" src="" alt="Avatar" class="profile-avatar" style="width:100%; height:100%;">
+                            <span style="position:absolute; bottom:0; right:0; background:var(--color-primary); color:#000; border-radius:50%; width:24px; height:24px; font-size:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.6);" title="Tomar foto con celular">📷</span>
+                        </div>
                         <div>
                             <h3 id="ficha-nombre" style="font-size: 1.4rem;">Nombres Apellidos</h3>
                             <p style="color: var(--text-muted); font-size: 0.85rem;" id="ficha-cedula">C.I. 0000000000</p>
                             <span id="ficha-score-badge" class="player-score" style="font-size:0.95rem; padding:4px 10px; margin-top:8px;">
                                 Score QFutbol: 0.00
                             </span>
+                            <div style="margin-top:8px;">
+                                <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;" onclick="abrirModalActualizarFotoPortal(jugadorSeleccionadoId)">
+                                    <i data-lucide="camera" style="width:12px;height:12px;display:inline;"></i> Cambiar / Tomar Foto
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -221,6 +246,53 @@
         </div>
     </div>
 
+    <!-- MODAL ACTUALIZAR FOTO DEL JUGADOR CON CÁMARA MÓVIL Y AUDITORÍA -->
+    <div id="modal-actualizar-foto-portal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999; align-items:center; justify-content:center;">
+        <div class="glass-panel" style="width: 95%; max-width: 440px; padding:20px; border-radius:var(--radius-md); background:rgba(15,20,35,0.95); border:1px solid var(--border-glass);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size:1.2rem; display:flex; align-items:center; gap:8px; margin:0;">
+                    <i data-lucide="camera" style="color:var(--color-primary);"></i> Foto del Jugador
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarFotoPortal()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
+            </div>
+            <div style="text-align:center; margin-bottom:15px;">
+                <div style="position:relative; width:90px; height:90px; margin:0 auto 10px; border-radius:50%; border:3px solid var(--color-primary); overflow:hidden; background:rgba(0,0,0,0.3);">
+                    <img id="portal-foto-preview" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <h4 id="portal-foto-nombre-jugador" style="margin:0; font-size:1.05rem;">Nombre Jugador</h4>
+                <div id="portal-foto-cedula-jugador" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">C.I. 1723456789</div>
+            </div>
+
+            <form onsubmit="guardarFotoJugadorPortal(event)">
+                <input type="hidden" id="portal-foto-jugador-id">
+                <input type="hidden" id="portal-foto-base64">
+
+                <div style="display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" style="font-size:0.82rem; padding:7px 12px;" onclick="document.getElementById('portal-foto-cam').click()">
+                        <i data-lucide="camera"></i> Tomar Foto con Celular
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.82rem; padding:7px 12px;" onclick="document.getElementById('portal-foto-file').click()">
+                        <i data-lucide="image"></i> Galería / Archivo
+                    </button>
+                    <input type="file" id="portal-foto-cam" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoRapidaPortal(this.files[0])">
+                    <input type="file" id="portal-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoRapidaPortal(this.files[0])">
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label" for="portal-foto-url">O pega la URL de la imagen:</label>
+                    <input type="text" id="portal-foto-url" class="form-input" placeholder="https://ejemplo.com/foto.jpg" oninput="actualizarPreviewFotoRapidaPortalUrl(this.value)">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarFotoPortal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                        <i data-lucide="check"></i> Guardar Fotografía
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
@@ -234,6 +306,108 @@
         let cacheEquipos = [];
         let cacheDetallesPartidos = [];
         let configCampeonato = null;
+        let jugadorSeleccionadoId = null;
+
+        async function procesarFotoJugadorPortal(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 500, 500, 0.78);
+                document.getElementById("reg-foto").value = compressed;
+                const prev = document.getElementById("reg-foto-preview");
+                if (prev) prev.src = compressed;
+            } catch(err) {
+                alert("Error al procesar foto: " + err.message);
+            }
+        }
+
+        function actualizarPreviewFotoPortalUrl(url) {
+            const prev = document.getElementById("reg-foto-preview");
+            if (prev) {
+                prev.src = url.trim() || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
+            }
+        }
+
+        async function abrirModalActualizarFotoPortal(jugadorId) {
+            if (!jugadorId) return;
+            const j = cacheJugadores.find(x => x.id === jugadorId);
+            if (!j) return;
+
+            document.getElementById("portal-foto-jugador-id").value = jugadorId;
+            document.getElementById("portal-foto-base64").value = "";
+            document.getElementById("portal-foto-url").value = "";
+
+            const prev = document.getElementById("portal-foto-preview");
+            if (prev) prev.src = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120";
+
+            const lblNombre = document.getElementById("portal-foto-nombre-jugador");
+            if (lblNombre) lblNombre.innerText = [j.nombres, j.apellidos].filter(Boolean).join(" ");
+
+            const lblCedula = document.getElementById("portal-foto-cedula-jugador");
+            if (lblCedula) lblCedula.innerText = `C.I. / DNI: ${j.cedula || 'N/D'}`;
+
+            const modal = document.getElementById("modal-actualizar-foto-portal");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalActualizarFotoPortal() {
+            const modal = document.getElementById("modal-actualizar-foto-portal");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function procesarFotoRapidaPortal(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 500, 500, 0.78);
+                document.getElementById("portal-foto-base64").value = compressed;
+                const prev = document.getElementById("portal-foto-preview");
+                if (prev) prev.src = compressed;
+            } catch(err) {
+                alert("Error al capturar foto: " + err.message);
+            }
+        }
+
+        function actualizarPreviewFotoRapidaPortalUrl(url) {
+            const prev = document.getElementById("portal-foto-preview");
+            if (prev) {
+                prev.src = url.trim() || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120";
+            }
+        }
+
+        async function guardarFotoJugadorPortal(e) {
+            e.preventDefault();
+            const jugadorId = document.getElementById("portal-foto-jugador-id").value;
+            const fotoBase64 = document.getElementById("portal-foto-base64").value;
+            const fotoUrl = document.getElementById("portal-foto-url").value.trim();
+            const nuevaFotoFinal = fotoBase64 || fotoUrl;
+
+            if (!nuevaFotoFinal) {
+                alert("Por favor toma una foto con el celular o sube una imagen.");
+                return;
+            }
+
+            const jActual = cacheJugadores.find(item => item.id === jugadorId) || {};
+            const fechaHoraAhora = new Date().toISOString();
+            const detalleAudit = "Actualización directa de fotografía de rostro";
+
+            const updateJugador = {
+                foto_previa_url: jActual.foto_url || null,
+                foto_url: nuevaFotoFinal,
+                actualizado_el_2: jActual.actualizado_el_1 || null,
+                detalle_actualizacion_2: jActual.detalle_actualizacion_1 || null,
+                actualizado_el_1: fechaHoraAhora,
+                detalle_actualizacion_1: detalleAudit
+            };
+
+            await dbUpdateRow("jugadores", jugadorId, updateJugador);
+
+            cerrarModalActualizarFotoPortal();
+            alert("✅ Fotografía del jugador actualizada con éxito.");
+            await cargarDatosJugadores();
+            if (jugadorSeleccionadoId === jugadorId) {
+                mostrarFichaJugador(jugadorId);
+            }
+        }
 
         async function cargarDatosJugadores() {
             cacheJugadores = await dbGetTable("jugadores");
@@ -270,11 +444,15 @@
 
             top.forEach((j, index) => {
                 const rankingBadge = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+                const tieneFoto = !!j.foto_url;
                 
                 container.innerHTML += `
                     <div class="player-card" style="cursor:pointer;" onclick="mostrarFichaJugador('${j.id}')">
                         <div style="font-weight:700;font-size:1.1rem;color:var(--text-muted);min-width:25px;">${rankingBadge}</div>
-                        <img src="${j.foto_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100'}" alt="Avatar" class="player-avatar" style="width:40px;height:40px;border-width:1px;">
+                        <div style="position:relative; width:40px; height:40px; flex-shrink:0;" onclick="event.stopPropagation(); abrirModalActualizarFotoPortal('${j.id}')" title="Clic para tomar o cambiar foto con celular">
+                            <img src="${j.foto_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100'}" alt="Avatar" class="player-avatar" style="width:40px;height:40px;border-width:1px; border:${tieneFoto ? '1px solid var(--border-glass)' : '2px dashed var(--color-warning)'};">
+                            <span style="position:absolute; bottom:-3px; right:-3px; background:${tieneFoto ? 'var(--color-primary)' : 'var(--color-warning)'}; color:#000; border-radius:50%; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.6);" title="Tomar foto">📷</span>
+                        </div>
                         <div class="player-info">
                             <div class="player-name" style="font-size:0.95rem;">${j.nombres} ${j.apellidos}</div>
                             <div style="font-size:0.75rem;color:var(--text-muted);">C.I. ${j.cedula}</div>
@@ -336,6 +514,8 @@
                 txtApellidos.readOnly = true;
                 txtFoto.value = jugador.foto_url || "";
                 txtFoto.readOnly = true;
+                const prev = document.getElementById("reg-foto-preview");
+                if (prev) prev.src = jugador.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
                 cbTerminos.checked = true;
                 cbTerminos.disabled = true;
             } else {
@@ -350,6 +530,8 @@
                 txtApellidos.readOnly = false;
                 txtFoto.value = "";
                 txtFoto.readOnly = false;
+                const prev = document.getElementById("reg-foto-preview");
+                if (prev) prev.src = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
                 cbTerminos.checked = false;
                 cbTerminos.disabled = false;
             }
@@ -405,11 +587,25 @@
                     apellidos: apellidos,
                     foto_url: fotoUrl,
                     aceptacion_terminos: true,
-                    rating_general: 6.00
+                    rating_general: 6.00,
+                    actualizado_el_1: new Date().toISOString(),
+                    detalle_actualizacion_1: "Inscripción inicial en el portal"
                 };
                 
                 const jGuardado = await dbInsertRow("jugadores", nuevoJ);
                 jugadorId = jGuardado?.id || ("j_" + Math.random().toString(36).substring(2, 9));
+            } else if (fotoUrl) {
+                const jExist = cacheJugadores.find(item => item.id === jugadorId);
+                if (jExist && (!jExist.foto_url || jExist.foto_url !== fotoUrl)) {
+                    await dbUpdateRow("jugadores", jugadorId, {
+                        foto_previa_url: jExist.foto_url || null,
+                        foto_url: fotoUrl,
+                        actualizado_el_2: jExist.actualizado_el_1 || null,
+                        detalle_actualizacion_2: jExist.detalle_actualizacion_1 || null,
+                        actualizado_el_1: new Date().toISOString(),
+                        detalle_actualizacion_1: "Foto asignada durante inscripción"
+                    });
+                }
             }
 
             // 2. Inscribir en el equipo seleccionado con rol habilitado
@@ -435,6 +631,7 @@
 
         // VER FICHA DETALLADA DEL JUGADOR
         function mostrarFichaJugador(jugadorId) {
+            jugadorSeleccionadoId = jugadorId;
             const j = cacheJugadores.find(x => x.id === jugadorId);
             if (!j) return;
 

@@ -989,6 +989,73 @@
             
             <!-- ALERTA DE FECHA LÍMITE DE ABONOS / PLAZOS (Regla de Abonos y Notificaciones) -->
             <div id="alerta-limite-pago-container" style="display:none; margin-bottom:20px;"></div>
+
+            <!-- SECCIÓN: CENTRO DE VERIFICACIÓN Y ACREDITACIÓN DE ABONOS -->
+            <div style="background:rgba(0, 210, 255, 0.04); border:1px solid rgba(0, 210, 255, 0.22); border-radius:var(--radius-md); padding:16px; margin-bottom:25px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="shield-check" style="color:var(--color-accent); width:22px; height:22px;"></i>
+                        <h3 style="margin:0; font-size:1.15rem; color:var(--text-main);">Verificación y Acreditación de Pagos</h3>
+                        <span id="badge-abonos-pendientes-count" class="status-badge" style="background:rgba(255,171,0,0.18); color:var(--color-warning); font-size:0.8rem; font-weight:700;">0 Por Acreditar</span>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="toggleHistorialAbonosAcreditados()" style="font-size:0.78rem; padding:5px 12px;">
+                        <i data-lucide="history"></i> <span id="lbl-btn-historial-abonos">Ver Acreditados</span>
+                    </button>
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-top:0; margin-bottom:14px; line-height:1.4;">
+                    Los pagos reportados (transferencias bancarias o constancias de efectivo) deben ser acreditados por el organizador tras verificar el comprobante. Una vez acreditados, se restan automáticamente de la deuda del equipo.
+                </p>
+
+                <!-- Tabla de Abonos Pendientes por Acreditar -->
+                <div id="container-abonos-pendientes" style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Equipo</th>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Modalidad & Entidad</th>
+                                <th>Nro. Comprobante</th>
+                                <th>Comprobante / Foto</th>
+                                <th>Acción Organizador</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-abonos-pendientes">
+                            <!-- Carga dinámica -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Historial de Abonos Acreditados (Oculto por defecto) -->
+                <div id="container-abonos-historial" style="display:none; margin-top:16px; overflow-x:auto; border-top:1px dashed var(--border-glass); padding-top:14px;">
+                    <h4 style="font-size:0.95rem; margin-bottom:10px; color:var(--color-primary); display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="check-circle-2"></i> Historial de Abonos Acreditados y Verificados
+                    </h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha Pago</th>
+                                <th>Equipo</th>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Entidad / Nro. Ref</th>
+                                <th>Constancia</th>
+                                <th>Acreditado Por</th>
+                                <th>Fecha Aprobación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-abonos-historial">
+                            <!-- Carga dinámica -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABLA DE ESTADOS DE CUENTA POR EQUIPO -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="font-size:1.15rem; margin:0;"><i data-lucide="bar-chart-3"></i> Saldos y Deudas Generales por Equipo</h3>
+            </div>
             
             <div style="overflow-x: auto;">
                 <table>
@@ -1198,9 +1265,9 @@
 
     <!-- MODAL AGREGAR ABONO -->
     <div id="modal-abono" class="modal">
-        <div class="modal-content glass-panel" style="width: 100%; max-width: 440px;">
+        <div class="modal-content glass-panel" style="width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
-                <h3 style="font-size: 1.3rem; margin:0;"><i data-lucide="wallet" style="color:var(--color-primary); width:20px; height:20px; display:inline-block; vertical-align:middle;"></i> Registrar Abono / Pago</h3>
+                <h3 style="font-size: 1.25rem; margin:0;"><i data-lucide="wallet" style="color:var(--color-primary); width:20px; height:20px; display:inline-block; vertical-align:middle;"></i> Reportar Pago / Abono de Equipo</h3>
                 <button type="button" class="btn btn-secondary" onclick="hideModalAbono()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
             </div>
 
@@ -1214,32 +1281,100 @@
 
             <form id="abono-form">
                 <input type="hidden" id="abono-equipo-id">
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom:10px;">
                     <label class="form-label">Equipo</label>
-                    <input type="text" id="abono-equipo-nombre" class="form-input" readonly>
+                    <input type="text" id="abono-equipo-nombre" class="form-input" readonly style="font-weight:700;">
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="abono-concepto">Concepto de Pago</label>
-                    <select id="abono-concepto" class="form-input">
-                        <option value="inscripcion">Abono Inscripción</option>
-                        <option value="garantia">Garantía de Disciplina</option>
-                        <option value="multa_tarjeta">Pago Multa de Tarjetas</option>
-                        <option value="arbitraje">Pago Arbitraje</option>
-                        <option value="vocalia">Pago Vocalía</option>
-                        <option value="multa">Pago Otras Multas</option>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="abono-metodo">Modalidad de Pago</label>
+                        <select id="abono-metodo" class="form-input" onchange="toggleAbonoMetodo(this.value)">
+                            <option value="transferencia" selected>Transferencia / Depósito</option>
+                            <option value="efectivo">Pago en Efectivo</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="abono-fecha">Fecha del Pago</label>
+                        <input type="date" id="abono-fecha" class="form-input" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="abono-concepto">Concepto de Pago</label>
+                        <select id="abono-concepto" class="form-input">
+                            <option value="inscripcion">Abono Inscripción</option>
+                            <option value="garantia">Garantía de Disciplina</option>
+                            <option value="multa_tarjeta">Pago Multa de Tarjetas</option>
+                            <option value="arbitraje">Pago Arbitraje</option>
+                            <option value="vocalia">Pago Vocalía</option>
+                            <option value="multa">Pago Otras Multas</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="abono-monto">Monto a Cancelar ($)</label>
+                        <input type="number" id="abono-monto" class="form-input" value="5.00" min="0.10" step="0.10" required style="font-weight:800; color:var(--color-primary); font-size:1.05rem;">
+                    </div>
+                </div>
+
+                <!-- Entidad bancaria o de depósito -->
+                <div class="form-group" id="box-abono-entidad" style="margin-bottom:10px;">
+                    <label class="form-label" for="abono-entidad">Entidad donde Depositó / Transfirió</label>
+                    <select id="abono-entidad" class="form-input">
+                        <option value="Banco Pichincha">Banco Pichincha</option>
+                        <option value="Banco Guayaquil">Banco Guayaquil</option>
+                        <option value="Banco del Pacífico">Banco del Pacífico</option>
+                        <option value="Produbanco">Produbanco</option>
+                        <option value="Banco Bolivariano">Banco Bolivariano</option>
+                        <option value="Cooperativa JEP">Cooperativa JEP</option>
+                        <option value="Cooperativa 29 de Octubre">Cooperativa 29 de Octubre</option>
+                        <option value="Cooperativa Alianza del Valle">Cooperativa Alianza del Valle</option>
+                        <option value="DeUna / Red Facilito">DeUna / Red Facilito / PayPhone</option>
+                        <option value="Efectivo en Mano">Efectivo en Cancha / Tesorería</option>
+                        <option value="Otra Entidad">Otra Entidad</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="abono-monto">Monto a Pagar ($)</label>
-                    <input type="number" id="abono-monto" class="form-input" value="1.00" min="0.10" step="0.10" required>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label class="form-label" id="lbl-abono-comprobante" for="abono-comprobante">Nro. de Comprobante / Transacción</label>
+                    <input type="text" id="abono-comprobante" class="form-input" placeholder="Ej. Depósito / Transf. #987654" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="abono-comprobante">Nro. Comprobante / Referencia Bancaria (Opcional)</label>
-                    <input type="text" id="abono-comprobante" class="form-input" placeholder="Ej. Depósito / Transf. #987654">
+
+                <!-- Foto del Comprobante / Foto del Efectivo Recibido -->
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" id="lbl-abono-foto"><i data-lucide="camera"></i> Foto del Comprobante o Constancia de Efectivo</label>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 8px 0;">
+                        Toma una foto clara del comprobante físico/voucher o del efectivo recibido para que el organizador pueda verificar y acreditar el pago.
+                    </p>
+                    <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="document.getElementById('abono-foto-cam').click()">
+                            <i data-lucide="camera"></i> Tomar Foto con Celular
+                        </button>
+                        <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="document.getElementById('abono-foto-file').click()">
+                            <i data-lucide="image"></i> Galería / Archivo
+                        </button>
+                        <input type="file" id="abono-foto-cam" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoComprobanteAbono(this.files[0])">
+                        <input type="file" id="abono-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoComprobanteAbono(this.files[0])">
+                    </div>
+                    <!-- Preview Foto -->
+                    <div id="abono-preview-container" style="display:none; position:relative; width:100%; max-width:200px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); overflow:hidden; background:rgba(0,0,0,0.3);">
+                        <img id="abono-preview-img" src="" style="width:100%; max-height:140px; object-fit:cover; display:block;">
+                        <button type="button" onclick="quitarFotoComprobanteAbono()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:11px; line-height:22px; text-align:center;">✕</button>
+                    </div>
+                    <input type="hidden" id="abono-foto-base64">
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+
+                <div style="background:rgba(255,171,0,0.08); border:1px dashed rgba(255,171,0,0.3); border-radius:var(--radius-sm); padding:10px; font-size:0.78rem; color:var(--text-muted); margin-bottom:15px; display:flex; align-items:flex-start; gap:8px;">
+                    <i data-lucide="info" style="color:var(--color-warning); width:16px; height:16px; flex-shrink:0; margin-top:2px;"></i>
+                    <span>Este pago se guardará en estado <strong>PENDIENTE</strong>. El organizador revisará el comprobante bancario o foto del efectivo para acreditarlo formalmente.</span>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
                     <button type="button" class="btn btn-secondary" onclick="hideModalAbono()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Aplicar Pago</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                        <i data-lucide="send"></i> Reportar Pago para Acreditación
+                    </button>
                 </div>
             </form>
         </div>
@@ -1300,8 +1435,8 @@
 
     <!-- MODAL DE GESTIÓN Y REPORTE DE PAGO DE LICENCIA QFUTBOL ($1.00 USD/EQUIPO) -->
     <div id="modal-pago-plataforma" class="modal" style="display:none;">
-        <div class="modal-content glass-panel" style="width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 600px; max-height: 92vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border-glass); padding-bottom:12px;">
                 <h3 style="font-size:1.25rem; display:flex; align-items:center; gap:8px;">
                     <i data-lucide="shield-check" style="color:var(--color-primary);"></i> Licencia QFutbol & Desbloqueo de Fixture
                 </h3>
@@ -1341,27 +1476,56 @@
 
             <!-- Formulario de Reporte de Comprobante -->
             <form id="form-reporte-pago-plataforma" onsubmit="guardarReportePagoPlataforma(event)">
-                <h4 style="font-size:0.95rem; margin-bottom:12px; color:var(--text-main);"><i data-lucide="file-check"></i> Reportar Comprobante de Depósito / Transferencia</h4>
+                <h4 style="font-size:0.95rem; margin-bottom:12px; color:var(--text-main);"><i data-lucide="file-check"></i> Reportar Comprobante de Depósito / Efectivo</h4>
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                     <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="modal-lic-banco-origen">Banco de Origen</label>
+                        <label class="form-label" for="modal-lic-metodo">Modalidad</label>
+                        <select id="modal-lic-metodo" class="form-input" onchange="toggleLicenciaMetodo(this.value)">
+                            <option value="transferencia" selected>Transferencia / Depósito</option>
+                            <option value="efectivo">Pago en Efectivo</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="modal-lic-fecha">Fecha del Pago</label>
+                        <input type="date" id="modal-lic-fecha" class="form-input" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" id="lbl-modal-lic-banco" for="modal-lic-banco-origen">Banco o Entidad de Origen</label>
                         <input type="text" id="modal-lic-banco-origen" class="form-input" placeholder="Ej. Banco Pichincha" required>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="modal-lic-comprobante">Nro. de Comprobante / Ref.</label>
+                        <label class="form-label" id="lbl-modal-lic-comprobante" for="modal-lic-comprobante">Nro. de Comprobante / Ref.</label>
                         <input type="text" id="modal-lic-comprobante" class="form-input" placeholder="Ej. 85934120" required>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label class="form-label" for="modal-lic-fecha">Fecha de la Transferencia</label>
-                    <input type="date" id="modal-lic-fecha" class="form-input" required>
+                <!-- Foto de Comprobante / Foto de Efectivo Recibido -->
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label"><i data-lucide="camera"></i> Foto del Comprobante Bancario o Constancia de Efectivo</label>
+                    <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="document.getElementById('modal-lic-foto-cam').click()">
+                            <i data-lucide="camera"></i> Tomar Foto con Celular
+                        </button>
+                        <button type="button" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;" onclick="document.getElementById('modal-lic-foto-file').click()">
+                            <i data-lucide="image"></i> Galería / Archivo
+                        </button>
+                        <input type="file" id="modal-lic-foto-cam" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoLicencia(this.files[0])">
+                        <input type="file" id="modal-lic-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoLicencia(this.files[0])">
+                    </div>
+                    <div id="modal-lic-preview-container" style="display:none; position:relative; width:100%; max-width:220px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); overflow:hidden;">
+                        <img id="modal-lic-preview-img" src="" style="width:100%; max-height:150px; object-fit:cover; display:block;">
+                        <button type="button" onclick="quitarFotoLicencia()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:11px; line-height:22px; text-align:center;">✕</button>
+                    </div>
+                    <input type="hidden" id="modal-lic-foto-base64">
                 </div>
 
                 <div class="form-group" style="margin-bottom:15px;">
                     <label class="form-label" for="modal-lic-notas">Observaciones Adicionales (Opcional)</label>
-                    <input type="text" id="modal-lic-notas" class="form-input" placeholder="Ej. Transferencia efectuada desde cuenta de la directiva">
+                    <input type="text" id="modal-lic-notas" class="form-input" placeholder="Ej. Depósito realizado por directiva central">
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -1371,6 +1535,201 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL ACTUALIZAR FOTO DEL JUGADOR RÁPIDA (DESDE CLICK EN AVATAR) -->
+    <div id="modal-actualizar-foto-jugador" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 440px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="camera" style="color:var(--color-primary);"></i> Foto del Jugador
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarFotoJugador()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
+            </div>
+            <div style="text-align:center; margin-bottom:15px;">
+                <div style="position:relative; width:90px; height:90px; margin:0 auto 10px; border-radius:50%; border:3px solid var(--color-primary); overflow:hidden; background:rgba(0,0,0,0.3);">
+                    <img id="rap-foto-preview" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <h4 id="rap-foto-nombre-jugador" style="margin:0; font-size:1.05rem;">Nombre Jugador</h4>
+                <div id="rap-foto-cedula-jugador" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">C.I. 1723456789</div>
+            </div>
+
+            <form onsubmit="guardarFotoJugadorRapida(event)">
+                <input type="hidden" id="rap-foto-jugador-id">
+                <input type="hidden" id="rap-foto-equipo-id">
+                <input type="hidden" id="rap-foto-base64">
+
+                <div style="display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary" style="font-size:0.82rem; padding:7px 12px;" onclick="document.getElementById('rap-foto-cam').click()">
+                        <i data-lucide="camera"></i> Tomar Foto Celular
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="font-size:0.82rem; padding:7px 12px;" onclick="document.getElementById('rap-foto-file').click()">
+                        <i data-lucide="image"></i> Galería / Archivo
+                    </button>
+                    <input type="file" id="rap-foto-cam" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoRapidaJugador(this.files[0])">
+                    <input type="file" id="rap-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoRapidaJugador(this.files[0])">
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label" for="rap-foto-url">O pega la URL de la imagen:</label>
+                    <input type="text" id="rap-foto-url" class="form-input" placeholder="https://ejemplo.com/foto.jpg" oninput="actualizarPreviewFotoRapidaUrl(this.value)">
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalActualizarFotoJugador()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                        <i data-lucide="check"></i> Guardar Fotografía
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR JUGADOR CON AUDITORÍA DE IDENTIDAD CONTRA USURPACIÓN (2 ÚLTIMAS ACTUALIZACIONES) -->
+    <div id="modal-editar-jugador" class="modal" style="display:none;">
+        <div class="modal-content glass-panel" style="width: 95%; max-width: 620px; max-height: 92vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
+                <h3 style="font-size:1.25rem; display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="user-pen" style="color:var(--color-primary);"></i> Editar Ficha del Jugador
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalEditarJugador()" style="padding:4px 8px; font-size:0.8rem;">✕</button>
+            </div>
+
+            <form id="form-editar-jugador-individual" onsubmit="guardarEdicionJugador(event)">
+                <input type="hidden" id="edit-jug-inscripcion-id">
+                <input type="hidden" id="edit-jug-global-id">
+                <input type="hidden" id="edit-jug-equipo-id">
+                <input type="hidden" id="edit-jug-foto-base64">
+
+                <!-- Datos de Identidad -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-nombres">Nombres</label>
+                        <input type="text" id="edit-jug-nombres" class="form-input" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-apellidos">Apellidos</label>
+                        <input type="text" id="edit-jug-apellidos" class="form-input" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-cedula">Cédula / DNI (Identidad Universal)</label>
+                        <input type="text" id="edit-jug-cedula" class="form-input" readonly style="background:rgba(255,255,255,0.04); font-weight:700;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-dorsal">Nro. Camiseta (Dorsal)</label>
+                        <input type="number" id="edit-jug-dorsal" class="form-input" min="1" max="99" required style="font-weight:800; color:var(--color-primary); font-size:1.1rem;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-posicion">Posición</label>
+                        <select id="edit-jug-posicion" class="form-input" required>
+                            <option value="DEL">Delantero (DEL)</option>
+                            <option value="MED">Mediocampo (MED)</option>
+                            <option value="DEF">Defensa (DEF)</option>
+                            <option value="ARQ">Arquero (ARQ)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="edit-jug-rol">Rol en Nómina</label>
+                        <select id="edit-jug-rol" class="form-input">
+                            <option value="jugador">Jugador</option>
+                            <option value="capitan">Capitán</option>
+                            <option value="subcapitan">Subcapitán</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Foto y Cámara Móvil -->
+                <div class="form-group" style="margin-bottom:15px; border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:12px; background:rgba(0,0,0,0.18);">
+                    <label class="form-label" style="margin-bottom:8px;"><i data-lucide="camera"></i> Fotografía del Jugador / Carnet</label>
+                    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                        <div style="position:relative; width:60px; height:60px; border-radius:50%; border:2px solid var(--color-primary); overflow:hidden; background:rgba(0,0,0,0.3); flex-shrink:0;">
+                            <img id="edit-jug-foto-preview" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
+                            <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('edit-jug-foto-cam').click()">
+                                <i data-lucide="camera"></i> Tomar con Celular
+                            </button>
+                            <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('edit-jug-foto-file').click()">
+                                <i data-lucide="image"></i> Galería / Archivo
+                            </button>
+                            <input type="file" id="edit-jug-foto-cam" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoEdicionJugador(this.files[0])">
+                            <input type="file" id="edit-jug-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoEdicionJugador(this.files[0])">
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <input type="text" id="edit-jug-foto-url" class="form-input" placeholder="O pega URL de foto (https://...)" style="font-size:0.82rem;" oninput="actualizarPreviewFotoEdicionUrl(this.value)">
+                    </div>
+                </div>
+
+                <!-- SECCIÓN AUDITORÍA CONTRA USURPACIÓN DE IDENTIDADES (ÚLTIMAS 2 ACTUALIZACIONES) -->
+                <div style="background:rgba(255, 171, 0, 0.05); border:1px solid rgba(255, 171, 0, 0.3); border-radius:var(--radius-sm); padding:14px; margin-bottom:18px;">
+                    <div style="font-weight:750; font-size:0.88rem; color:var(--color-warning); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="shield-alert" style="width:17px; height:17px;"></i> Auditoría de Identidad (Últimas 2 Actualizaciones Registradas)
+                    </div>
+                    <p style="font-size:0.77rem; color:var(--text-muted); margin:0 0 10px 0; line-height:1.4;">
+                        Para garantizar el juego limpio y evitar la usurpación de identidades o cambio no autorizado de jugadores durante el torneo, el sistema registra la fecha, hora y detalle de las dos últimas modificaciones.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.8rem;">
+                        <div style="background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:4px; border:1px solid var(--border-glass);">
+                            <div style="color:var(--color-primary); font-weight:700; font-size:0.75rem;">Última Actualización (1):</div>
+                            <div id="edit-audit-fecha-1" style="color:var(--text-main); font-weight:600; margin-top:2px;">Sin registros previos</div>
+                            <div id="edit-audit-det-1" style="color:var(--text-muted); font-size:0.73rem; margin-top:2px;">-</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:4px; border:1px solid var(--border-glass);">
+                            <div style="color:var(--color-secondary); font-weight:700; font-size:0.75rem;">Penúltima Actualización (2):</div>
+                            <div id="edit-audit-fecha-2" style="color:var(--text-main); font-weight:600; margin-top:2px;">Sin registros previos</div>
+                            <div id="edit-audit-det-2" style="color:var(--text-muted); font-size:0.73rem; margin-top:2px;">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Comparativa Visual de Fotografías -->
+                    <div id="edit-audit-comparativa-fotos" style="display:none; margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255, 171, 0, 0.2);">
+                        <div style="font-size:0.78rem; font-weight:700; color:var(--text-main); margin-bottom:8px;">Comparativa Visual de Fotografías (Cotejo Facial Anti-Suplantación):</div>
+                        <div style="display:flex; align-items:center; gap:18px;">
+                            <div style="text-align:center;">
+                                <img id="edit-audit-foto-anterior" src="" style="width:55px; height:55px; border-radius:50%; object-fit:cover; border:2px solid var(--color-warning);">
+                                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Foto Anterior</div>
+                            </div>
+                            <div style="font-size:1.1rem; color:var(--text-muted);">➔</div>
+                            <div style="text-align:center;">
+                                <img id="edit-audit-foto-actual" src="" style="width:55px; height:55px; border-radius:50%; object-fit:cover; border:2px solid var(--color-primary);">
+                                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Foto Actual</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalEditarJugador()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight:750;">
+                        <i data-lucide="save"></i> Guardar Cambios y Auditar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL LIGHTBOX / ZOOM PARA VER COMPROBANTES Y CONSTANCIAS EN ALTA DEFINICIÓN -->
+    <div id="modal-ver-comprobante-zoom" class="modal" style="display:none; z-index:99999;">
+        <div class="modal-content glass-panel" style="width:95%; max-width:680px; text-align:center; padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-glass); padding-bottom:8px;">
+                <h4 id="zoom-comprobante-titulo" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:6px;">
+                    <i data-lucide="file-check" style="color:var(--color-primary);"></i> Comprobante de Transacción
+                </h4>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalZoomComprobante()" style="padding:3px 8px; font-size:0.8rem;">✕ Cerrar</button>
+            </div>
+            <div id="zoom-comprobante-info" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px; text-align:left;"></div>
+            <div style="background:rgba(0,0,0,0.5); border-radius:var(--radius-sm); padding:10px; display:inline-block; max-width:100%;">
+                <img id="zoom-comprobante-img" src="" style="max-width:100%; max-height:68vh; object-fit:contain; border-radius:var(--radius-sm); display:block; margin:0 auto;">
+            </div>
         </div>
     </div>
 
@@ -1615,9 +1974,26 @@
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom:10px;">
-                        <label class="form-label" for="gest-jug-foto">Foto del Jugador / Carnet (URL Opcional)</label>
-                        <input type="text" id="gest-jug-foto" class="form-input" placeholder="https://ejemplo.com/foto_jugador.jpg">
+                    <div class="form-group" style="margin-bottom:12px; border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:10px; background:rgba(0,0,0,0.15);">
+                        <label class="form-label" style="margin-bottom:6px;"><i data-lucide="camera"></i> Foto del Jugador / Carnet</label>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <div style="position:relative; width:48px; height:48px; border-radius:50%; border:2px solid var(--color-primary); overflow:hidden; background:rgba(0,0,0,0.3); flex-shrink:0;">
+                                <img id="gest-jug-foto-preview" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
+                                <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('gest-jug-foto-cam').click()">
+                                    <i data-lucide="camera"></i> Tomar con Celular
+                                </button>
+                                <button type="button" class="btn btn-secondary" style="font-size:0.78rem; padding:6px 10px;" onclick="document.getElementById('gest-jug-foto-file').click()">
+                                    <i data-lucide="image"></i> Galería / Archivo
+                                </button>
+                                <input type="file" id="gest-jug-foto-cam" accept="image/*" capture="user" style="display:none;" onchange="procesarFotoJugadorInscripcion(this.files[0])">
+                                <input type="file" id="gest-jug-foto-file" accept="image/*" style="display:none;" onchange="procesarFotoJugadorInscripcion(this.files[0])">
+                            </div>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <input type="text" id="gest-jug-foto" class="form-input" placeholder="O pega URL de foto (https://...)" style="font-size:0.82rem;" oninput="actualizarPreviewFotoUrl(this.value)">
+                        </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:14px;">
@@ -1865,8 +2241,17 @@
             document.getElementById("abono-equipo-nombre").value = nombre;
             document.getElementById("abono-monto").value = "5.00";
             
+            const inputFecha = document.getElementById("abono-fecha");
+            if (inputFecha) inputFecha.value = new Date().toISOString().split('T')[0];
+
+            const selMetodo = document.getElementById("abono-metodo");
+            if (selMetodo) selMetodo.value = "transferencia";
+            toggleAbonoMetodo("transferencia");
+
             const inputComp = document.getElementById("abono-comprobante");
             if (inputComp) inputComp.value = "";
+
+            quitarFotoComprobanteAbono();
 
             const boxBanco = document.getElementById("box-datos-bancarios-organizador");
             const infoBanco = document.getElementById("abono-banco-info");
@@ -1887,6 +2272,53 @@
         }
         function hideModalAbono() {
             modalAbono.style.display = "none";
+            quitarFotoComprobanteAbono();
+        }
+
+        function toggleAbonoMetodo(metodo) {
+            const boxEntidad = document.getElementById("box-abono-entidad");
+            const lblComp = document.getElementById("lbl-abono-comprobante");
+            const inputComp = document.getElementById("abono-comprobante");
+            const lblFoto = document.getElementById("lbl-abono-foto");
+            const selectEntidad = document.getElementById("abono-entidad");
+
+            if (metodo === "efectivo") {
+                if (lblComp) lblComp.innerText = "Nro. Recibo de Caja / Constancia";
+                if (inputComp) inputComp.placeholder = "Ej. REC-001 o Efectivo Entregado en Cancha";
+                if (lblFoto) lblFoto.innerHTML = `<i data-lucide="camera"></i> Foto del Efectivo Recibido o Recibo Firmado`;
+                if (selectEntidad) selectEntidad.value = "Efectivo en Mano";
+            } else {
+                if (lblComp) lblComp.innerText = "Nro. de Comprobante / Transacción";
+                if (inputComp) inputComp.placeholder = "Ej. Depósito / Transf. #987654";
+                if (lblFoto) lblFoto.innerHTML = `<i data-lucide="camera"></i> Foto del Comprobante Bancario / Voucher`;
+                if (selectEntidad) selectEntidad.value = "Banco Pichincha";
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function procesarFotoComprobanteAbono(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 800, 800, 0.8);
+                document.getElementById("abono-foto-base64").value = compressed;
+                document.getElementById("abono-preview-img").src = compressed;
+                document.getElementById("abono-preview-container").style.display = "block";
+            } catch(err) {
+                alert("Error al procesar la imagen: " + err.message);
+            }
+        }
+
+        function quitarFotoComprobanteAbono() {
+            const b64 = document.getElementById("abono-foto-base64");
+            const img = document.getElementById("abono-preview-img");
+            const cnt = document.getElementById("abono-preview-container");
+            const fileCam = document.getElementById("abono-foto-cam");
+            const fileInp = document.getElementById("abono-foto-file");
+            if (b64) b64.value = "";
+            if (img) img.src = "";
+            if (cnt) cnt.style.display = "none";
+            if (fileCam) fileCam.value = "";
+            if (fileInp) fileInp.value = "";
         }
 
         // ==========================================
@@ -2236,7 +2668,8 @@
                                 <tr>
                                     <th>Campeonato</th>
                                     <th>Equipos Inscritos</th>
-                                    <th>Comprobante Reportado</th>
+                                    <th>Modalidad / Comprobante</th>
+                                    <th>Foto Constancia</th>
                                     <th>Monto Licencia ($1.00/Eq)</th>
                                     <th>Acción de Aprobación</th>
                                 </tr>
@@ -2250,11 +2683,16 @@
                         ? `<span class="badge badge-warning" style="background:rgba(255,171,0,0.15); color:var(--color-warning); font-size:0.8rem; padding:4px 8px;"><i data-lucide="file-text"></i> ${p.comprobante_pago_plataforma}</span>`
                         : `<span style="color:var(--text-muted); font-size:0.8rem;">Sin comprobante reportado</span>`;
 
+                    const fotoThumb = p.comprobante_foto_plataforma
+                        ? `<img src="${p.comprobante_foto_plataforma}" style="width:38px; height:38px; object-fit:cover; border-radius:4px; border:1px solid var(--color-primary); cursor:pointer;" onclick="abrirModalZoomComprobante('${p.id}')" title="Clic para ampliar comprobante">`
+                        : `<span style="color:var(--text-muted); font-size:0.75rem;">Sin imagen</span>`;
+
                     html += `
                         <tr>
-                            <td><strong>${p.nombre}</strong></td>
+                            <td><strong>${p.nombre}</strong><br><small style="color:var(--text-muted);">${p.ciudad || 'Ecuador'}</small></td>
                             <td>${eqCount} equipos</td>
                             <td>${compHtml}</td>
+                            <td style="text-align:center;">${fotoThumb}</td>
                             <td><strong style="color:var(--color-primary); font-size:1.1rem;">$${monto.toFixed(2)} USD</strong></td>
                             <td>
                                 <button onclick="aprobarPagoPlataformaAdmin('${p.id}')" class="btn btn-primary" style="font-size:0.8rem; padding:6px 12px; font-weight:700;">
@@ -3094,7 +3532,120 @@
             lucide.createIcons();
         }
 
+        async function renderizarCentroAcreditacionAbonos() {
+            const tbodyPendientes = document.getElementById("tbody-abonos-pendientes");
+            const tbodyHistorial = document.getElementById("tbody-abonos-historial");
+            const badgeCount = document.getElementById("badge-abonos-pendientes-count");
+            if (!tbodyPendientes) return;
+
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const todosPagos = await dbGetTable("pagos_abonos") || [];
+            const equiposTorneo = (cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === campId);
+            const eqMap = new Map(equiposTorneo.map(e => [e.id, e]));
+
+            // Filtrar pagos correspondientes a este campeonato
+            const pagosTorneo = todosPagos.filter(p => eqMap.has(p.equipo_id) || (campId && p.campeonato_id === campId));
+
+            const pendientes = pagosTorneo.filter(p => p.estado === 'pendiente' || !p.estado);
+            const acreditados = pagosTorneo.filter(p => p.estado === 'aprobado' || p.estado === 'rechazado');
+
+            if (badgeCount) {
+                badgeCount.innerText = `${pendientes.length} Por Acreditar`;
+                badgeCount.style.background = pendientes.length > 0 ? "rgba(255,171,0,0.2)" : "rgba(0,255,135,0.15)";
+                badgeCount.style.color = pendientes.length > 0 ? "var(--color-warning)" : "var(--color-primary)";
+            }
+
+            if (pendientes.length === 0) {
+                tbodyPendientes.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">🎉 No hay pagos pendientes por acreditar. Todos los abonos reportados están al día.</td></tr>`;
+            } else {
+                let htmlPend = "";
+                pendientes.forEach(p => {
+                    const eq = eqMap.get(p.equipo_id) || {};
+                    const fechaStr = p.fecha_pago || (p.fecha_registro ? p.fecha_registro.split('T')[0] : 'Hoy');
+                    const entidadStr = p.entidad_bancaria || (p.metodo_pago === 'efectivo' ? 'Efectivo en Mano' : 'Transferencia');
+                    const nroComp = p.comprobante_nro || p.comprobante_url || 'S/N';
+                    const fotoThumb = p.comprobante_foto 
+                        ? `<img src="${p.comprobante_foto}" style="width:38px; height:38px; object-fit:cover; border-radius:4px; border:1px solid var(--color-primary); cursor:pointer;" onclick="abrirModalZoomComprobante('${p.id}')" title="Clic para ver comprobante ampliado">`
+                        : `<span style="font-size:0.75rem; color:var(--text-muted);"><i data-lucide="file-x" style="width:14px;height:14px;display:inline;"></i> Sin foto</span>`;
+
+                    htmlPend += `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                            <td style="font-size:0.85rem; color:var(--text-muted);">${fechaStr}</td>
+                            <td style="font-weight:700;">${eq.nombre || 'Equipo'}</td>
+                            <td><span class="badge" style="background:rgba(0,210,255,0.1); color:var(--color-accent); font-size:0.75rem;">${p.concepto}</span></td>
+                            <td style="font-weight:800; font-size:1.05rem; color:var(--color-primary);">$${parseFloat(p.monto).toFixed(2)}</td>
+                            <td style="font-size:0.83rem;">${entidadStr}</td>
+                            <td style="font-size:0.83rem; font-family:monospace; color:var(--text-main);">${nroComp}</td>
+                            <td style="text-align:center;">${fotoThumb}</td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-primary" style="padding:5px 10px; font-size:0.78rem; font-weight:750;" onclick="acreditarAbono('${p.id}')">
+                                        <i data-lucide="check-circle" style="width:13px;height:13px;display:inline;"></i> Acreditar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" style="padding:5px 8px; font-size:0.78rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="rechazarAbono('${p.id}')">
+                                        ✕ Rechazar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbodyPendientes.innerHTML = htmlPend;
+            }
+
+            if (tbodyHistorial) {
+                if (acreditados.length === 0) {
+                    tbodyHistorial.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:15px; color:var(--text-muted);">Aún no hay abonos en el historial.</td></tr>`;
+                } else {
+                    let htmlHist = "";
+                    acreditados.forEach(p => {
+                        const eq = eqMap.get(p.equipo_id) || {};
+                        const fechaStr = p.fecha_pago || (p.fecha_registro ? p.fecha_registro.split('T')[0] : '-');
+                        const nroComp = p.comprobante_nro || p.comprobante_url || '-';
+                        const fotoThumb = p.comprobante_foto 
+                            ? `<img src="${p.comprobante_foto}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid var(--border-glass); cursor:pointer;" onclick="abrirModalZoomComprobante('${p.id}')" title="Ver foto">`
+                            : `-`;
+                        const badgeEstado = p.estado === 'aprobado'
+                            ? `<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary); font-size:0.75rem;">Acreditado ✓</span>`
+                            : `<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger); font-size:0.75rem;">Rechazado ✗</span>`;
+
+                        htmlHist += `
+                            <tr>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${fechaStr}</td>
+                                <td style="font-weight:600;">${eq.nombre || 'Equipo'}</td>
+                                <td style="font-size:0.8rem;">${p.concepto}</td>
+                                <td style="font-weight:700; color:var(--color-primary);">$${parseFloat(p.monto).toFixed(2)}</td>
+                                <td style="font-size:0.8rem;">${p.entidad_bancaria || 'Transf.'} (#${nroComp})</td>
+                                <td style="text-align:center;">${fotoThumb}</td>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${p.aprobado_por || 'Organizador'}</td>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${p.fecha_aprobacion ? new Date(p.fecha_aprobacion).toLocaleDateString() : '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    tbodyHistorial.innerHTML = htmlHist;
+                }
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleHistorialAbonosAcreditados() {
+            const box = document.getElementById("container-abonos-historial");
+            const lbl = document.getElementById("lbl-btn-historial-abonos");
+            if (!box) return;
+            if (box.style.display === "none") {
+                box.style.display = "block";
+                if (lbl) lbl.innerText = "Ocultar Acreditados";
+            } else {
+                box.style.display = "none";
+                if (lbl) lbl.innerText = "Ver Acreditados";
+            }
+        }
+
         async function renderizarFinanzas() {
+            // 1. Renderizar Centro de Verificación y Acreditación de Abonos
+            await renderizarCentroAcreditacionAbonos();
+
             const tbody = document.getElementById("tbody-finanzas");
             if (!tbody) return;
             tbody.innerHTML = "";
@@ -3752,45 +4303,140 @@
             if (typeof renderizarPizarraDelegado === 'function') renderizarPizarraDelegado();
         });
 
-        // Registrar Abono (Actualización automática y sincronizada)
+        // Registrar Abono (Pasa a estado PENDIENTE de verificación y acreditación)
         document.getElementById("abono-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const eqId = document.getElementById("abono-equipo-id").value;
             const concepto = document.getElementById("abono-concepto").value;
             const monto = parseFloat(document.getElementById("abono-monto").value);
+            const metodo = document.getElementById("abono-metodo").value;
+            const fechaPago = document.getElementById("abono-fecha").value;
+            const entidad = document.getElementById("abono-entidad").value;
+            const comprobante = document.getElementById("abono-comprobante") ? document.getElementById("abono-comprobante").value.trim() : "";
+            const fotoComprobante = document.getElementById("abono-foto-base64").value || null;
 
-            const comprobante = document.getElementById("abono-comprobante") ? document.getElementById("abono-comprobante").value.trim() : null;
+            if (!comprobante) {
+                alert("Debes ingresar el número de comprobante o referencia del pago.");
+                return;
+            }
+
             const nuevoPago = {
                 equipo_id: eqId,
                 campeonato_id: configCampeonato?.id || null,
                 concepto: concepto,
                 monto: monto,
-                comprobante_url: comprobante || null,
-                metodo_pago: comprobante ? 'transferencia' : 'efectivo',
-                estado: 'aprobado'
+                metodo_pago: metodo,
+                entidad_bancaria: entidad,
+                comprobante_nro: comprobante,
+                comprobante_url: comprobante,
+                comprobante_foto: fotoComprobante,
+                fecha_pago: fechaPago,
+                fecha_registro: new Date().toISOString(),
+                estado: 'pendiente' // Obligatorio: debe ser acreditado por el organizador tras verificar la transacción
             };
 
-            // 1. Insertar en pagos_abonos en Neon DB
+            // Insertar en pagos_abonos en Neon DB
             await dbInsertRow("pagos_abonos", nuevoPago);
 
+            hideModalAbono();
+            alert(`✅ ¡Abono de $${monto.toFixed(2)} registrado exitosamente!\n\nEstado: PENDIENTE DE VERIFICACIÓN\nEl organizador revisará la foto/comprobante de la transacción y lo acreditará a la cuenta del equipo.`);
+            await cargarDatos();
+        });
+
+        async function acreditarAbono(pagoId) {
+            const pagos = await dbGetTable("pagos_abonos") || [];
+            const p = pagos.find(x => x.id === pagoId);
+            if (!p) {
+                alert("Pago no encontrado.");
+                return;
+            }
+            const eq = (cacheEquipos || []).find(e => e.id === p.equipo_id);
+            const nombreEq = eq ? eq.nombre : "Equipo";
+
+            if (!confirm(`¿Confirmas la verificación y ACREDITACIÓN del pago de $${parseFloat(p.monto).toFixed(2)} (${p.concepto}) para "${nombreEq}"?`)) {
+                return;
+            }
+
+            const sesion = obtenerSesionUsuario();
+            const aprobador = sesion?.email || "organizador";
+
+            // 1. Actualizar estado en pagos_abonos
+            await dbUpdateRow("pagos_abonos", p.id, {
+                estado: 'aprobado',
+                aprobado_por: aprobador,
+                fecha_aprobacion: new Date().toISOString()
+            });
+
             // 2. Modificar en Neon DB equipos y memoria local
-            const eqObj = (cacheEquipos || []).find(e => e.id === eqId);
-            if (eqObj) {
-                if (concepto === "inscripcion") {
-                    const nuevoMonto = parseFloat(eqObj.monto_pagado_inscripcion || 0) + monto;
-                    await dbUpdateRow("equipos", eqId, { monto_pagado_inscripcion: nuevoMonto });
-                    eqObj.monto_pagado_inscripcion = nuevoMonto;
-                } else if (concepto === "garantia") {
-                    const nuevoMonto = parseFloat(eqObj.monto_garantia_pagado || 0) + monto;
-                    await dbUpdateRow("equipos", eqId, { monto_garantia_pagado: nuevoMonto });
-                    eqObj.monto_garantia_pagado = nuevoMonto;
+            if (eq) {
+                if (p.concepto === "inscripcion") {
+                    const nuevoMonto = parseFloat(eq.monto_pagado_inscripcion || 0) + parseFloat(p.monto);
+                    await dbUpdateRow("equipos", eq.id, { monto_pagado_inscripcion: nuevoMonto });
+                    eq.monto_pagado_inscripcion = nuevoMonto;
+                } else if (p.concepto === "garantia") {
+                    const nuevoMonto = parseFloat(eq.monto_garantia_pagado || 0) + parseFloat(p.monto);
+                    await dbUpdateRow("equipos", eq.id, { monto_garantia_pagado: nuevoMonto });
+                    eq.monto_garantia_pagado = nuevoMonto;
                 }
             }
 
-            hideModalAbono();
-            alert(`¡Abono de $${monto.toFixed(2)} registrado con éxito!`);
+            alert(`✅ ¡Pago de $${parseFloat(p.monto).toFixed(2)} ACREDITADO exitosamente a "${nombreEq}"!`);
             await cargarDatos();
-        });
+        }
+
+        async function rechazarAbono(pagoId) {
+            const motivo = prompt("Ingresa el motivo del rechazo del comprobante de pago (Ej. Comprobante no coincide, depósito incompleto, etc.):");
+            if (motivo === null) return;
+
+            await dbUpdateRow("pagos_abonos", pagoId, {
+                estado: 'rechazado',
+                notas_rechazo: motivo || 'Comprobante no válido'
+            });
+
+            alert("El pago ha sido marcado como RECHAZADO.");
+            await cargarDatos();
+        }
+
+        async function abrirModalZoomComprobante(pagoId) {
+            let fotoUrl = null;
+            let titulo = "Comprobante de Pago";
+            let info = "";
+
+            const pagos = await dbGetTable("pagos_abonos") || [];
+            const p = pagos.find(x => x.id === pagoId);
+            if (p) {
+                fotoUrl = p.comprobante_foto;
+                const eq = (cacheEquipos || []).find(e => e.id === p.equipo_id);
+                titulo = `Comprobante de Pago - ${eq ? eq.nombre : 'Equipo'}`;
+                info = `<strong>Monto:</strong> $${parseFloat(p.monto).toFixed(2)} USD • <strong>Concepto:</strong> ${p.concepto.toUpperCase()} • <strong>Fecha:</strong> ${p.fecha_pago || 'N/D'} • <strong>Entidad:</strong> ${p.entidad_bancaria || 'N/D'} • <strong>Comprobante:</strong> #${p.comprobante_nro || p.comprobante_url || 'N/D'}`;
+            } else {
+                const campeonatos = await dbGetTable("campeonatos") || [];
+                const c = campeonatos.find(x => x.id === pagoId);
+                if (c) {
+                    fotoUrl = c.comprobante_foto_plataforma;
+                    titulo = `Licencia QFutbol - ${c.nombre}`;
+                    info = `<strong>Torneo:</strong> ${c.nombre} • <strong>Monto Licencia:</strong> $${parseFloat(c.monto_pago_plataforma || 0).toFixed(2)} USD • <strong>Referencia:</strong> ${c.comprobante_pago_plataforma || 'N/D'}`;
+                }
+            }
+
+            if (!fotoUrl) {
+                alert("Este registro no contiene imagen adjunta.");
+                return;
+            }
+
+            document.getElementById("zoom-comprobante-titulo").innerHTML = `<i data-lucide="file-check" style="color:var(--color-primary);"></i> ${titulo}`;
+            document.getElementById("zoom-comprobante-info").innerHTML = info;
+            document.getElementById("zoom-comprobante-img").src = fotoUrl;
+
+            const modal = document.getElementById("modal-ver-comprobante-zoom");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalZoomComprobante() {
+            const modal = document.getElementById("modal-ver-comprobante-zoom");
+            if (modal) modal.style.display = "none";
+        }
 
         // ==========================================
         // GESTIÓN DE EQUIPOS, DELEGADOS Y NÓMINA UNIVERSAL
@@ -4017,6 +4663,13 @@
             txtFoto.readOnly = false;
             txtFoto.style.background = "";
 
+            const prev = document.getElementById("gest-jug-foto-preview");
+            if (prev) prev.src = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
+            const camInput = document.getElementById("gest-jug-foto-cam");
+            if (camInput) camInput.value = "";
+            const fileInput = document.getElementById("gest-jug-foto-file");
+            if (fileInput) fileInput.value = "";
+
             document.getElementById("gest-jug-dorsal").value = "10";
             document.getElementById("gest-jug-posicion").value = "MED";
             document.getElementById("gest-jug-rol").value = "jugador";
@@ -4041,6 +4694,7 @@
             const txtNombres = document.getElementById("gest-jug-nombres");
             const txtApellidos = document.getElementById("gest-jug-apellidos");
             const txtFoto = document.getElementById("gest-jug-foto");
+            const prev = document.getElementById("gest-jug-foto-preview");
 
             if (j) {
                 // Encontrado en Base Universal
@@ -4070,6 +4724,8 @@
                 txtFoto.value = j.foto_url || "";
                 txtFoto.readOnly = true;
                 txtFoto.style.background = "rgba(255,255,255,0.04)";
+
+                if (prev) prev.src = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
             } else {
                 // Nuevo jugador
                 banner.style.display = "block";
@@ -4098,6 +4754,8 @@
                 txtFoto.value = "";
                 txtFoto.readOnly = false;
                 txtFoto.style.background = "";
+
+                if (prev) prev.src = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
             }
             if (window.lucide) lucide.createIcons();
         }
@@ -4145,10 +4803,26 @@
                     apellidos: apellidos,
                     foto_url: fotoUrl,
                     aceptacion_terminos: true,
-                    rating_general: 6.00
+                    rating_general: 6.00,
+                    actualizado_el_1: new Date().toISOString(),
+                    detalle_actualizacion_1: "Inscripción inicial en el sistema"
                 };
                 const jInsertado = await dbInsertRow("jugadores", nuevoJ);
                 jugadorId = jInsertado?.id;
+            } else if (fotoUrl) {
+                // Si ya existía y se proporcionó/cambió foto
+                const jugadores = await dbGetTable("jugadores") || [];
+                const jExist = jugadores.find(item => item.id === jugadorId);
+                if (jExist && (!jExist.foto_url || jExist.foto_url !== fotoUrl)) {
+                    await dbUpdateRow("jugadores", jugadorId, {
+                        foto_previa_url: jExist.foto_url || null,
+                        foto_url: fotoUrl,
+                        actualizado_el_2: jExist.actualizado_el_1 || null,
+                        detalle_actualizacion_2: jExist.detalle_actualizacion_1 || null,
+                        actualizado_el_1: new Date().toISOString(),
+                        detalle_actualizacion_1: "Foto asignada durante inscripción"
+                    });
+                }
             }
 
             // 3. Validar restricción: Un jugador no puede estar en dos equipos del mismo campeonato
@@ -4206,6 +4880,7 @@
             let html = "";
             inscEquipo.forEach(ins => {
                 const j = jugadores.find(item => item.id === ins.jugador_global_id) || {};
+                const tieneFoto = !!j.foto_url;
                 const foto = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80";
                 const nombres = [j.nombres, j.apellidos].filter(Boolean).join(" ") || "Jugador Registrado";
                 const cedula = j.cedula || "N/D";
@@ -4218,15 +4893,25 @@
                                 ${ins.dorsal || '-'}
                             </span>
                         </td>
-                        <td><img src="${foto}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid var(--border-glass);"></td>
+                        <td>
+                            <div style="position:relative; width:38px; height:38px; cursor:pointer; display:inline-block;" onclick="abrirModalActualizarFotoJugador('${j.id}', '${equipoId}')" title="${tieneFoto ? 'Clic para cambiar o tomar nueva foto' : '⚠️ Sin foto: Clic aquí para tomar o registrar foto'}">
+                                <img src="${foto}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:${tieneFoto ? '1px solid var(--border-glass)' : '2px dashed var(--color-warning)'};">
+                                <span style="position:absolute; bottom:-3px; right:-3px; background:${tieneFoto ? 'var(--color-primary)' : 'var(--color-warning)'}; color:#000; border-radius:50%; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.6);" title="Tomar foto con cámara móvil">📷</span>
+                            </div>
+                        </td>
                         <td style="font-weight:600;">${nombres}</td>
                         <td style="color:var(--text-muted); font-size:0.85rem;">${cedula}</td>
                         <td><span class="badge" style="background:rgba(0,210,255,0.1); color:var(--color-accent);">${ins.posicion || 'MED'}</span></td>
                         <td><span style="font-size:0.8rem; color:var(--text-muted);">${rolLabel}</span></td>
                         <td>
-                            <button type="button" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="eliminarInscripcionJugador('${ins.id}', '${nombres}', '${equipoId}')">
-                                <i data-lucide="trash-2" style="width:12px;height:12px;display:inline;"></i> Retirar
-                            </button>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--color-accent); border-color:rgba(0,210,255,0.3);" onclick="abrirModalEditarJugador('${ins.id}', '${j.id}', '${equipoId}')" title="Editar datos, dorsal y auditar cambios de identidad">
+                                    <i data-lucide="edit-3" style="width:12px;height:12px;display:inline;"></i> Editar
+                                </button>
+                                <button type="button" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="eliminarInscripcionJugador('${ins.id}', '${nombres}', '${equipoId}')" title="Retirar de nómina">
+                                    <i data-lucide="trash-2" style="width:12px;height:12px;display:inline;"></i> Retirar
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -4239,6 +4924,292 @@
         async function eliminarInscripcionJugador(inscripcionId, nombreJugador, equipoId) {
             if (!confirm(`¿Estás seguro de que deseas retirar a "${nombreJugador}" de la plantilla del equipo?`)) return;
             await dbDeleteRow("inscripciones_equipo", inscripcionId);
+            await renderizarNominaEquipoModal(equipoId);
+            await cargarDatos();
+        }
+
+        // ==========================================
+        // GESTIÓN FOTOS Y EDICIÓN DE JUGADORES CON AUDITORÍA (ANTI-USURPACIÓN)
+        // ==========================================
+
+        async function procesarFotoJugadorInscripcion(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 500, 500, 0.78);
+                document.getElementById("gest-jug-foto").value = compressed;
+                const prev = document.getElementById("gest-jug-foto-preview");
+                if (prev) prev.src = compressed;
+            } catch(err) {
+                alert("Error al procesar foto del jugador: " + err.message);
+            }
+        }
+
+        function actualizarPreviewFotoUrl(url) {
+            const prev = document.getElementById("gest-jug-foto-preview");
+            if (prev) {
+                prev.src = url.trim() || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
+            }
+        }
+
+        async function abrirModalActualizarFotoJugador(jugadorId, equipoId) {
+            const jugadores = await dbGetTable("jugadores") || [];
+            const j = jugadores.find(x => x.id === jugadorId);
+            if (!j) {
+                alert("Jugador no encontrado.");
+                return;
+            }
+
+            document.getElementById("rap-foto-jugador-id").value = jugadorId;
+            document.getElementById("rap-foto-equipo-id").value = equipoId;
+            document.getElementById("rap-foto-base64").value = "";
+            document.getElementById("rap-foto-url").value = "";
+
+            const prev = document.getElementById("rap-foto-preview");
+            if (prev) prev.src = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120";
+
+            const lblNombre = document.getElementById("rap-foto-nombre-jugador");
+            if (lblNombre) lblNombre.innerText = [j.nombres, j.apellidos].filter(Boolean).join(" ");
+
+            const lblCedula = document.getElementById("rap-foto-cedula-jugador");
+            if (lblCedula) lblCedula.innerText = `Cédula / DNI: ${j.cedula || 'N/D'}`;
+
+            const modal = document.getElementById("modal-actualizar-foto-jugador");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalActualizarFotoJugador() {
+            const modal = document.getElementById("modal-actualizar-foto-jugador");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function procesarFotoRapidaJugador(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 500, 500, 0.78);
+                document.getElementById("rap-foto-base64").value = compressed;
+                const prev = document.getElementById("rap-foto-preview");
+                if (prev) prev.src = compressed;
+            } catch(err) {
+                alert("Error al capturar foto: " + err.message);
+            }
+        }
+
+        function actualizarPreviewFotoRapidaUrl(url) {
+            const prev = document.getElementById("rap-foto-preview");
+            if (prev) {
+                prev.src = url.trim() || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120";
+            }
+        }
+
+        async function guardarFotoJugadorRapida(e) {
+            e.preventDefault();
+            const jugadorId = document.getElementById("rap-foto-jugador-id").value;
+            const equipoId = document.getElementById("rap-foto-equipo-id").value;
+            const fotoBase64 = document.getElementById("rap-foto-base64").value;
+            const fotoUrl = document.getElementById("rap-foto-url").value.trim();
+            const nuevaFotoFinal = fotoBase64 || fotoUrl;
+
+            if (!nuevaFotoFinal) {
+                alert("Por favor toma una foto con el celular o sube una imagen.");
+                return;
+            }
+
+            const jugadores = await dbGetTable("jugadores") || [];
+            const jActual = jugadores.find(item => item.id === jugadorId) || {};
+
+            const fechaHoraAhora = new Date().toISOString();
+            const detalleAudit = "Actualización directa de fotografía de carnet";
+
+            const updateJugador = {
+                foto_previa_url: jActual.foto_url || null,
+                foto_url: nuevaFotoFinal,
+                actualizado_el_2: jActual.actualizado_el_1 || null,
+                detalle_actualizacion_2: jActual.detalle_actualizacion_1 || null,
+                actualizado_el_1: fechaHoraAhora,
+                detalle_actualizacion_1: detalleAudit
+            };
+
+            await dbUpdateRow("jugadores", jugadorId, updateJugador);
+
+            cerrarModalActualizarFotoJugador();
+            alert("✅ Fotografía del jugador actualizada con éxito en la Base Universal de QFutbol.");
+            await renderizarNominaEquipoModal(equipoId);
+            await cargarDatos();
+        }
+
+        async function abrirModalEditarJugador(inscripcionId, jugadorId, equipoId) {
+            const jugadores = await dbGetTable("jugadores") || [];
+            const inscripciones = await dbGetTable("inscripciones_equipo") || [];
+
+            const j = jugadores.find(x => x.id === jugadorId);
+            const ins = inscripciones.find(x => x.id === inscripcionId);
+
+            if (!j || !ins) {
+                alert("Registro del jugador no encontrado.");
+                return;
+            }
+
+            document.getElementById("edit-jug-inscripcion-id").value = inscripcionId;
+            document.getElementById("edit-jug-global-id").value = jugadorId;
+            document.getElementById("edit-jug-equipo-id").value = equipoId;
+
+            document.getElementById("edit-jug-nombres").value = j.nombres || "";
+            document.getElementById("edit-jug-apellidos").value = j.apellidos || "";
+            document.getElementById("edit-jug-cedula").value = j.cedula || "";
+            document.getElementById("edit-jug-dorsal").value = ins.dorsal || "10";
+            document.getElementById("edit-jug-posicion").value = ins.posicion || "MED";
+            document.getElementById("edit-jug-rol").value = ins.rol_en_equipo || "jugador";
+
+            document.getElementById("edit-jug-foto-base64").value = "";
+            document.getElementById("edit-jug-foto-url").value = "";
+            const prev = document.getElementById("edit-jug-foto-preview");
+            if (prev) prev.src = j.foto_url || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
+
+            // Cargar Auditoría de Seguridad de las 2 Últimas Actualizaciones
+            const elFecha1 = document.getElementById("edit-audit-fecha-1");
+            const elDet1 = document.getElementById("edit-audit-det-1");
+            const elFecha2 = document.getElementById("edit-audit-fecha-2");
+            const elDet2 = document.getElementById("edit-audit-det-2");
+            const boxComparativa = document.getElementById("edit-audit-comparativa-fotos");
+
+            if (j.actualizado_el_1) {
+                const d1 = new Date(j.actualizado_el_1);
+                elFecha1.innerText = d1.toLocaleString();
+                elDet1.innerText = j.detalle_actualizacion_1 || "Actualización general";
+            } else {
+                elFecha1.innerText = "Sin registros previos";
+                elDet1.innerText = "Inscripción inicial en el torneo";
+            }
+
+            if (j.actualizado_el_2) {
+                const d2 = new Date(j.actualizado_el_2);
+                elFecha2.innerText = d2.toLocaleString();
+                elDet2.innerText = j.detalle_actualizacion_2 || "Modificación previa";
+            } else {
+                elFecha2.innerText = "Sin registros previos";
+                elDet2.innerText = "-";
+            }
+
+            // Comparativa visual de fotos si hubo cambio anterior
+            if (j.foto_previa_url && boxComparativa) {
+                boxComparativa.style.display = "block";
+                document.getElementById("edit-audit-foto-anterior").src = j.foto_previa_url;
+                document.getElementById("edit-audit-foto-actual").src = j.foto_url || prev.src;
+            } else if (boxComparativa) {
+                boxComparativa.style.display = "none";
+            }
+
+            const modal = document.getElementById("modal-editar-jugador");
+            if (modal) modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalEditarJugador() {
+            const modal = document.getElementById("modal-editar-jugador");
+            if (modal) modal.style.display = "none";
+        }
+
+        async function procesarFotoEdicionJugador(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 500, 500, 0.78);
+                document.getElementById("edit-jug-foto-base64").value = compressed;
+                const prev = document.getElementById("edit-jug-foto-preview");
+                if (prev) prev.src = compressed;
+            } catch(err) {
+                alert("Error al procesar la foto: " + err.message);
+            }
+        }
+
+        function actualizarPreviewFotoEdicionUrl(url) {
+            const prev = document.getElementById("edit-jug-foto-preview");
+            if (prev) {
+                prev.src = url.trim() || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100";
+            }
+        }
+
+        async function guardarEdicionJugador(e) {
+            e.preventDefault();
+            const inscripcionId = document.getElementById("edit-jug-inscripcion-id").value;
+            const jugadorId = document.getElementById("edit-jug-global-id").value;
+            const equipoId = document.getElementById("edit-jug-equipo-id").value;
+
+            const nombres = document.getElementById("edit-jug-nombres").value.trim();
+            const apellidos = document.getElementById("edit-jug-apellidos").value.trim();
+            const dorsal = parseInt(document.getElementById("edit-jug-dorsal").value);
+            const posicion = document.getElementById("edit-jug-posicion").value;
+            const rol = document.getElementById("edit-jug-rol").value;
+            const fotoBase64 = document.getElementById("edit-jug-foto-base64").value;
+            const fotoUrl = document.getElementById("edit-jug-foto-url").value.trim();
+            const nuevaFotoFinal = fotoBase64 || fotoUrl;
+
+            if (isNaN(dorsal) || dorsal < 1 || dorsal > 99) {
+                alert("El dorsal debe ser un número entre 1 y 99.");
+                return;
+            }
+
+            // 1. Validar que el dorsal no esté duplicado con otro jugador en el mismo equipo
+            const inscripciones = await dbGetTable("inscripciones_equipo") || [];
+            const duplicado = inscripciones.find(ins => ins.equipo_id === equipoId && ins.id !== inscripcionId && parseInt(ins.dorsal) === dorsal);
+            if (duplicado) {
+                alert(`Error: El dorsal #${dorsal} ya está asignado a otro jugador de este equipo.`);
+                return;
+            }
+
+            const jugadores = await dbGetTable("jugadores") || [];
+            const jActual = jugadores.find(item => item.id === jugadorId) || {};
+            const insActual = inscripciones.find(item => item.id === inscripcionId) || {};
+
+            // 2. Detectar cambios y construir detalle de auditoría
+            const cambios = [];
+            if (nombres !== jActual.nombres || apellidos !== jActual.apellidos) {
+                cambios.push(`Nombre modificado de "${jActual.nombres} ${jActual.apellidos}" a "${nombres} ${apellidos}"`);
+            }
+            const fotoCambio = nuevaFotoFinal && nuevaFotoFinal !== jActual.foto_url;
+            if (fotoCambio) {
+                cambios.push("Actualización/Sustitución de Fotografía de Identidad");
+            }
+            if (dorsal !== parseInt(insActual.dorsal)) {
+                cambios.push(`Dorsal cambiado de #${insActual.dorsal} a #${dorsal}`);
+            }
+            if (posicion !== insActual.posicion) {
+                cambios.push(`Posición cambiada a ${posicion}`);
+            }
+            if (rol !== insActual.rol_en_equipo) {
+                cambios.push(`Rol cambiado a ${rol}`);
+            }
+
+            const detalleAudit = cambios.length > 0 ? cambios.join(" | ") : "Actualización de ficha de jugador";
+            const fechaHoraAhora = new Date().toISOString();
+
+            // 3. Desplazar historial de auditoría de las 2 últimas actualizaciones
+            const updateJugador = {
+                nombres: nombres,
+                apellidos: apellidos,
+                actualizado_el_2: jActual.actualizado_el_1 || null,
+                detalle_actualizacion_2: jActual.detalle_actualizacion_1 || null,
+                actualizado_el_1: fechaHoraAhora,
+                detalle_actualizacion_1: detalleAudit
+            };
+
+            if (fotoCambio) {
+                updateJugador.foto_previa_url = jActual.foto_url || null;
+                updateJugador.foto_url = nuevaFotoFinal;
+            }
+
+            await dbUpdateRow("jugadores", jugadorId, updateJugador);
+
+            // 4. Actualizar inscripciones_equipo
+            await dbUpdateRow("inscripciones_equipo", inscripcionId, {
+                dorsal: dorsal,
+                posicion: posicion,
+                rol_en_equipo: rol,
+                es_delegado: (rol === 'capitan' || rol === 'delegado')
+            });
+
+            cerrarModalEditarJugador();
+            alert(`✅ Ficha de ${nombres} ${apellidos} (#${dorsal}) actualizada exitosamente.\n\n🛡️ Registro de Auditoría guardado para control anti-usurpación.`);
             await renderizarNominaEquipoModal(equipoId);
             await cargarDatos();
         }
@@ -4550,14 +5521,60 @@
         function cerrarModalPagoPlataforma() {
             const modal = document.getElementById("modal-pago-plataforma");
             if (modal) modal.style.display = "none";
+            quitarFotoLicencia();
+        }
+
+        function toggleLicenciaMetodo(metodo) {
+            const lblBanco = document.getElementById("lbl-modal-lic-banco");
+            const inputBanco = document.getElementById("modal-lic-banco-origen");
+            const lblComp = document.getElementById("lbl-modal-lic-comprobante");
+            const inputComp = document.getElementById("modal-lic-comprobante");
+            if (metodo === "efectivo") {
+                if (lblBanco) lblBanco.innerText = "Receptor / Lugar de Entrega";
+                if (inputBanco) inputBanco.value = "Efectivo Recibido en Administración QFutbol";
+                if (lblComp) lblComp.innerText = "Nro. Recibo de Efectivo";
+                if (inputComp) inputComp.placeholder = "Ej. REC-EFECTIVO-001";
+            } else {
+                if (lblBanco) lblBanco.innerText = "Banco o Entidad de Origen";
+                if (inputBanco) inputBanco.value = "";
+                if (lblComp) lblComp.innerText = "Nro. de Comprobante / Ref.";
+                if (inputComp) inputComp.placeholder = "Ej. 85934120";
+            }
+        }
+
+        async function procesarFotoLicencia(file) {
+            if (!file) return;
+            try {
+                const compressed = await comprimirImagen(file, 800, 800, 0.8);
+                document.getElementById("modal-lic-foto-base64").value = compressed;
+                document.getElementById("modal-lic-preview-img").src = compressed;
+                document.getElementById("modal-lic-preview-container").style.display = "block";
+            } catch(err) {
+                alert("Error al procesar la foto de constancia: " + err.message);
+            }
+        }
+
+        function quitarFotoLicencia() {
+            const b64 = document.getElementById("modal-lic-foto-base64");
+            const img = document.getElementById("modal-lic-preview-img");
+            const cnt = document.getElementById("modal-lic-preview-container");
+            const fileCam = document.getElementById("modal-lic-foto-cam");
+            const fileInp = document.getElementById("modal-lic-foto-file");
+            if (b64) b64.value = "";
+            if (img) img.src = "";
+            if (cnt) cnt.style.display = "none";
+            if (fileCam) fileCam.value = "";
+            if (fileInp) fileInp.value = "";
         }
 
         async function guardarReportePagoPlataforma(event) {
             event.preventDefault();
+            const metodo = document.getElementById("modal-lic-metodo").value;
             const bancoOrigen = document.getElementById("modal-lic-banco-origen").value;
             const comprobante = document.getElementById("modal-lic-comprobante").value;
             const fecha = document.getElementById("modal-lic-fecha").value;
             const notas = document.getElementById("modal-lic-notas").value;
+            const fotoBase64 = document.getElementById("modal-lic-foto-base64").value || null;
 
             const count = cacheEquipos ? cacheEquipos.length : 0;
             const monto = count * 1.00;
@@ -4567,15 +5584,20 @@
                 return;
             }
 
-            const refCompleta = `${comprobante} (${bancoOrigen || 'Transferencia'})`;
+            const refCompleta = `${comprobante} (${bancoOrigen || (metodo === 'efectivo' ? 'Efectivo' : 'Transferencia')})`;
 
             await dbUpdateRow("campeonatos", configCampeonato.id, {
                 comprobante_pago_plataforma: refCompleta,
+                comprobante_foto_plataforma: fotoBase64,
+                entidad_banco_plataforma: bancoOrigen,
+                metodo_pago_plataforma: metodo,
+                fecha_pago_plataforma: fecha,
                 fecha_reporte_pago: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
-                monto_pago_plataforma: monto
+                monto_pago_plataforma: monto,
+                pago_plataforma_realizado: false // Pendiente de verificación por admin global
             });
 
-            alert(`✅ ¡Comprobante de pago reportado exitosamente a QFutbol!\n\nReferencia: #${refCompleta}\nMonto: $${monto.toFixed(2)} USD\n\nEl administrador de QFutbol verificará la transacción y habilitará la generación de fixture en breve.`);
+            alert(`✅ ¡Comprobante de licencia reportado exitosamente a QFutbol!\n\nReferencia: #${refCompleta}\nMonto: $${monto.toFixed(2)} USD\n\nEl Administrador Global (soloescribeme@gmail.com) verificará la constancia y habilitará el Fixture en breve.`);
             cerrarModalPagoPlataforma();
             await cargarDatos();
             await cargarAdminMetrics();
@@ -4657,6 +5679,116 @@
                 `;
             });
             lucide.createIcons();
+        }
+
+        async function renderizarCentroAcreditacionAbonos() {
+            const tbodyPendientes = document.getElementById("tbody-abonos-pendientes");
+            const tbodyHistorial = document.getElementById("tbody-abonos-historial");
+            const badgeCount = document.getElementById("badge-abonos-pendientes-count");
+            if (!tbodyPendientes) return;
+
+            const campId = configCampeonato ? configCampeonato.id : null;
+            const todosPagos = await dbGetTable("pagos_abonos") || [];
+            const equiposTorneo = (cacheEquipos || []).filter(e => !e.campeonato_id || e.campeonato_id === campId);
+            const eqMap = new Map(equiposTorneo.map(e => [e.id, e]));
+
+            // Filtrar pagos correspondientes a este campeonato
+            const pagosTorneo = todosPagos.filter(p => eqMap.has(p.equipo_id) || (campId && p.campeonato_id === campId));
+
+            const pendientes = pagosTorneo.filter(p => p.estado === 'pendiente' || !p.estado);
+            const acreditados = pagosTorneo.filter(p => p.estado === 'aprobado' || p.estado === 'rechazado');
+
+            if (badgeCount) {
+                badgeCount.innerText = `${pendientes.length} Por Acreditar`;
+                badgeCount.style.background = pendientes.length > 0 ? "rgba(255,171,0,0.2)" : "rgba(0,255,135,0.15)";
+                badgeCount.style.color = pendientes.length > 0 ? "var(--color-warning)" : "var(--color-primary)";
+            }
+
+            if (pendientes.length === 0) {
+                tbodyPendientes.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">🎉 No hay pagos pendientes por acreditar. Todos los abonos reportados están al día.</td></tr>`;
+            } else {
+                let htmlPend = "";
+                pendientes.forEach(p => {
+                    const eq = eqMap.get(p.equipo_id) || {};
+                    const fechaStr = p.fecha_pago || (p.fecha_registro ? p.fecha_registro.split('T')[0] : 'Hoy');
+                    const entidadStr = p.entidad_bancaria || (p.metodo_pago === 'efectivo' ? 'Efectivo en Mano' : 'Transferencia');
+                    const nroComp = p.comprobante_nro || p.comprobante_url || 'S/N';
+                    const fotoThumb = p.comprobante_foto 
+                        ? `<img src="${p.comprobante_foto}" style="width:38px; height:38px; object-fit:cover; border-radius:4px; border:1px solid var(--color-primary); cursor:pointer;" onclick="abrirModalZoomComprobante('${p.id}')" title="Clic para ver comprobante ampliado">`
+                        : `<span style="font-size:0.75rem; color:var(--text-muted);"><i data-lucide="file-x" style="width:14px;height:14px;display:inline;"></i> Sin foto</span>`;
+
+                    htmlPend += `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                            <td style="font-size:0.85rem; color:var(--text-muted);">${fechaStr}</td>
+                            <td style="font-weight:700;">${eq.nombre || 'Equipo'}</td>
+                            <td><span class="badge" style="background:rgba(0,210,255,0.1); color:var(--color-accent); font-size:0.75rem;">${p.concepto}</span></td>
+                            <td style="font-weight:800; font-size:1.05rem; color:var(--color-primary);">$${parseFloat(p.monto).toFixed(2)}</td>
+                            <td style="font-size:0.83rem;">${entidadStr}</td>
+                            <td style="font-size:0.83rem; font-family:monospace; color:var(--text-main);">${nroComp}</td>
+                            <td style="text-align:center;">${fotoThumb}</td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-primary" style="padding:5px 10px; font-size:0.78rem; font-weight:750;" onclick="acreditarAbono('${p.id}')">
+                                        <i data-lucide="check-circle" style="width:13px;height:13px;display:inline;"></i> Acreditar
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" style="padding:5px 8px; font-size:0.78rem; color:var(--color-danger); border-color:rgba(255,77,77,0.3);" onclick="rechazarAbono('${p.id}')">
+                                        ✕ Rechazar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbodyPendientes.innerHTML = htmlPend;
+            }
+
+            if (tbodyHistorial) {
+                if (acreditados.length === 0) {
+                    tbodyHistorial.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:15px; color:var(--text-muted);">Aún no hay abonos en el historial.</td></tr>`;
+                } else {
+                    let htmlHist = "";
+                    acreditados.forEach(p => {
+                        const eq = eqMap.get(p.equipo_id) || {};
+                        const fechaStr = p.fecha_pago || (p.fecha_registro ? p.fecha_registro.split('T')[0] : '-');
+                        const nroComp = p.comprobante_nro || p.comprobante_url || '-';
+                        const fotoThumb = p.comprobante_foto 
+                            ? `<img src="${p.comprobante_foto}" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid var(--border-glass); cursor:pointer;" onclick="abrirModalZoomComprobante('${p.id}')" title="Ver foto">`
+                            : `-`;
+                        const badgeEstado = p.estado === 'aprobado'
+                            ? `<span class="status-badge" style="background:rgba(0,255,135,0.15); color:var(--color-primary); font-size:0.75rem;">Acreditado ✓</span>`
+                            : `<span class="status-badge" style="background:rgba(255,77,77,0.15); color:var(--color-danger); font-size:0.75rem;">Rechazado ✗</span>`;
+
+                        htmlHist += `
+                            <tr>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${fechaStr}</td>
+                                <td style="font-weight:600;">${eq.nombre || 'Equipo'}</td>
+                                <td style="font-size:0.8rem;">${p.concepto}</td>
+                                <td style="font-weight:700; color:var(--color-primary);">$${parseFloat(p.monto).toFixed(2)}</td>
+                                <td style="font-size:0.8rem;">${p.entidad_bancaria || 'Transf.'} (#${nroComp})</td>
+                                <td style="text-align:center;">${fotoThumb}</td>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${p.aprobado_por || 'Organizador'}</td>
+                                <td style="font-size:0.8rem; color:var(--text-muted);">${p.fecha_aprobacion ? new Date(p.fecha_aprobacion).toLocaleDateString() : '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    tbodyHistorial.innerHTML = htmlHist;
+                }
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleHistorialAbonosAcreditados() {
+            const box = document.getElementById("container-abonos-historial");
+            const lbl = document.getElementById("lbl-btn-historial-abonos");
+            if (!box) return;
+            if (box.style.display === "none") {
+                box.style.display = "block";
+                if (lbl) lbl.innerText = "Ocultar Acreditados";
+            } else {
+                box.style.display = "none";
+                if (lbl) lbl.innerText = "Ver Acreditados";
+            }
         }
 
         function editarCategoria(id) {

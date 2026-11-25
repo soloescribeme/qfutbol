@@ -195,7 +195,8 @@ const MOCK_DB = {
     partidos: [],
     sanciones_equipos: [],
     detalles_penales: [],
-    detalles_partido: []
+    detalles_partido: [],
+    pagos_abonos: []
 };
 
 if (!window.qfutbol_mem_db) {
@@ -242,7 +243,7 @@ async function calcularFinanzasEquipo(equipoId) {
 
     // 1. Inscripción
     const costoInscripcion = parseFloat(cat.costo_inscripcion || configCampeonato.costo_inscripcion || 3.00);
-    const pagosInscripcion = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "inscripcion" && p.estado !== "rechazado")
+    const pagosInscripcion = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "inscripcion" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
     const pagadoInscripcionLegacy = parseFloat(eq.monto_pagado_inscripcion || 0);
     const pagadoInscripcion = Math.max(pagosInscripcion, pagadoInscripcionLegacy);
@@ -250,7 +251,7 @@ async function calcularFinanzasEquipo(equipoId) {
 
     // 2. Garantía
     const costoGarantia = parseFloat(configCampeonato.garantia_disciplina || 0.00);
-    const pagosGarantia = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "garantia" && p.estado !== "rechazado")
+    const pagosGarantia = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "garantia" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
     const pagadoGarantiaLegacy = parseFloat(eq.monto_garantia_pagado || 0);
     const pagadoGarantia = Math.max(pagosGarantia, pagadoGarantiaLegacy);
@@ -261,9 +262,9 @@ async function calcularFinanzasEquipo(equipoId) {
     const costoArbitrajeTotal = partidosJugados * parseFloat(configCampeonato.costo_arbitraje || 0.00);
     const costoVocaliaTotal = partidosJugados * parseFloat(configCampeonato.costo_vocalia || 0.00);
 
-    const pagadoArbitraje = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "arbitraje" && p.estado !== "rechazado")
+    const pagadoArbitraje = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "arbitraje" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
-    const pagadoVocalia = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "vocalia" && p.estado !== "rechazado")
+    const pagadoVocalia = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "vocalia" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
 
     const saldoArbitraje = Math.max(0, costoArbitrajeTotal - pagadoArbitraje);
@@ -284,13 +285,13 @@ async function calcularFinanzasEquipo(equipoId) {
         }
     });
 
-    const pagadoTarjetas = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "multa_tarjeta" && p.estado !== "rechazado")
+    const pagadoTarjetas = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "multa_tarjeta" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
     const saldoTarjetas = Math.max(0, costoTarjetasTotal - pagadoTarjetas);
 
     // 5. Otras Multas (Administrativas)
     const costoSancionesTotal = cacheSanciones.filter(s => s.equipo_id === equipoId).reduce((sum, s) => sum + parseFloat(s.monto_multa), 0);
-    const pagadoOtrasMultas = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "multa" && p.estado !== "rechazado")
+    const pagadoOtrasMultas = cachePagos.filter(p => p.equipo_id === equipoId && p.concepto === "multa" && p.estado === "aprobado")
         .reduce((sum, p) => sum + parseFloat(p.monto), 0);
     const saldoOtrasMultas = Math.max(0, costoSancionesTotal - pagadoOtrasMultas);
 
@@ -309,4 +310,49 @@ async function calcularFinanzasEquipo(equipoId) {
         totalCargo, totalPagado, totalDeuda,
         partidosJugados
     };
+}
+
+// ==========================================================================
+// UTILIDAD UNIVERSAL DE COMPRESIÓN DE IMÁGENES (HTML5 CANVAS)
+// Ideal para cámaras de celulares móviles, comprobantes de pago y fotos de carnet
+// ==========================================================================
+function comprimirImagen(file, maxWidth = 600, maxHeight = 600, quality = 0.75) {
+    return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        if (!file.type || !file.type.startsWith("image/")) {
+            return reject(new Error("El archivo seleccionado no es una imagen válida."));
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
+                resolve(compressedBase64);
+            };
+            img.onerror = () => reject(new Error("No se pudo cargar la imagen para compresión."));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error("Error al leer el archivo de imagen."));
+        reader.readAsDataURL(file);
+    });
 }

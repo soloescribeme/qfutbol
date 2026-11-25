@@ -1,12 +1,73 @@
 # 📌 Control de Avance - QFutbol
 
-> **Última actualización:** 8 de Noviembre, 2026 (Sesión Vespertina)  
+> **Última actualización:** 24 de Noviembre, 2026 (Sesión Nocturna)  
 > **Tecnología:** HTML5 + Vanilla JS + CSS + Neon PostgreSQL / Supabase  
-> **Estado General:** 🟢 Pizarra del Delegado implementada, Base Universal de Jugadores con autollenado por Cédula/DNI, actualización automática de abonos en tiempo real, ficha de equipo con bloqueo pre/post inicio de torneo, formulario de campeonato oculto por defecto y sincronización en Neon PostgreSQL. Desplegado en Vercel.
+> **Estado General:** 🟢 Captura fotográfica con cámara móvil y compresión Canvas integrada, acreditación y verificación de abonos por el organizador con soporte de comprobante/efectivo, aprobación de licencia de app por el Administrador Global, edición de jugadores desde nómina con auditoría anti-usurpación de identidades (registro de 2 últimas actualizaciones y comparativa visual facial), y persistencia completa en Neon PostgreSQL.
 
 ---
 
-### 🚀 Resumen del Trabajo Realizado Recientemente (8 de Noviembre, 2026 - Sesión Vespertina)
+### 🚀 Resumen del Trabajo Realizado Recientemente (24 de Noviembre, 2026 - Sesión Nocturna)
+
+#### 1. Captura de Foto con Cámara Móvil y Compresión de Imagen (`dashboard.html`, `jugadores.html` y `js/app.js`)
+- **Utilidad Universal `comprimirImagen` en Canvas:** Función cliente que escala y comprime automáticamente las imágenes capturadas (cámara móvil de 5-12 MB) a formato JPEG optimizado (~40-80 KB en Base64), apto para almacenamiento inmediato y sin límites en Neon PostgreSQL.
+- **Botón "📸 Tomar Foto con Celular" (`capture="user"`):** Integrado en el formulario de inscripción del jugador tanto en el panel de organizador (`dashboard.html`) como en el portal general (`jugadores.html`).
+- **Previsualización Instantánea:** Recuadro circular en vivo con botón para cambiar o limpiar la fotografía antes de guardar.
+
+#### 2. Registro / Actualización Rápida de Foto al Clic en Imagen Genérica o Avatar
+- **Interacción Directa en Nómina de Equipo (`renderizarNominaEquipoModal`):** Al hacer clic sobre la foto del jugador o sobre la imagen genérica (silueta), se abre inmediatamente el modal rápido `#modal-actualizar-foto-jugador`.
+- Si el jugador no tenía foto registrada, se destaca con borde punteado de advertencia y distintivo de cámara para facilitar la toma de la fotografía en cancha.
+- **Actualización con Auditoría:** Permite tomar foto con la cámara del teléfono o subir un archivo, actualizando la Base Universal de Jugadores y registrando la fecha/hora en el historial.
+- Comportamiento idéntico implementado en `jugadores.html` en la ficha técnica y en el listado de clasificación de jugadores.
+
+#### 3. Centro de Verificación y Acreditación de Abonos por el Organizador (`dashboard.html` y `js/app.js`)
+- **Flujo de Pagos en Estado Pendiente:** Cuando un equipo o delegado registra un abono (inscripción, garantía, multas, arbitrajes, vocalías), el pago se almacena con `estado: 'pendiente'`.
+- **Regla Contable Estricta:** En `calcularFinanzasEquipo`, los abonos pendientes **NO** reducen la deuda ni aumentan el total pagado hasta que el organizador los verifique.
+- **Centro de Verificación en Pestaña Finanzas (`#tab-finanzas`):**
+  - Panel dedicado con badge en tiempo real de abonos pendientes por acreditar.
+  - Tabla con Fecha, Equipo, Concepto, Monto, Modalidad & Entidad Bancaria, Nro. de Comprobante, y miniatura de la foto del comprobante o constancia de efectivo.
+  - Botón **`✓ Acreditar`**: Cambia el estado a `aprobado`, registra el usuario aprobador y la fecha/hora, e incrementa formalmente `monto_pagado_inscripcion` o `monto_garantia_pagado` en el club, recalculando los saldos y KPIs al instante.
+  - Botón **`✕ Rechazar`**: Solicita motivo del rechazo y marca el abono como `rechazado`.
+  - Pestaña desplegable de **Historial de Abonos Acreditados** para auditoría contable.
+
+#### 4. Formulario Completo de Reporte de Pagos con Comprobante / Efectivo (`#modal-abono`)
+- **Campos Obligatorios:**
+  - Fecha del pago (selector de fecha).
+  - Modalidad de Pago: *Transferencia / Depósito* vs *Pago en Efectivo*.
+  - Entidad de depósito: Selección entre entidades bancarias ecuatorianas (Banco Pichincha, Guayaquil, Pacífico, Produbanco, Bolivariano, Cooperativa JEP, etc.) o Efectivo en Mano / Tesorería.
+  - Nro. de Comprobante / Recibo de caja.
+  - Monto a cancelar.
+  - **Foto del Comprobante o Constancia de Efectivo:** Botones para cámara móvil (`capture="environment"`) o galería, con previsualización y compresión automática.
+
+#### 5. Aprobación del Pago de Uso de la App ($1.00/Equipo) por el Admin Máster
+- **Modal de Licencia (`#modal-pago-plataforma`):** Permite al organizador reportar la transferencia o entrega de efectivo de la tarifa de plataforma ($1.00 USD por equipo inscrito), adjuntando la foto del comprobante físico o recibo de efectivo.
+- Queda guardado con `pago_plataforma_realizado: false`.
+- **Panel Exclusivo del Administrador Global (`soloescribeme@gmail.com`):**
+  - En la sección "Cobros por Confirmar", visualiza la miniatura de la foto del comprobante en alta definición.
+  - Modal Lightbox (`#modal-ver-comprobante-zoom`) para ampliar el comprobante a pantalla completa.
+  - Botón **`✓ Aprobar Licencia y Habilitar Fixture`**: Activa `pago_plataforma_realizado = true` en Neon DB y desbloquea el generador de fixture para el organizador.
+
+#### 6. Edición Individual de Jugadores en Nómina del Equipo (`#modal-editar-jugador`)
+- En la tabla de jugadores de cada equipo (`#modal-gestionar-jugadores-equipo`), cada fila incluye el botón **`✏️ Editar`** junto al botón de **`🗑️ Retirar`**.
+- Permite modificar: Nombres, Apellidos, Nro. de Camiseta (Dorsal), Posición (DEL, MED, DEF, ARQ), Rol en Nómina (Jugador, Capitán, Subcapitán) y Foto de Carnet.
+- Valida que el dorsal no entre en conflicto con otro jugador del club.
+
+#### 7. Auditoría de Identidad Anti-Usurpación (Últimas 2 Actualizaciones y Comparativa Facial)
+- **Prevención de Suplantación de Jugadores:** Para evitar que se cambie la fotografía o los datos de un jugador por otro durante el torneo, el sistema audita de forma obligatoria las modificaciones.
+- **Historial en Neon PostgreSQL (`jugadores_globales`):**
+  - `actualizado_el_1` y `detalle_actualizacion_1`: Fecha, hora y resumen de los campos cambiados en la última actualización.
+  - `actualizado_el_2` y `detalle_actualizacion_2`: Registro previo desplazado cronológicamente.
+  - `foto_previa_url`: Respaldo automático de la fotografía anterior cuando se sustituye la imagen de identidad.
+- **Comparativa Visual de Rostros:** En el modal de edición (`#modal-editar-jugador`), si la foto fue cambiada previamente, el sistema muestra lado a lado **[Foto Anterior] ➔ [Foto Actual]** con una alerta de seguridad para que el organizador y los vocales puedan cotejar físicamente que se trate de la misma persona.
+
+#### 8. Actualización del Esquema en Neon PostgreSQL
+- Columnas agregadas y verificadas:
+  - `pagos_abonos`: `comprobante_nro`, `entidad_bancaria`, `comprobante_foto`, `fecha_registro`, `aprobado_por`, `fecha_aprobacion`, `notas_rechazo`.
+  - `campeonatos`: `comprobante_foto_plataforma`, `entidad_banco_plataforma`, `metodo_pago_plataforma`, `fecha_pago_plataforma`.
+  - `jugadores_globales`: `actualizado_el_1`, `actualizado_el_2`, `detalle_actualizacion_1`, `detalle_actualizacion_2`, `foto_previa_url`.
+
+---
+
+### 🚀 Resumen del Trabajo Realizado Previamente (8 de Noviembre, 2026 - Sesión Vespertina)
 
 #### 1. Formulario de Campeonato Oculto por Defecto (`dashboard.html`)
 - Se corrigió la inicialización del contenedor `#container-form-campeonato`: ahora permanece oculto (`display: none`) de manera predeterminada incluso cuando no hay torneos registrados.
